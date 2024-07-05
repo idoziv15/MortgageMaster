@@ -16,7 +16,6 @@ export default function ReportsDashboard(props) {
     const {...rest} = props;
     const [fixed] = useState(false);
     const [toggleSidebar, setToggleSidebar] = useState(false);
-    // const assetsData = [];
     const reportsData = [
         {
             id: "1",
@@ -115,7 +114,6 @@ export default function ReportsDashboard(props) {
             rating: 4,
         }
     ]
-
     const reports = [
         {
             id: 1,
@@ -458,12 +456,7 @@ export default function ReportsDashboard(props) {
                     </Portal>
                     <Flex direction="column" flex="1">
                         {reportsData && reportsData.length > 0 ? (
-                            <>
-                                <ReportsList reports={reports} />
-                                {/*<PropertyList properties={assetsData}/>*/}
-                                {/*<AddAssetModal/>*/}
-                                {/* TODO: add edit button*/}
-                            </>
+                            <ReportsList reports={reports} />
                         ) : (
                             <Center flex="1">
                                 <Image src={noDataPic} boxSize="250px"/>

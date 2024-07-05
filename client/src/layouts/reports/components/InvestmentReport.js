@@ -30,7 +30,6 @@ import {Link} from "react-router-dom";
 import axios from "axios";
 
 export default function InvestmentReport({report}) {
-    const textColor = useColorModeValue("secondaryGray.900", "white");
     const badgeColor = useColorModeValue("red.500", "red.300");
     const [lastUpdatedDate, setLastUpdatedDate] = useState(moment(report.lastUpdated));
     const isNew = moment().diff(lastUpdatedDate, 'hours') < 24;

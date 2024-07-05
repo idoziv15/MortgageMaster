@@ -89,6 +89,7 @@ def update_investment():
 def get_report(id):
     for report in reports:
         if report['id'] == id:
+            print(report)
             return jsonify({'report': report}), 200
 
     return jsonify({'error': 'Report not found'}), 404

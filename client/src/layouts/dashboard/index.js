@@ -6,11 +6,11 @@ import {SidebarContext} from '../../contexts/SidebarContext';
 import React, {useState, useEffect} from 'react';
 import {Route, useParams} from 'react-router-dom';
 import routes from '../../routes.js';
-import CostTable from "../../views/dashboard/components/CostTable";
-import InsightsGrid from "../../views/properties/components/InsightsGrid";
 import InvestmentSummary from "../../views/dashboard/components/InvestmentSummary";
 import axios from 'axios';
 import DetailsTable from "../../views/dashboard/components/DetailsTable";
+import CostTable from "../../views/dashboard/components/CostTable";
+import InsightsGrid from "../../views/properties/components/InsightsGrid";
 import InsightsReports from "../../views/dashboard/InsightsReports";
 
 export default function Dashboard(props) {
@@ -185,7 +185,7 @@ export default function Dashboard(props) {
     const fetchReportData = async (reportId) => {
         try {
             const response = await axios.get(`http://localhost:5000/report/${reportId}`);
-            const reportData = response.data.report;
+            const reportData = response.data.report.data;
             setInsightsData(reportData.insightsData);
             setInvestmentData(reportData.investmentData);
             setInvestorData(reportData.investorData);
@@ -420,7 +420,6 @@ export default function Dashboard(props) {
                             </Button>
                         </Flex>
                         <InvestmentSummary insights={insightsData}/>
-                        {/*<InsightsGrid insights={insightsData}/>*/}
                         <Box mt="auto">
                             <Footer/>
                         </Box>
