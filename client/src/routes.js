@@ -15,7 +15,7 @@ const routes = [
   },
   {
     name: "My reports",
-    layout: "/reports",
+    layout: "/admin",
     icon: <Icon as={MdBarChart} width='20px' height='20px' color='inherit' />,
     path: "/reports",
     // component: DataTables,

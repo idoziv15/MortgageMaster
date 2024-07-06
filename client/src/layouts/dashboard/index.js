@@ -1,4 +1,4 @@
-import {Portal, Box, useDisclosure, useToast, Spinner, Button, Flex, useColorModeValue} from '@chakra-ui/react';
+import {Portal, Box, useDisclosure, useToast, Spinner, Button, Flex, useColorModeValue, Modal} from '@chakra-ui/react';
 import Footer from '../../components/footer/Footer.js';
 import Navbar from '../../components/navbar/NavbarAdmin.js';
 import Sidebar from '../../components/sidebar/Sidebar.js';
@@ -9,9 +9,7 @@ import routes from '../../routes.js';
 import InvestmentSummary from "../../views/dashboard/components/InvestmentSummary";
 import axios from 'axios';
 import DetailsTable from "../../views/dashboard/components/DetailsTable";
-import CostTable from "../../views/dashboard/components/CostTable";
-import InsightsGrid from "../../views/properties/components/InsightsGrid";
-import InsightsReports from "../../views/dashboard/InsightsReports";
+import SaveReportModal from "../../views/dashboard/components/SaveReportModal";
 
 export default function Dashboard(props) {
     const {...rest} = props;
@@ -20,52 +18,55 @@ export default function Dashboard(props) {
     const {onOpen} = useDisclosure();
     const toast = useToast();
     const {reportId} = useParams();
+    const [showModal, setShowModal] = useState(false);
+    const [reportName, setReportName] = useState('');
+    const [reportDescription, setReportDescription] = useState('');
 
     const [insightsData, setInsightsData] = useState({
-        "Price per meter": 8584,
-        "Loan to cost": 9637,
-        "Loan to value": 4417,
-        "Renovation expenses": 6055,
-        "Purchase additional transactions cost": 4929,
-        "Purchase tax": 8437,
-        "Closing costs": 5350,
-        "Broker purchase cost": 5572,
-        "Monthly operating expenses": 8959,
-        "Cash on cash": 2084,
-        "Net Yearly Cash Flow": 8503,
-        "Net Monthly Cash Flow": 4195,
-        "Yearly IRR": 8714,
-        "Annual rent income": 7911,
-        "ROI": 977,
-        "Monthly NOI": 9853,
-        "Annual NOI": 7348,
-        "Monthly rental property taxes": 6706,
-        "Annual rental property taxes": 7061,
-        "Cap rate": 6056,
-        "Gross yield": 9545,
-        "Monthly insurances expenses": 4656,
-        "Annual insurances expenses": 1682,
-        "Monthly maintenance and repairs": 9658,
-        "Annual maintenance and repairs": 4657,
-        "Monthly vacancy cost": 6515,
-        "Annual vacancy cost": 5830,
-        "Estimated sale price": 4799,
-        "Selling expenses": 8609,
-        "Sale proceeds": 2429,
-        "Total revenue": 2109,
-        "Annual revenue distribution": 4367,
-        "Annual operating expenses": 4183,
-        "Annual cash flow": 2111,
-        "Mortgage remain balance in exit": 2830,
-        "Constructor index linked compensation": 7011,
-        "Total expenses": 3090,
-        "Equity needed for purchase": 2789,
-        "Contractor payments": 3483,
-        "Annual expenses distribution": 2966,
-        "Monthly property management fees": 8243,
-        "Annual property management fees": 8937,
-        "Net profit": 1848,
-        "Capital gain tax": 9829
+        "Price per meter": 0,
+        "Loan to cost": 0,
+        "Loan to value": 0,
+        "Renovation expenses": 0,
+        "Purchase additional transactions cost": 0,
+        "Purchase tax": 0,
+        "Closing costs": 0,
+        "Broker purchase cost": 0,
+        "Monthly operating expenses": 0,
+        "Cash on cash": 0,
+        "Net Yearly Cash Flow": 0,
+        "Net Monthly Cash Flow": 0,
+        "Yearly IRR": 0,
+        "Annual rent income": 0,
+        "ROI": 0,
+        "Monthly NOI": 0,
+        "Annual NOI": 0,
+        "Monthly rental property taxes": 0,
+        "Annual rental property taxes": 0,
+        "Cap rate": 0,
+        "Gross yield": 0,
+        "Monthly insurances expenses": 0,
+        "Annual insurances expenses": 0,
+        "Monthly maintenance and repairs": 0,
+        "Annual maintenance and repairs": 0,
+        "Monthly vacancy cost": 0,
+        "Annual vacancy cost": 0,
+        "Estimated sale price": 0,
+        "Selling expenses": 0,
+        "Sale proceeds": 0,
+        "Total revenue": 0,
+        "Annual revenue distribution": 0,
+        "Annual operating expenses": 0,
+        "Annual cash flow": 0,
+        "Mortgage remain balance in exit": 0,
+        "Constructor index linked compensation": 0,
+        "Total expenses": 0,
+        "Equity needed for purchase": 0,
+        "Contractor payments": 0,
+        "Annual expenses distribution": 0,
+        "Monthly property management fees": 0,
+        "Annual property management fees": 0,
+        "Net profit": 0,
+        "Capital gain tax": 0
     });
     const [investmentData, setInvestmentData] = useState({
         'appraiser_cost': 0,
@@ -186,12 +187,31 @@ export default function Dashboard(props) {
         try {
             const response = await axios.get(`http://localhost:5000/report/${reportId}`);
             const reportData = response.data.report.data;
-            setInsightsData(reportData.insightsData);
-            setInvestmentData(reportData.investmentData);
-            setInvestorData(reportData.investorData);
-            setPropertyData(reportData.propertyData);
-            setMortgageData(reportData.mortgageData);
-            setOtherData(reportData.otherData);
+            const insights = reportData.insightsData;
+            const investment = reportData.investment_data;
+            const investor = reportData.investor_data;
+            const property = reportData.property_data;
+            const mortgage = reportData.mortgage_data;
+            const other = reportData.other_data;
+            console.log('Full report data:', reportData);
+            console.log('Insights Data:', insights);
+            console.log('Investment Data:', investment);
+            console.log('Investor Data:', investor);
+            console.log('Property Data:', property);
+            console.log('Mortgage Data:', mortgage);
+            console.log('Other Data:', other);
+            setInsightsData(insights);
+            setInvestmentData(investment);
+            setInvestorData(investor);
+            setPropertyData(property);
+            setMortgageData(mortgage);
+            setOtherData(other);
+            console.log('Insights:', insightsData);
+            console.log('Investment:', investmentData);
+            console.log('Investor:', investorData);
+            console.log('Property:', propertyData);
+            console.log('Mortgage:', mortgageData);
+            console.log('Other:', otherData);
         } catch (error) {
             console.error('Error fetching report data', error);
             toast({
@@ -214,62 +234,162 @@ export default function Dashboard(props) {
 
     const handleReset = () => {
         // Reset all data logic
+        setInsightsData({
+            "Price per meter": 0,
+            "Loan to cost": 0,
+            "Loan to value": 0,
+            "Renovation expenses": 0,
+            "Purchase additional transactions cost": 0,
+            "Purchase tax": 0,
+            "Closing costs": 0,
+            "Broker purchase cost": 0,
+            "Monthly operating expenses": 0,
+            "Cash on cash": 0,
+            "Net Yearly Cash Flow": 0,
+            "Net Monthly Cash Flow": 0,
+            "Yearly IRR": 0,
+            "Annual rent income": 0,
+            "ROI": 0,
+            "Monthly NOI": 0,
+            "Annual NOI": 0,
+            "Monthly rental property taxes": 0,
+            "Annual rental property taxes": 0,
+            "Cap rate": 0,
+            "Gross yield": 0,
+            "Monthly insurances expenses": 0,
+            "Annual insurances expenses": 0,
+            "Monthly maintenance and repairs": 0,
+            "Annual maintenance and repairs": 0,
+            "Monthly vacancy cost": 0,
+            "Annual vacancy cost": 0,
+            "Estimated sale price": 0,
+            "Selling expenses": 0,
+            "Sale proceeds": 0,
+            "Total revenue": 0,
+            "Annual revenue distribution": 0,
+            "Annual operating expenses": 0,
+            "Annual cash flow": 0,
+            "Mortgage remain balance in exit": 0,
+            "Constructor index linked compensation": 0,
+            "Total expenses": 0,
+            "Equity needed for purchase": 0,
+            "Contractor payments": 0,
+            "Annual expenses distribution": 0,
+            "Monthly property management fees": 0,
+            "Annual property management fees": 0,
+            "Net profit": 0,
+            "Capital gain tax": 0
+        });
+
         setInvestmentData({
-            appraiser_cost: 0,
-            lawyer_cost: 0,
-            escort_costs: 0,
-            additional_transaction_costs_dic: {tax: null, fee: null},
-            renovation_expenses_dic: {painting: null, flooring: null},
-            furniture_cost: 0,
-            broker_purchase_percentage: 0,
-            broker_rent_percentage: 0,
-            broker_sell_percentage: 0,
-            vacancy_percentage: 0.1,
-            annual_maintenance_cost_percentage: 0,
-            annual_life_insurance_cost: 0,
-            annual_house_insurance_cost: 0,
-            equity_required_by_percentage: 0,
-            management_fees_percentage: 0,
-            years_to_exit: 0,
-            average_interest_in_exit: 0,
+            'appraiser_cost': 0,
+            'lawyer_cost': 0,
+            'escort_costs': 0,
+            'additional_transaction_costs_dic': {'tax': null, 'fee': null},
+            'renovation_expenses_dic': {'painting': null, 'flooring': null},
+            'furniture_cost': 0,
+            'broker_purchase_percentage': 0,
+            'broker_rent_percentage': 0,
+            'broker_sell_percentage': 0,
+            'vacancy_percentage': 0.1,
+            'annual_maintenance_cost_percentage': 0,
+            'annual_life_insurance_cost': 0,
+            'annual_house_insurance_cost': 0,
+            'equity_required_by_percentage': 0,
+            'management_fees_percentage': 0,
+            'years_to_exit': 0,
+            'average_interest_in_exit': 0
         });
 
         setInvestorData({
-            net_monthly_income: 0,
-            total_debt_payment: 0,
-            RealEstateInvestmentType: 'house',
-            total_available_equity: 0,
-            gross_rental_income: 0,
+            'net_monthly_income': 0,
+            'total_debt_payment': 0,
+            'RealEstateInvestmentType': 'house',
+            'total_available_equity': 0,
+            'gross_rental_income': 0,
         });
 
         setPropertyData({
-            purchase_price: 0,
-            monthly_rent_income: 0,
-            square_meters: 0,
-            parking_spots: 0,
-            warehouse: false,
-            balcony_square_meter: 0,
-            after_repair_value: 0,
-            annual_appreciation_percentage: 0,
+            'purchase_price': 0,
+            'monthly_rent_income': 0,
+            'square_meters': 0,
+            'parking_spots': 0,
+            'warehouse': false,
+            'balcony_square_meter': 0,
+            'after_repair_value': 0,
+            'annual_appreciation_percentage': 0
         });
 
         setMortgageData({
-            mortgage_advisor_cost: 0,
-            interest_rate: 3.5,
-            num_payments: 0,
-            initial_loan_amount: 0,
-            interest_only_period: 0,
+            'mortgage_advisor_cost': 0,
+            'interest_rate': 3.5,
+            'num_payments': 0,
+            'initial_loan_amount': 0,
+            'interest_only_period': 0
         });
 
         setOtherData({
-            years_until_key_reception: 0,
-            contractor_payment_distribution: 0,
-            construction_input_index_annual_growth: 0,
+            'years_until_key_reception': 0,
+            'contractor_payment_distribution': [],
+            'construction_input_index_annual_growth': 0,
         });
     };
 
+    const generateReport = () => ({
+        name: reportName,
+        description: reportDescription,
+        data: {
+            insightsData,
+            investmentData,
+            investorData,
+            propertyData,
+            mortgageData,
+            otherData
+        }
+    });
+
+    const getUser = () => {
+        return 1234
+    }
+
     const handleSave = () => {
-        console.log('Save button clicked');
+        setShowModal(true);
+    }
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
+    const handleSaveReport = async () => {
+        setLoading(true);
+        try {
+            const reportData = generateReport();
+            // Get the user
+            const userId = getUser();
+            // Send a POST request to save the report
+            const response = await axios.post(`http://localhost:5000/report/${userId}`, reportData);
+
+            // Handle success
+            toast({
+                title: 'Report saved successfully',
+                description: 'Your report has been saved successfully.',
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+            });
+        } catch (error) {
+            console.error('Error saving report', error);
+            toast({
+                title: 'Error saving report',
+                description: 'An error occurred while saving the report.',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            });
+        } finally {
+            setLoading(false);
+            handleCloseModal();
+        }
     };
 
     const getActiveRoute = (routes) => {
@@ -370,7 +490,7 @@ export default function Dashboard(props) {
                         overflow='auto'
                         position='relative'
                         maxHeight='100%'
-                        background={useColorModeValue("blackAlpha.100", "whiteAlpha.100")}
+                        background={useColorModeValue("secondaryGray.100", "whiteAlpha.100")}
                         w={{base: '100%', xl: 'calc( 100% - 290px )'}}
                         maxWidth={{base: '100%', xl: 'calc( 100% - 290px )'}}
                         transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
@@ -390,7 +510,6 @@ export default function Dashboard(props) {
                                 />
                             </Box>
                         </Portal>
-                        {/*<InsightsReports />*/}
                         <Flex>
                             {/* Left Side */}
                             <Box flex='1'>
@@ -418,7 +537,21 @@ export default function Dashboard(props) {
                             <Button colorScheme="green" onClick={handleSave}>
                                 Save
                             </Button>
+                            {showModal && (
+                                <SaveReportModal
+                                    isOpen={showModal}
+                                    onClose={handleCloseModal}
+                                    setReportName={setReportName}
+                                    setReportDescription={setReportDescription}
+                                    handleSaveReport={handleSaveReport}
+                                />
+                            )}
                         </Flex>
+                        {loading && (
+                            <Flex justifyContent="center" alignItems="center" position="fixed" inset="0">
+                                <Spinner size="xl"/>
+                            </Flex>
+                        )}
                         <InvestmentSummary insights={insightsData}/>
                         <Box mt="auto">
                             <Footer/>

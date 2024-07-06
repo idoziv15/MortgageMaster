@@ -1,4 +1,6 @@
 import datetime
+import uuid
+
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
@@ -89,10 +91,72 @@ def update_investment():
 def get_report(id):
     for report in reports:
         if report['id'] == id:
-            print(report)
             return jsonify({'report': report}), 200
 
     return jsonify({'error': 'Report not found'}), 404
+
+
+@app.route('/reports/<int:user_id>', methods=['GET'])
+def get_user_reports(user_id):
+    user_reports = [report for report in reports if report['user_id'] == user_id]
+
+    if user_reports:
+        return jsonify({'reports': user_reports}), 200
+
+    return jsonify({'error': 'No reports found for this user'}), 404
+
+
+# Route to handle saving reports
+@app.route('/report/<int:user_id>', methods=['POST'])
+def save_report(user_id):
+    try:
+        # Get data from request JSON body
+        request_data = request.get_json()
+        # Extract report details
+        name = request_data.get('name')
+        description = request_data.get('description')
+        data = request_data.get('data')
+
+        # Process and save report data
+        reports.append({
+            'id': str(uuid.uuid4()),
+            'user_id': user_id,
+            'name': name,
+            'description': description,
+            'data': data
+        })
+
+        # Respond with success message
+        return jsonify({'message': 'Report saved successfully'}), 200
+
+    except Exception as e:
+        print(f"Error saving report: {e}")
+        # Respond with error message
+        return jsonify({'error': 'Failed to save report'}), 500
+
+
+# Route to handle deleting reports
+@app.route('/investment_report/<report_id>', methods=['DELETE'])
+def delete_report(report_id):
+    try:
+        # Get the user ID from the request body
+        request_data = request.get_json()
+        user_id = request_data.get('userId')
+
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
+
+        # Find the report to delete
+        report = next((r for r in reports if r['id'] == report_id and r['user_id'] == user_id), None)
+        if report:
+            # Remove the report from the list
+            reports.remove(report)
+            return jsonify({'message': 'Report deleted successfully'}), 200
+        else:
+            return jsonify({'error': 'Report not found or user not authorized'}), 404
+    except Exception as e:
+        print(f"Error deleting report: {e}")
+        return jsonify({'error': 'Failed to delete report'}), 500
 
 
 @app.route('/investment_report/<int:report_id>', methods=['PUT'])

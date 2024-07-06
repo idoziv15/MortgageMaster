@@ -23,13 +23,12 @@ import {
 import React, {useState} from "react";
 import moment from "moment";
 import {TimeIcon} from "@chakra-ui/icons";
-import {FaArrowRight, FaEdit} from "react-icons/fa";
-import { FaCheck } from "react-icons/fa6";
+import {FaArrowRight, FaEdit, FaCheck, FaTrash} from "react-icons/fa";
 import reportImg from "../../../assets/img/reports/report_preview.svg";
 import {Link} from "react-router-dom";
 import axios from "axios";
 
-export default function InvestmentReport({report}) {
+export default function InvestmentReport({report, onDelete}) {
     const badgeColor = useColorModeValue("red.500", "red.300");
     const [lastUpdatedDate, setLastUpdatedDate] = useState(moment(report.lastUpdated));
     const isNew = moment().diff(lastUpdatedDate, 'hours') < 24;
@@ -38,6 +37,7 @@ export default function InvestmentReport({report}) {
     const [name, setName] = useState(report.name);
     const [description, setDescription] = useState(report.description);
     const [loading, setLoading] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const toast = useToast();
 
     const handleSave = async () => {
@@ -74,6 +74,34 @@ export default function InvestmentReport({report}) {
         setName(report.name);
         setDescription(report.description);
         setIsEditing(false);
+    };
+
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        try {
+            const response = await axios.delete(`http://localhost:5000/investment_report/${report.id}`, {
+                data: { userId: report.user_id }
+            });
+            if (response.status === 200) {
+                toast({
+                    title: "Success",
+                    description: "Report deleted successfully.",
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                });
+                onDelete(report.id);
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to delete report.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+        }
+        setIsDeleting(false);
     };
 
     return (
@@ -138,14 +166,28 @@ export default function InvestmentReport({report}) {
                         </Button>
                     </Flex>
                 ) : (
-                    <Button size='sm' variant='outline' colorScheme='blue' onClick={() => setIsEditing(true)} ml={2}>
-                        <FaEdit/>
-                    </Button>
+                    <Flex>
+                        <Button size='sm' variant='outline' colorScheme='blue' onClick={() => setIsEditing(true)} ml={2}>
+                            <FaEdit/>
+                        </Button>
+                        <Button size='sm' variant='outline' colorScheme='red' onClick={handleDelete} ml={2}>
+                            <FaTrash/>
+                        </Button>
+                    </Flex>
                 )}
             </CardFooter>
             {loading && (
-                <Modal isOpen={loading} onClose={() => {
-                }} isCentered>
+                <Modal isOpen={loading} onClose={() => {}} isCentered>
+                    <ModalOverlay/>
+                    <ModalContent>
+                        <ModalBody display="flex" justifyContent="center" alignItems="center" py={10}>
+                            <Spinner size="xl"/>
+                        </ModalBody>
+                    </ModalContent>
+                </Modal>
+            )}
+            {isDeleting && (
+                <Modal isOpen={isDeleting} onClose={() => {}} isCentered>
                     <ModalOverlay/>
                     <ModalContent>
                         <ModalBody display="flex" justifyContent="center" alignItems="center" py={10}>

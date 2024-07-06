@@ -1,8 +1,111 @@
 reports = [
     {
         'id': 1,
+        'user_id': 11,
         'name': 'investment 1',
         'description': 'This is my first investment report',
+        'data': {
+            'insightsData': {
+                "Price per meter": 8500,
+                "Loan to cost": 9600,
+                "Loan to value": 4400,
+                "Renovation expenses": 6000,
+                "Purchase additional transactions cost": 4900,
+                "Purchase tax": 8400,
+                "Closing costs": 5300,
+                "Broker purchase cost": 5500,
+                "Monthly operating expenses": 8900,
+                "Cash on cash": 2000,
+                "Net Yearly Cash Flow": 8500,
+                "Net Monthly Cash Flow": 4200,
+                "Yearly IRR": 8700,
+                "Annual rent income": 7900,
+                "ROI": 970,
+                "Monthly NOI": 9800,
+                "Annual NOI": 7300,
+                "Monthly rental property taxes": 6700,
+                "Annual rental property taxes": 7000,
+                "Cap rate": 6000,
+                "Gross yield": 9500,
+                "Monthly insurances expenses": 4600,
+                "Annual insurances expenses": 1700,
+                "Monthly maintenance and repairs": 9600,
+                "Annual maintenance and repairs": 4600,
+                "Monthly vacancy cost": 6500,
+                "Annual vacancy cost": 5800,
+                "Estimated sale price": 4800,
+                "Selling expenses": 8600,
+                "Sale proceeds": 2400,
+                "Total revenue": 2100,
+                "Annual revenue distribution": 4300,
+                "Annual operating expenses": 4200,
+                "Annual cash flow": 2100,
+                "Mortgage remain balance in exit": 2800,
+                "Constructor index linked compensation": 7000,
+                "Total expenses": 3100,
+                "Equity needed for purchase": 2800,
+                "Contractor payments": 3400,
+                "Annual expenses distribution": 2900,
+                "Monthly property management fees": 8200,
+                "Annual property management fees": 8900,
+                "Net profit": 1800,
+                "Capital gain tax": 9800
+            },
+            'investmentData': {
+                'appraiser_cost': 500,
+                'lawyer_cost': 1500,
+                'escort_costs': 200,
+                'additional_transaction_costs_dic': {'tax': 300, 'fee': 100},
+                'renovation_expenses_dic': {'painting': 500, 'flooring': 700},
+                'furniture_cost': 3000,
+                'broker_purchase_percentage': 0.02,
+                'broker_rent_percentage': 0.05,
+                'broker_sell_percentage': 0.03,
+                'vacancy_percentage': 0.1,
+                'annual_maintenance_cost_percentage': 0.01,
+                'annual_life_insurance_cost': 1200,
+                'annual_house_insurance_cost': 800,
+                'equity_required_by_percentage': 0.25,
+                'management_fees_percentage': 0.02,
+                'years_to_exit': 30,
+                'average_interest_in_exit': 0.05
+            },
+            'investorData': {
+                'net_monthly_income': 5000,
+                'total_debt_payment': 15000,
+                'RealEstateInvestmentType': 'house',
+                'total_available_equity': 5000,
+                'gross_rental_income': 5000
+            },
+            'propertyData': {
+                'purchase_price': 500000,
+                'monthly_rent_income': 2500,
+                'square_meters': 120,
+                'parking_spots': 2,
+                'warehouse': True,
+                'balcony_square_meter': 15,
+                'after_repair_value': 600000,
+                'annual_appreciation_percentage': 5.0
+            },
+            'mortgageData': {
+                'mortgage_advisor_cost': 1000,
+                'interest_rate': 3.5,
+                'num_payments': 360,
+                'initial_loan_amount': 300000,
+                'interest_only_period': 10
+            },
+            'otherData': {
+                'years_until_key_reception': 2,
+                'contractor_payment_distribution': [0.4, 0.6],
+                'construction_input_index_annual_growth': 3
+            }
+        }
+    },
+    {
+        'id': 2,
+        'user_id': 11,
+        'name': 'investment 2',
+        'description': 'This is my second investment report',
         'data': {
             'insightsData': {
                 "Price per meter": 8500,
@@ -100,10 +203,11 @@ reports = [
             }
         }
     },
-{
-        'id': 2,
-        'name': 'investment 2',
-        'description': 'This is my second investment report',
+    {
+        'id': 3,
+        'user_id': 22,
+        'name': 'investment 3',
+        'description': 'This is my third investment report',
         'data': {
             'insightsData': {
                 "Price per meter": 8500,

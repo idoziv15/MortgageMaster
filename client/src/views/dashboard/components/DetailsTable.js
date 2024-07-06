@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     ChakraProvider,
     Box,
@@ -24,18 +24,23 @@ import {debounce} from 'lodash';
 export default function DetailsTable({data, setData, tableName}) {
     const [inputValues, setInputValues] = useState(data);
 
+    useEffect(() => {
+        setInputValues(data);
+    }, [data]);
+
     const handleChange = (field, value) => {
+        const parsedValue = parseFloat(value) || 0;
         setInputValues(prev => ({
             ...prev,
-            [field]: value,
+            [field]: parsedValue,
         }));
-        debouncedUpdate(field, value);
+        debouncedUpdate(field, parsedValue);
     };
 
     const debouncedUpdate = debounce((field, value) => {
         setData(prevState => ({
             ...prevState,
-            [field]: parseFloat(value) || 0,
+            [field]: value,
         }));
     }, 2000);
 
@@ -125,34 +130,34 @@ export default function DetailsTable({data, setData, tableName}) {
     };
 
     const sliderRangeMapping = {
-        appraiser_cost: { min: 0, max: 5000, step: 100 },
-        lawyer_cost: { min: 0, max: 10000, step: 200 },
-        escort_costs: { min: 0, max: 8000, step: 100 },
-        furniture_cost: { min: 0, max: 20000, step: 500 },
-        broker_purchase_percentage: { min: 0, max: 10, step: 0.1 },
-        broker_rent_percentage: { min: 0, max: 10, step: 0.1 },
-        broker_sell_percentage: { min: 0, max: 10, step: 0.1 },
-        vacancy_percentage: { min: 0, max: 100, step: 1 },
-        annual_maintenance_cost_percentage: { min: 0, max: 10, step: 0.1 },
-        annual_life_insurance_cost: { min: 0, max: 5000, step: 100 },
-        annual_house_insurance_cost: { min: 0, max: 5000, step: 100 },
-        equity_required_by_percentage: { min: 0, max: 100, step: 1 },
-        management_fees_percentage: { min: 0, max: 10, step: 0.1 },
-        years_to_exit: { min: 0, max: 30, step: 1 },
-        average_interest_in_exit: { min: 0, max: 20, step: 0.1 },
-        net_monthly_income: { min: 0, max: 20000, step: 500 },
-        total_debt_payment: { min: 0, max: 20000, step: 500 },
-        total_available_equity: { min: 0, max: 1000000, step: 10000 },
-        gross_rental_income: { min: 0, max: 20000, step: 500 },
-        purchase_price: { min: 0, max: 1000000, step: 10000 },
-        monthly_rent_income: { min: 0, max: 10000, step: 200 },
-        square_meters: { min: 0, max: 1000, step: 10 },
-        parking_spots: { min: 0, max: 10, step: 1 },
-        balcony_square_meter: { min: 0, max: 200, step: 5 },
-        after_repair_value: { min: 0, max: 1000000, step: 10000 },
-        annual_appreciation_percentage: { min: 0, max: 20, step: 0.1 },
-        years_until_key_reception: { min: 0, max: 10, step: 1 },
-        construction_input_index_annual_growth: { min: 0, max: 10, step: 0.1 },
+        appraiser_cost: {min: 0, max: 5000, step: 100},
+        lawyer_cost: {min: 0, max: 10000, step: 200},
+        escort_costs: {min: 0, max: 8000, step: 100},
+        furniture_cost: {min: 0, max: 20000, step: 500},
+        broker_purchase_percentage: {min: 0, max: 10, step: 0.1},
+        broker_rent_percentage: {min: 0, max: 10, step: 0.1},
+        broker_sell_percentage: {min: 0, max: 10, step: 0.1},
+        vacancy_percentage: {min: 0, max: 100, step: 1},
+        annual_maintenance_cost_percentage: {min: 0, max: 10, step: 0.1},
+        annual_life_insurance_cost: {min: 0, max: 5000, step: 100},
+        annual_house_insurance_cost: {min: 0, max: 5000, step: 100},
+        equity_required_by_percentage: {min: 0, max: 100, step: 1},
+        management_fees_percentage: {min: 0, max: 10, step: 0.1},
+        years_to_exit: {min: 0, max: 30, step: 1},
+        average_interest_in_exit: {min: 0, max: 20, step: 0.1},
+        net_monthly_income: {min: 0, max: 20000, step: 500},
+        total_debt_payment: {min: 0, max: 20000, step: 500},
+        total_available_equity: {min: 0, max: 1000000, step: 10000},
+        gross_rental_income: {min: 0, max: 20000, step: 500},
+        purchase_price: {min: 0, max: 1000000, step: 10000},
+        monthly_rent_income: {min: 0, max: 10000, step: 200},
+        square_meters: {min: 0, max: 1000, step: 10},
+        parking_spots: {min: 0, max: 10, step: 1},
+        balcony_square_meter: {min: 0, max: 200, step: 5},
+        after_repair_value: {min: 0, max: 1000000, step: 10000},
+        annual_appreciation_percentage: {min: 0, max: 20, step: 0.1},
+        years_until_key_reception: {min: 0, max: 10, step: 1},
+        construction_input_index_annual_growth: {min: 0, max: 10, step: 0.1},
     };
 
     const getDisplayName = (key) => {

@@ -1,15 +1,19 @@
-import React from "react";
-import {Box, Button, Grid, GridItem} from '@chakra-ui/react';
+import React, {useState} from "react";
+import {Grid, GridItem} from '@chakra-ui/react';
 import InvestmentReport from './InvestmentReport';
-import {FaArrowRight} from "react-icons/fa";
-import {Link} from "react-router-dom";
 
-export default function ReportsList({reports}) {
+export default function ReportsList({ reports }) {
+    const [reportList, setReportList] = useState(reports);
+
+    const handleDeleteReport = (reportId) => {
+        setReportList(reportList.filter(report => report.id !== reportId));
+    };
+
     return (
         <Grid templateColumns="repeat(auto-fill, minmax(240px, 1fr))" gap={6} p={6}>
-            {reports.map((report, index) => (
+            {reportList.map((report, index) => (
                 <GridItem key={index}>
-                    <InvestmentReport report={report} />
+                    <InvestmentReport report={report} onDelete={handleDeleteReport} />
                 </GridItem>
             ))}
         </Grid>
