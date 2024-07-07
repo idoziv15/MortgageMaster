@@ -1,6 +1,8 @@
 import datetime
 import uuid
 
+import bcrypt
+import jwt
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
@@ -8,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from BMM.business_models.model import BMM
 from DB.test1.reports import reports
+from DB.test1.users import users
 from datetime import datetime
 
 # Load environment variables from .env file
@@ -169,6 +172,168 @@ def update_report(report_id):
             report['lastUpdated'] = datetime.utcnow()
             return jsonify({'report': report}), 200
     return jsonify({'error': 'Report not found'}), 404
+
+
+# Helper function to find a user by ID
+def find_user_by_id(user_id):
+    return next((user for user in users if user['id'] == user_id), None)
+
+
+# Helper function to find a user by email
+def find_user_by_email(email):
+    return next((user for user in users if user['email'] == email), None)
+
+
+@app.route('/users', methods=['POST'])
+def create_user():
+    try:
+        # Get data from request
+        req = request.get_json()
+        first_name = req.get('firstName')
+        last_name = req.get('lastName')
+        email = req.get('email')
+        password = req.get('password')
+        registered_date = req.get('registeredDate')
+
+        # Check if user already exists
+        if find_user_by_email(email):
+            return jsonify({'error': 'User already exists'}), 400
+
+        # Hash the password
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        # Create new user
+        new_user = {
+            'id': len(users) + 1,
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+            'password': hashed_password.decode('utf-8'),
+            'registered_date': registered_date
+        }
+        users.append(new_user)
+
+        # Respond with the new user
+        return jsonify(new_user), 201
+
+    except Exception as e:
+        print(f"Error creating user: {e}")
+        return jsonify({'error': 'Failed to create user'}), 500
+
+
+@app.route('/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    try:
+        user = find_user_by_id(user_id)
+        if user:
+            return jsonify(user), 200
+        else:
+            return jsonify({'error': 'User not found'}), 404
+
+    except Exception as e:
+        print(f"Error retrieving user: {e}")
+        return jsonify({'error': 'Failed to retrieve user'}), 500
+
+
+@app.route('/users/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    try:
+        user = find_user_by_id(user_id)
+        if user:
+            req = request.get_json()
+            user['first_name'] = req.get('firstName', user['firstName'])
+            user['last_name'] = req.get('lastName', user['lastName'])
+            user['email'] = req.get('email', user['email'])
+            if 'password' in req:
+                user['password'] = bcrypt.hashpw(req['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            user['registered_date'] = req.get('registeredDate', user['registeredDate'])
+            return jsonify(user), 200
+        else:
+            return jsonify({'error': 'User not found'}), 404
+
+    except Exception as e:
+        print(f"Error updating user: {e}")
+        return jsonify({'error': 'Failed to update user'}), 500
+
+
+@app.route('/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        user = find_user_by_id(user_id)
+        if user:
+            users.remove(user)
+            return jsonify({'message': 'User deleted successfully'}), 200
+        else:
+            return jsonify({'error': 'User not found'}), 404
+
+    except Exception as e:
+        print(f"Error deleting user: {e}")
+        return jsonify({'error': 'Failed to delete user'}), 500
+
+
+# Secret key for JWT encoding/decoding
+SECRET_KEY = 'your_secret_key'
+blacklist = set()
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        # Get data from request JSON body
+        req = request.get_json()
+        email = req.get('email')
+        password = req.get('password')
+
+        # Find the user by email
+        user = find_user_by_email(email)
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+            # Create JWT token
+            token = jwt.encode({
+                'user_id': user['id'],
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+            }, SECRET_KEY, algorithm='HS256')
+            return jsonify({'token': token}), 200
+        else:
+            return jsonify({'error': 'Invalid email or password'}), 401
+
+    except Exception as e:
+        print(f"Error logging in: {e}")
+        return jsonify({'error': 'Failed to login'}), 500
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    try:
+        token = request.headers.get('Authorization').split()[1]
+        blacklist.add(token)
+        return jsonify({'message': 'Logged out successfully'}), 200
+
+    except Exception as e:
+        print(f"Error logging out: {e}")
+        return jsonify({'error': 'Failed to logout'}), 500
+
+
+# JWT token required decorator
+def token_required(f):
+    def decorator(*args, **kwargs):
+        token = None
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split()[1]
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+
+        if token in blacklist:
+            return jsonify({'message': 'Token is invalid'}), 401
+
+        try:
+            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            current_user = find_user_by_id(data['user_id'])
+        except:
+            return jsonify({'message': 'Token is invalid'}), 401
+
+        return f(current_user, *args, **kwargs)
+
+    return decorator
 
 
 @app.route('/')
