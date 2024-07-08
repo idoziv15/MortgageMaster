@@ -11,7 +11,7 @@ from flask_cors import CORS
 from BMM.business_models.model import BMM
 from DB.test1.reports import reports
 from DB.test1.users import users
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Load environment variables from .env file
 load_dotenv()
@@ -184,7 +184,7 @@ def find_user_by_email(email):
     return next((user for user in users if user['email'] == email), None)
 
 
-@app.route('/users', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def create_user():
     try:
         # Get data from request
@@ -193,11 +193,11 @@ def create_user():
         last_name = req.get('lastName')
         email = req.get('email')
         password = req.get('password')
-        registered_date = req.get('registeredDate')
+        registered_date = datetime.now().isoformat()
 
         # Check if user already exists
         if find_user_by_email(email):
-            return jsonify({'error': 'User already exists'}), 400
+            return jsonify({'message': 'User already exists'}), 400
 
         # Hash the password
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -246,7 +246,6 @@ def update_user(user_id):
             user['email'] = req.get('email', user['email'])
             if 'password' in req:
                 user['password'] = bcrypt.hashpw(req['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            user['registered_date'] = req.get('registeredDate', user['registeredDate'])
             return jsonify(user), 200
         else:
             return jsonify({'error': 'User not found'}), 404
@@ -290,11 +289,11 @@ def login():
             # Create JWT token
             token = jwt.encode({
                 'user_id': user['id'],
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+                'exp': datetime.utcnow() + timedelta(hours=1)
             }, SECRET_KEY, algorithm='HS256')
             return jsonify({'token': token}), 200
         else:
-            return jsonify({'error': 'Invalid email or password'}), 401
+            return jsonify({'message': 'Invalid email or password'}), 401
 
     except Exception as e:
         print(f"Error logging in: {e}")

@@ -76,7 +76,7 @@ users = [
         "first_name": "Sophia",
         "last_name": "Thomas",
         "email": "sophia.thomas@example.com",
-        "password": "password123",
+        "password": "$2b$12$yl5h4Hca02hCJui74IrWnudKQHAIB5hMtfe/.FtVjutrqjZxVxBei",
         "registered_date": "2023-10-03"
     }
 ]

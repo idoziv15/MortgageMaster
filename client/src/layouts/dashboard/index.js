@@ -1,4 +1,4 @@
-import {Portal, Box, useDisclosure, useToast, Spinner, Button, Flex, useColorModeValue, Modal} from '@chakra-ui/react';
+import {Portal, Box, useDisclosure, useToast, Spinner, Button, Flex, useColorModeValue} from '@chakra-ui/react';
 import Footer from '../../components/footer/Footer.js';
 import Navbar from '../../components/navbar/NavbarAdmin.js';
 import Sidebar from '../../components/sidebar/Sidebar.js';
@@ -490,7 +490,7 @@ export default function Dashboard(props) {
                         overflow='auto'
                         position='relative'
                         maxHeight='100%'
-                        background={useColorModeValue("secondaryGray.100", "whiteAlpha.100")}
+                        background={useColorModeValue("#F7FAFC", "whiteAlpha.100")}
                         w={{base: '100%', xl: 'calc( 100% - 290px )'}}
                         maxWidth={{base: '100%', xl: 'calc( 100% - 290px )'}}
                         transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
@@ -527,14 +527,16 @@ export default function Dashboard(props) {
                                               setData={setMortgageData}/>
                             </Box>
                         </Flex>
-                        <Flex justifyContent="center" mt={4}>
-                            <Button colorScheme="teal" onClick={updateBMM} isLoading={loading} mr={2}>
+                        <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'
+                              background={useColorModeValue("white", "whiteAlpha.100")}
+                        >
+                            <Button colorScheme="teal" onClick={updateBMM} isLoading={loading} mr={10}>
                                 {loading ? <Spinner size="sm"/> : 'Calculate'}
                             </Button>
-                            <Button colorScheme="blue" onClick={handleReset} mr={2}>
+                            <Button colorScheme="blue" variant='outline' onClick={handleReset} mr={2}>
                                 Reset
                             </Button>
-                            <Button colorScheme="green" onClick={handleSave}>
+                            <Button colorScheme="green" variant='outline' onClick={handleSave}>
                                 Save
                             </Button>
                             {showModal && (

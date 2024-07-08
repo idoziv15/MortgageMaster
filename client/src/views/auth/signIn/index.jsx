@@ -57,26 +57,29 @@ export default function SignIn() {
         return re.test(email);
     };
 
-    const validatePassword = (password) => {
-        const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-        return re.test(password);
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            handleSignIn();
+        }
     };
 
     const handleSignIn = async () => {
         setError("");
-        if (!validateEmail(email)) {
-            setError("Invalid email format.");
+
+        if (!email || !password ) {
+            setError("All fields are required.");
             return;
         }
-        // TODO: do i need this?
-        if (!validatePassword(password)) {
-            setError("Password must be at least 8 characters long and include at least one number, one capital letter, and one small letter.");
+
+        if (!validateEmail(email)) {
+            setError("Invalid email format.");
             return;
         }
 
         setLoading(true);
         try {
-            const response = await axios.post('', {email, password});
+            const req = {email: email, password :password}
+            const response = await axios.post('http://localhost:5000/login', req);
             if (rememberMe) {
                 localStorage.setItem('token', response.data.token);
             } else {
@@ -84,7 +87,7 @@ export default function SignIn() {
             }
             setEmail("");
             setPassword("");
-            navigate('/');
+            navigate('/dashboard');
         } catch (error) {
             setError(error.response?.data?.message || "Login failed. Please try again.");
         } finally {
@@ -172,11 +175,12 @@ export default function SignIn() {
                                 fontSize='sm'
                                 ms={{base: "0px", md: "0px"}}
                                 type='email'
-                                placeholder='mail@simmmple.com'
+                                placeholder='Enter your username'
                                 mb='24px'
                                 fontWeight='500'
                                 size='lg'
                                 value={email}
+                                onKeyDown={handleKeyDown}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                             <FormLabel
@@ -191,12 +195,13 @@ export default function SignIn() {
                                 <Input
                                     isRequired={true}
                                     fontSize='sm'
-                                    placeholder='Min. 8 characters'
+                                    placeholder='Enter your password'
                                     mb='24px'
                                     size='lg'
                                     type={show ? "text" : "password"}
                                     variant='auth'
                                     value={password}
+                                    onKeyDown={handleKeyDown}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                                 <InputRightElement display='flex' alignItems='center' mt='4px'>

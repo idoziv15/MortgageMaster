@@ -16,10 +16,9 @@ export default function AdminNavbar(props) {
 
 	const { secondary, message, brandText } = props;
 
-	// Here are all the props that may change depending on navbar's type or state.(secondary, variant, scrolled)
 	let mainText = useColorModeValue('navy.700', 'white');
 	let secondaryText = useColorModeValue('gray.700', 'white');
-	let navbarPosition = 'fixed';
+	let navbarPosition = 'absolute';
 	let navbarFilter = 'none';
 	let navbarBackdrop = 'blur(20px)';
 	let navbarShadow = 'none';
@@ -89,21 +88,21 @@ export default function AdminNavbar(props) {
 				<Box mb={{ sm: '8px', md: '0px' }}>
 					<Breadcrumb>
 						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
-							<BreadcrumbLink href='#' color={secondaryText}>
+							<BreadcrumbLink color={secondaryText}>
 								Pages
 							</BreadcrumbLink>
 						</BreadcrumbItem>
 
 						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
-							<BreadcrumbLink href='#' color={secondaryText}>
+							<BreadcrumbLink color={secondaryText}>
 								{brandText}
 							</BreadcrumbLink>
 						</BreadcrumbItem>
 					</Breadcrumb>
-					{/* Here we create navbar brand, based on route name */}
-					<Link
+
+					<Text
 						color={mainText}
-						href='#'
+						href=''
 						bg='inherit'
 						borderRadius='inherit'
 						fontWeight='bold'
@@ -118,7 +117,7 @@ export default function AdminNavbar(props) {
 							boxShadow: 'none'
 						}}>
 						{brandText}
-					</Link>
+					</Text>
 				</Box>
 				<Box ms='auto' w={{ sm: '100%', md: 'unset' }}>
 					<AdminNavbarLinks
