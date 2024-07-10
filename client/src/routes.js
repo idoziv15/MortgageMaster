@@ -18,7 +18,6 @@ const routes = [
     layout: "/admin",
     icon: <Icon as={MdBarChart} width='20px' height='20px' color='inherit' />,
     path: "/reports",
-    // component: DataTables,
   },
   {
     name: "My Profile",
@@ -26,13 +25,6 @@ const routes = [
     path: "/profile",
     icon: <Icon as={MdPerson} width='20px' height='20px' color='inherit' />,
     component: Profile,
-  },
-  {
-    name: "Sign In",
-    layout: "/auth",
-    path: "/sign-in",
-    icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
-    component: SignInCentered,
   }
 ];
 

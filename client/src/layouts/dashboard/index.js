@@ -169,7 +169,6 @@ export default function Dashboard(props) {
         try {
             const res = await axios.put('http://localhost:5000/dashboard/bmm_update', dataToUpdate);
             const updatedInsights = res.data.insights;
-            console.log(res.data)
             setInsightsData(updatedInsights);
             setLoading(false);
         } catch (e) {
@@ -186,6 +185,7 @@ export default function Dashboard(props) {
 
     const fetchReportData = async (reportId) => {
         try {
+            setLoading(true);
             const response = await axios.get(`http://localhost:5000/report/${reportId}`)
             const reportData = response.data.report.data;
             const insights = reportData.insightsData;
@@ -200,8 +200,10 @@ export default function Dashboard(props) {
             setPropertyData(property);
             setMortgageData(mortgage);
             setOtherData(other);
+            setLoading(false);
         } catch (error) {
             console.error('Error fetching report data', error);
+            setLoading(false);
             toast({
                 title: 'Error fetching report data',
                 description: 'An error occurred while fetching report data.',
