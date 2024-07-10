@@ -186,33 +186,20 @@ export default function Dashboard(props) {
 
     const fetchReportData = async (reportId) => {
         try {
-            const response = await axios.get(`http://localhost:5000/report/${reportId}`);
+            const response = await axios.get(`http://localhost:5000/report/${reportId}`)
             const reportData = response.data.report.data;
             const insights = reportData.insightsData;
-            const investment = reportData.investment_data;
-            const investor = reportData.investor_data;
-            const property = reportData.property_data;
-            const mortgage = reportData.mortgage_data;
-            const other = reportData.other_data;
-            console.log('Full report data:', reportData);
-            console.log('Insights Data:', insights);
-            console.log('Investment Data:', investment);
-            console.log('Investor Data:', investor);
-            console.log('Property Data:', property);
-            console.log('Mortgage Data:', mortgage);
-            console.log('Other Data:', other);
+            const investment = reportData.investmentData;
+            const investor = reportData.investorData;
+            const property = reportData.propertyData;
+            const mortgage = reportData.mortgageData;
+            const other = reportData.otherData;
             setInsightsData(insights);
             setInvestmentData(investment);
             setInvestorData(investor);
             setPropertyData(property);
             setMortgageData(mortgage);
             setOtherData(other);
-            console.log('Insights:', insightsData);
-            console.log('Investment:', investmentData);
-            console.log('Investor:', investorData);
-            console.log('Property:', propertyData);
-            console.log('Mortgage:', mortgageData);
-            console.log('Other:', otherData);
         } catch (error) {
             console.error('Error fetching report data', error);
             toast({
@@ -229,9 +216,6 @@ export default function Dashboard(props) {
         if (reportId) {
             fetchReportData(reportId);
         }
-        // else {
-        //     fetchInitialData();
-        // }
     }, [reportId]);
 
     const handleReset = () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './assets/css/App.css';
-import {HashRouter, Route, Routes} from 'react-router-dom';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import AuthLayout from './views/auth/signIn';
 import RegisterLayout from './views/auth/sign-up';
 import ReportsLayout from './layouts/reports';
@@ -17,7 +17,7 @@ ReactDOM.render(
     <ChakraProvider theme={theme}>
         <React.StrictMode>
             <ThemeEditorProvider>
-                <HashRouter>
+                <BrowserRouter>
                     <Routes>
                         <Route path="/" element={<HomePage/>}/>
                         <Route path="/dashboard" element={<DashboardLayout/>}/>
@@ -28,7 +28,7 @@ ReactDOM.render(
                         <Route path="/profile" element={<ProfileLayout/>}/>
                         <Route path="*" element={<ErrorNotFound />} />
                     </Routes>
-                </HashRouter>
+                </BrowserRouter>
             </ThemeEditorProvider>
         </React.StrictMode>
     </ChakraProvider>,

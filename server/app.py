@@ -65,16 +65,16 @@ def user_routes():
         return jsonify({'message': 'User created successfully'}), 201
 
 
-@app.route('/dashboard/bmm', methods=['POST'])
-def analyse_investment():
-    data = request.json
-    investment_data = data['investment_data']
-    investor_data = data['investor_data']
-    property_data = data['property_data']
-    mortgage_data = data['mortgage_data']
-    other_data = data['other_data']
-    result = BMM(investment_data, investor_data, property_data, mortgage_data, other_data).calculate_insights()
-    return jsonify({'insights': result}), 200
+# @app.route('/dashboard/bmm', methods=['POST'])
+# def analyse_investment():
+#     data = request.json
+#     investment_data = data['investment_data']
+#     investor_data = data['investor_data']
+#     property_data = data['property_data']
+#     mortgage_data = data['mortgage_data']
+#     other_data = data['other_data']
+#     result = BMM(investment_data, investor_data, property_data, mortgage_data, other_data).calculate_insights()
+#     return jsonify({'insights': result}), 200
 
 
 @app.route('/dashboard/bmm_update', methods=['PUT'])
