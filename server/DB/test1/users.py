@@ -78,5 +78,13 @@ users = [
         "email": "sophia.thomas@example.com",
         "password": "$2b$12$yl5h4Hca02hCJui74IrWnudKQHAIB5hMtfe/.FtVjutrqjZxVxBei",
         "registered_date": "2023-10-03"
+    },
+    {
+        "id": 11,
+        "first_name": "aa",
+        "last_name": "bb",
+        "email": "a@a.com",
+        "password": "$2b$12$yl5h4Hca02hCJui74IrWnudKQHAIB5hMtfe/.FtVjutrqjZxVxBei",
+        "registered_date": "2023-01-15"
     }
 ]

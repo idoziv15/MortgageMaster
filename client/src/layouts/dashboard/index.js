@@ -169,6 +169,7 @@ export default function Dashboard(props) {
         try {
             const res = await axios.put('http://localhost:5000/dashboard/bmm_update', dataToUpdate);
             const updatedInsights = res.data.insights;
+            console.log(res.data)
             setInsightsData(updatedInsights);
             setLoading(false);
         } catch (e) {
@@ -227,9 +228,10 @@ export default function Dashboard(props) {
     useEffect(() => {
         if (reportId) {
             fetchReportData(reportId);
-        } else {
-            fetchInitialData();
         }
+        // else {
+        //     fetchInitialData();
+        // }
     }, [reportId]);
 
     const handleReset = () => {
@@ -549,11 +551,11 @@ export default function Dashboard(props) {
                                 />
                             )}
                         </Flex>
-                        {loading && (
-                            <Flex justifyContent="center" alignItems="center" position="fixed" inset="0">
-                                <Spinner size="xl"/>
-                            </Flex>
-                        )}
+                        {/*{loading && (*/}
+                        {/*    <Flex justifyContent="center" alignItems="center" position="fixed" inset="0">*/}
+                        {/*        <Spinner size="xl"/>*/}
+                        {/*    </Flex>*/}
+                        {/*)}*/}
                         <InvestmentSummary insights={insightsData}/>
                         <Box mt="auto">
                             <Footer/>

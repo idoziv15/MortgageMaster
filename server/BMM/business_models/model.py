@@ -1,3 +1,4 @@
+import math
 from typing import List, Dict, Optional, Union
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,7 +10,6 @@ from ..investors.real_estate_investor import RealEstateInvestor
 from ..investors.real_estate_investors_portfolio import RealEstateInvestorsPortfolio
 from ..mortgage.mortgage_pipeline import MortgagePipeline
 from ..mortgage.mortgage_tracks.constant_not_linked import ConstantNotLinked
-
 
 class BMM(SingleHouseIsraelModel):
     def __init__(self, investment_data: Dict, investor_data: Dict, property_data: Dict, mortgage_data: Dict,
@@ -88,9 +88,13 @@ class BMM(SingleHouseIsraelModel):
             return 0
         if years_until_key_reception is None:
             years_until_key_reception = self.other_data.get('years_until_key_reception')
-        remain_balance_for_purchase = self.property_data['purchase_price'] * (
-                1 - ((self.investment_data['equity_required_by_percentage'] *
-                      self.other_data['contractor_payment_distribution']) / 100))
+        if len(self.other_data['contractor_payment_distribution']) > 0:
+            remain_balance_for_purchase = self.property_data['purchase_price'] * (
+                    1 - ((self.investment_data['equity_required_by_percentage'] *
+                          self.other_data['contractor_payment_distribution'][0]) / 100))
+        else:
+            remain_balance_for_purchase = 0
+
         # TODO: covert to consts. 0.4 is the percentage of the remain balance that is linked (by law)
         remain_balance_linked_amount = 0.4 * remain_balance_for_purchase
         return round(remain_balance_linked_amount * (
@@ -191,15 +195,9 @@ class BMM(SingleHouseIsraelModel):
                                                      for i in range(self.investment_data['years_to_exit'])] + [0]
 
         # TODO: I assume here that the mortgage is only taken upon receiving a key, additional scenarios must be created
-        estimated_mortgage_monthly_payments = [
-                                                  0] * self.other_data[
-                                                  'years_until_key_reception'] + self.mortgage.get_annual_payments()[
-                                                                                 :(
-                                                                                         self.investment_data[
-                                                                                             'years_to_exit'] -
-                                                                                         self.other_data[
-                                                                                             'years_until_key_reception'])] + [
-                                                  0]
+        estimated_mortgage_monthly_payments =\
+            [0] * self.other_data['years_until_key_reception'] + self.mortgage.get_annual_payments()[:(
+            self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'])] + [0]
 
         equity_distribution_to_property_purchase = self.calculate_equity_payments() + [0] * (
                 self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'])
@@ -271,14 +269,14 @@ class BMM(SingleHouseIsraelModel):
         insights["Cash on cash"] = self.calculate_cash_on_cash()
         insights["Net Yearly Cash Flow"] = self.calculate_net_annual_cash_flow()
         insights["Net Monthly Cash Flow"] = self.calculate_net_monthly_cash_flow()
-        insights["Yearly IRR"] = self.calculate_annual_irr()
+        insights["Yearly IRR"] = 0 if math.isnan(self.calculate_annual_irr()) else self.calculate_annual_irr()
         insights["Annual rent income"] = self.calculate_annual_rent_income()
-        # insights["ROI"] = self.calculate_roi()
+        insights["ROI"] = self.calculate_roi()
         insights["Monthly NOI"] = self.calculate_monthly_noi()
         insights["Annual NOI"] = self.calculate_annual_noi()
         insights["Monthly rental property taxes"] = self.calculate_monthly_rental_property_taxes()
         insights["Annual rental property taxes"] = self.calculate_annual_rental_property_taxes()
-        # insights["Cap rate"] = self.calculate_annual_cap_rate()
+        insights["Cap rate"] = self.calculate_annual_cap_rate()
         insights["Gross yield"] = self.calculate_annual_gross_yield()
         insights["Monthly insurances expenses"] = self.calculate_monthly_insurances_expenses()
         insights["Annual insurances expenses"] = self.calculate_annual_insurances_expenses()
@@ -295,13 +293,13 @@ class BMM(SingleHouseIsraelModel):
         insights["Annual cash flow"] = self.calculate_net_annual_cash_flow()
         insights["Mortgage remain balance in exit"] = self.calculate_mortgage_remain_balance_in_exit()
         insights["Constructor index linked compensation"] = self.calculate_constructor_index_linked_compensation()
-        # insights["Total expenses"] = self.calculate_total_expenses()
+        insights["Total expenses"] = self.calculate_total_expenses()
         insights["Equity needed for purchase"] = self.calculate_total_equity_needed_for_purchase()
         insights["Contractor payments"] = self.calculate_equity_payments()
         insights["Annual expenses distribution"] = self.calculate_annual_expenses_distribution()
         insights["Monthly property management fees"] = self.calculate_monthly_property_management_fees()
         insights["Annual property management fees"] = self.calculate_annual_property_management_fees()
-        # insights["Net profit"] = self.calculate_net_profit()
+        insights["Net profit"] = self.calculate_net_profit()
         insights["Capital gain tax"] = self.calculate_capital_gain_tax()
 
         return insights

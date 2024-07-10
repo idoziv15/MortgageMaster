@@ -18,15 +18,10 @@ class ConstantNotLinked(MortgageTrack):
         :param average_interest_in_early_payment: Average interest rate during early payment.
         :return: The calculated early payment fee.
         """
-        print('111')
         if num_of_months < 0 or average_interest_in_early_payment < 0:
             raise ValueError(
                 f"Function arguments must be non-negative: number of months: {num_of_months},"
                 f"average interest in early payment: {average_interest_in_early_payment}")
-        print('res:', calculate_early_payment_fee(average_interest_in_early_payment,
-                                                  self.get_monthly_payments()[num_of_months:],
-                                                  self.interest_rate, self.average_interest_when_taken, -1))
-        print('222')
         return calculate_early_payment_fee(average_interest_in_early_payment,
                                            self.get_monthly_payments()[num_of_months:],
                                            self.interest_rate, self.average_interest_when_taken, -1)

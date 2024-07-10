@@ -15,7 +15,7 @@ from .real_estate_financial_utils import (
     loan_to_value,
     cash_of_cash,
     return_on_investment,
-    noi,
+    noi, cap_rate,
 )
 
 matplotlib.use('TkAgg')
@@ -161,8 +161,6 @@ class SingleHouseModel(ABC):
 
         :return: The ROI.
         """
-        print('net_profit: ', self.calculate_net_profit())
-        print('equity_needed_for_purchase: ', self.calculate_total_equity_needed_for_purchase())
         return return_on_investment(net_profit=self.calculate_net_profit(),
                                     total_equity_needed_for_purchase=self.calculate_total_equity_needed_for_purchase())
 

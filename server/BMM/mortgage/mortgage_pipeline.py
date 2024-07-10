@@ -286,20 +286,15 @@ class MortgagePipeline:
         :return: The early payment fee calculated based on the total fee for all mortgage tracks,
             considering the eligibility and discount factor.
         """
-        if average_interest_in_early_payment is None:
+        if average_interest_in_early_payment is None or average_interest_in_early_payment == 0:
             average_interest_in_early_payment = {track.__class__: track.interest_rate for track in self.tracks}
 
         # TODO : test this
-        print('333')
         full_early_payment_fee = sum(
             track.calculate_early_payment_fee(num_of_months, average_interest_in_early_payment[track.__class__]) for
             track in self.tracks)
-        print('full_early_payment_fee: ', full_early_payment_fee)
         eligibility_present = any(isinstance(track, Eligibility) for track in self.tracks)
-        print('eligibility_present: ', eligibility_present)
         discount_factor = calculate_discount_factor(num_of_months, eligibility_present)
-        print('discount_factor: ', discount_factor)
-        print('resssss: ', discount_factor * full_early_payment_fee)
         return round(discount_factor * full_early_payment_fee)
 
     def calculate_normalize_resource_allocation(self) -> Dict[MortgageTrack, float]:

@@ -8,7 +8,6 @@ import Navbar from "../../components/navbar/NavbarAdmin.js";
 import Sidebar from "../../components/sidebar/Sidebar.js";
 import {SidebarContext} from "../../contexts/SidebarContext";
 import routes from "../../routes.js";
-import InvestorDetails from "../../views/profile/components/InvestorDetails";
 import UserDetails from "../../views/profile/components/UserDetails";
 import General from "../../views/profile/components/General";
 import Projects from "../../views/profile/components/Projects";
@@ -143,17 +142,17 @@ export default function Profile() {
                         // }}
                         gap={{base: "20px", xl: "20px"}}
                     >
-                        <InvestorDetails
-                            gridArea='1 / 2 / 2 / 2'
-                            banner={banner}
-                            avatar={avatar}
-                            name='Adela Parkson'
-                            job='Product Designer'
-                            posts='17'
-                            followers='9.7k'
-                            following='274'
-                            demiInvestor={demiInvestor}
-                        />
+                        {/*<InvestorDetails*/}
+                        {/*    gridArea='1 / 2 / 2 / 2'*/}
+                        {/*    banner={banner}*/}
+                        {/*    avatar={avatar}*/}
+                        {/*    name='Adela Parkson'*/}
+                        {/*    job='Product Designer'*/}
+                        {/*    posts='17'*/}
+                        {/*    followers='9.7k'*/}
+                        {/*    following='274'*/}
+                        {/*    demiInvestor={demiInvestor}*/}
+                        {/*/>*/}
                         <UserDetails
                             first_name={demiUser.first_name}
                             last_name={demiUser.last_name}
