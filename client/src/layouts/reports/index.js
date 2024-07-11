@@ -19,28 +19,38 @@ export default function ReportsDashboard(props) {
     const toast = useToast();
     const {onOpen} = useDisclosure();
 
-    const getUser = () => {
-        return 11;
+    const getToken = () => {
+        // Check if token is in sessionStorage
+        let token = sessionStorage.getItem('token');
+
+        // If token is not found in sessionStorage, check localStorage
+        if (!token) {
+            token = localStorage.getItem('token');
+        }
+
+        return token;
     };
 
     useEffect(() => {
-        const userId = getUser();
-        axios.get(`http://localhost:5000/reports/${userId}`)
-            .then(response => {
-                setReports(response.data.reports);
-                setLoading(false);
+        const token = getToken();
+            axios.get(`http://localhost:5000/reports`, {
+                headers: {Authorization: `Bearer ${token}`},
             })
-            .catch(error => {
-                console.error('There was an error fetching the reports!', error);
-                setLoading(false);
-                toast({
-                    title: 'Error fetching reports.',
-                    description: 'No reports found.',
-                    status: 'error',
-                    duration: 5000,
-                    isClosable: true,
+                .then(response => {
+                    setReports(response.data.reports);
+                    setLoading(false);
+                })
+                .catch(error => {
+                    console.error('There was an error fetching the reports!', error);
+                    setLoading(false);
+                    toast({
+                        title: 'Error fetching reports.',
+                        description: 'No reports found.',
+                        status: 'error',
+                        duration: 5000,
+                        isClosable: true,
+                    });
                 });
-            });
     }, []);
 
     const getActiveRoute = (routes) => {

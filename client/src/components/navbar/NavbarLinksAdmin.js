@@ -43,16 +43,30 @@ export default function HeaderLinks(props) {
     const toast = useToast();
     const navigate = useNavigate();
 
+    const getToken = () => {
+        // Check if token is in sessionStorage
+        let token = sessionStorage.getItem('token');
+
+        // If token is not found in sessionStorage, check localStorage
+        if (!token) {
+            token = localStorage.getItem('token');
+        }
+
+        return token;
+    };
+
     const handleLogout = async () => {
         try {
-            const token = localStorage.getItem('token'); // Assuming the token in localStorage
+            const token = getToken();
             const headers = {
                 Authorization: `Bearer ${token}`
             };
 
             await axios.post('http://localhost:5000/logout', null, {headers});
             // Remove token from localStorage on successful logout
-            localStorage.removeItem('token');
+            console.log('Before removing token:', sessionStorage.getItem('token'));
+            sessionStorage.removeItem('token');
+            console.log('After removing token:', sessionStorage.getItem('token'));
             navigate('/');
         } catch (error) {
             console.error('Failed to log out:', error);

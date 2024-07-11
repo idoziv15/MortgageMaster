@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from functools import wraps
 
 import bcrypt
 import jwt
@@ -46,18 +47,102 @@ class Users(db.Model):
 
 
 # API routes
+# Secret key for JWT encoding/decoding
+SECRET_KEY = app.config['SECRET_KEY']
+blacklist = set()
+
+
+# JWT token required decorator
+def token_required(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        token = None
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split()[1]
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+
+        if token in blacklist:
+            return jsonify({'message': 'Token is invalid'}), 401
+
+        try:
+            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            current_user = find_user_by_id(data['user_id'])
+        except:
+            return jsonify({'message': 'Token is invalid'}), 401
+
+        return f(current_user, *args, **kwargs)
+
+    return decorator
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    try:
+        # Get data from request JSON body
+        req = request.get_json()
+        email = req.get('email')
+        password = req.get('password')
+
+        # Find the user by email
+        user = find_user_by_email(email)
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+            # Create JWT token
+            token = jwt.encode({
+                'user_id': user['id'],
+                'exp': datetime.utcnow() + timedelta(hours=1)
+            }, SECRET_KEY, algorithm='HS256')
+            return jsonify({'token': token}), 200
+        else:
+            return jsonify({'message': 'Invalid email or password'}), 401
+
+    except Exception as e:
+        print(f"Error logging in: {e}")
+        return jsonify({'error': 'Failed to login'}), 500
+
+
+@app.route('/logout', methods=['POST'])
+@token_required
+def logout(current_user):
+    try:
+        token = request.headers.get('Authorization').split()[1]
+        blacklist.add(token)
+        return jsonify({'message': 'Logged out successfully'}), 200
+
+    except Exception as e:
+        print(f"Error logging out: {e}")
+        return jsonify({'error': 'Failed to logout'}), 500
+
+
+@app.route('/verify-token', methods=['POST'])
+def verify_token():
+    token = request.headers.get('Authorization').split()[1]
+    print("blacklist:", blacklist)
+    print("token:", token)
+    # check if token in the server's black list
+    if token in blacklist:
+        return jsonify({'valid': False}), 401
+
+    try:
+        data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        current_user = find_user_by_id(data['user_id'])
+        print("user is:", current_user)
+        if current_user:
+            return jsonify({'valid': True}), 200
+        else:
+            return jsonify({'valid': False}), 401
+    except:
+        return jsonify({'valid': False}), 401
+
+
 @app.route('/users', methods=['GET', 'POST'])
-def user_routes():
+@token_required
+def user_routes(current_user):
     if request.method == 'GET':
-        # Handle GET request for users
         users = Users.query.all()
-        print(users)
-        user_list = []
-        for user in users:
-            user_list.append({'id': user.id, 'username': user.name, 'email': user.email})
+        user_list = [{'id': user.id, 'username': user.name, 'email': user.email} for user in users]
         return jsonify({'users': user_list})
     elif request.method == 'POST':
-        # Handle POST request for creating a new user
         data = request.json
         new_user = Users(name=data['username'], email=data['email'])
         db.session.add(new_user)
@@ -78,7 +163,8 @@ def user_routes():
 
 
 @app.route('/dashboard/bmm_update', methods=['PUT'])
-def update_investment():
+@token_required
+def update_investment(current_user):
     data = request.json
     investment_data = data['investment_data']
     investor_data = data['investor_data']
@@ -91,7 +177,8 @@ def update_investment():
 
 
 @app.route('/report/<int:id>', methods=['GET'])
-def get_report(id):
+@token_required
+def get_report(current_user, id):
     for report in reports:
         if report['id'] == id:
             return jsonify({'report': report}), 200
@@ -99,10 +186,10 @@ def get_report(id):
     return jsonify({'error': 'Report not found'}), 404
 
 
-@app.route('/reports/<int:user_id>', methods=['GET'])
-def get_user_reports(user_id):
-    user_reports = [report for report in reports if report['user_id'] == user_id]
-
+@app.route('/reports', methods=['GET'])
+@token_required
+def get_user_reports(user):
+    user_reports = [report for report in reports if report['user_id'] == user['id']]
     if user_reports:
         return jsonify({'reports': user_reports}), 200
 
@@ -110,8 +197,9 @@ def get_user_reports(user_id):
 
 
 # Route to handle saving reports
-@app.route('/report/<int:user_id>', methods=['POST'])
-def save_report(user_id):
+@app.route('/report', methods=['POST'])
+@token_required
+def save_report(user):
     try:
         # Get data from request JSON body
         request_data = request.get_json()
@@ -123,7 +211,7 @@ def save_report(user_id):
         # Process and save report data
         reports.append({
             'id': str(uuid.uuid4()),
-            'user_id': user_id,
+            'user_id': user.id,
             'name': name,
             'description': description,
             'data': data
@@ -140,7 +228,8 @@ def save_report(user_id):
 
 # Route to handle deleting reports
 @app.route('/investment_report/<report_id>', methods=['DELETE'])
-def delete_report(report_id):
+@token_required
+def delete_report(current_user, report_id):
     try:
         # Get the user ID from the request body
         request_data = request.get_json()
@@ -163,7 +252,8 @@ def delete_report(report_id):
 
 
 @app.route('/investment_report/<int:report_id>', methods=['PUT'])
-def update_report(report_id):
+@token_required
+def update_report(current_user, report_id):
     data = request.json
     for report in reports:
         if report['id'] == report_id:
@@ -221,24 +311,32 @@ def create_user():
         return jsonify({'error': 'Failed to create user'}), 500
 
 
-@app.route('/users/<int:user_id>', methods=['GET'])
-def get_user(user_id):
+@app.route('/user', methods=['GET'])
+@token_required
+def get_user(current_user):
     try:
-        user = find_user_by_id(user_id)
-        if user:
-            return jsonify(user), 200
+        if current_user:
+            # Create a dictionary copy of the current_user object
+            user_data = {
+                'id': current_user['id'],
+                'first_name': current_user['first_name'],
+                'last_name': current_user['last_name'],
+                'email': current_user['email'],
+                'date_added': current_user['registered_date']
+            }
+            return jsonify(user_data), 200
         else:
             return jsonify({'error': 'User not found'}), 404
-
     except Exception as e:
         print(f"Error retrieving user: {e}")
         return jsonify({'error': 'Failed to retrieve user'}), 500
 
 
-@app.route('/users/<int:user_id>', methods=['PUT'])
-def update_user(user_id):
+@app.route('/users', methods=['PUT'])
+@token_required
+def update_user(current_user):
     try:
-        user = find_user_by_id(user_id)
+        user = find_user_by_id(current_user.id)
         if user:
             req = request.get_json()
             user['first_name'] = req.get('firstName', user['firstName'])
@@ -249,90 +347,24 @@ def update_user(user_id):
             return jsonify(user), 200
         else:
             return jsonify({'error': 'User not found'}), 404
-
     except Exception as e:
         print(f"Error updating user: {e}")
         return jsonify({'error': 'Failed to update user'}), 500
 
 
-@app.route('/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
+@app.route('/users', methods=['DELETE'])
+@token_required
+def delete_user(current_user):
     try:
-        user = find_user_by_id(user_id)
+        user = find_user_by_id(current_user.id)
         if user:
             users.remove(user)
             return jsonify({'message': 'User deleted successfully'}), 200
         else:
             return jsonify({'error': 'User not found'}), 404
-
     except Exception as e:
         print(f"Error deleting user: {e}")
         return jsonify({'error': 'Failed to delete user'}), 500
-
-
-# Secret key for JWT encoding/decoding
-SECRET_KEY = 'your_secret_key'
-blacklist = set()
-
-
-@app.route('/login', methods=['POST'])
-def login():
-    try:
-        # Get data from request JSON body
-        req = request.get_json()
-        email = req.get('email')
-        password = req.get('password')
-
-        # Find the user by email
-        user = find_user_by_email(email)
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-            # Create JWT token
-            token = jwt.encode({
-                'user_id': user['id'],
-                'exp': datetime.utcnow() + timedelta(hours=1)
-            }, SECRET_KEY, algorithm='HS256')
-            return jsonify({'token': token}), 200
-        else:
-            return jsonify({'message': 'Invalid email or password'}), 401
-
-    except Exception as e:
-        print(f"Error logging in: {e}")
-        return jsonify({'error': 'Failed to login'}), 500
-
-
-@app.route('/logout', methods=['POST'])
-def logout():
-    try:
-        token = request.headers.get('Authorization').split()[1]
-        blacklist.add(token)
-        return jsonify({'message': 'Logged out successfully'}), 200
-
-    except Exception as e:
-        print(f"Error logging out: {e}")
-        return jsonify({'error': 'Failed to logout'}), 500
-
-
-# JWT token required decorator
-def token_required(f):
-    def decorator(*args, **kwargs):
-        token = None
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split()[1]
-        if not token:
-            return jsonify({'message': 'Token is missing'}), 401
-
-        if token in blacklist:
-            return jsonify({'message': 'Token is invalid'}), 401
-
-        try:
-            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            current_user = find_user_by_id(data['user_id'])
-        except:
-            return jsonify({'message': 'Token is invalid'}), 401
-
-        return f(current_user, *args, **kwargs)
-
-    return decorator
 
 
 @app.route('/')

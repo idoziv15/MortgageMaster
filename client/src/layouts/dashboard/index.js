@@ -21,6 +21,7 @@ export default function Dashboard(props) {
     const [showModal, setShowModal] = useState(false);
     const [reportName, setReportName] = useState('');
     const [reportDescription, setReportDescription] = useState('');
+    const [userData, setUserData] = useState(null);
 
     const [insightsData, setInsightsData] = useState({
         "Price per meter": 0,
@@ -144,6 +145,18 @@ export default function Dashboard(props) {
         }
     };
 
+    const getToken = () => {
+        // Check if token is in sessionStorage
+        let token = sessionStorage.getItem('token');
+
+        // If token is not found in sessionStorage, check localStorage
+        if (!token) {
+            token = localStorage.getItem('token');
+        }
+
+        return token;
+    };
+
     const updateBMM = async (newData) => {
         setLoading(true);
         let dataToUpdate = {
@@ -186,7 +199,10 @@ export default function Dashboard(props) {
     const fetchReportData = async (reportId) => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://localhost:5000/report/${reportId}`)
+            const token = getToken();
+            const response = await axios.get(`http://localhost:5000/report/${reportId}`, {
+                headers: {Authorization: `Bearer ${token}`},
+            })
             const reportData = response.data.report.data;
             const insights = reportData.insightsData;
             const investment = reportData.investmentData;
@@ -336,9 +352,40 @@ export default function Dashboard(props) {
         }
     });
 
-    const getUser = () => {
-        return 1234
-    }
+    const fetchUserData = async () => {
+        // Try to get the token from sessionStorage first, then from localStorage
+        const token = getToken();
+        if (token) {
+            try {
+                const response = await axios.get('http://localhost:5000/user', {
+                    headers: {Authorization: `Bearer ${token}`},
+                });
+                return response.data;
+            } catch (error) {
+                console.error('Failed to fetch user data:', error);
+                throw error;
+            }
+        } else {
+            throw new Error('No token found');
+        }
+    };
+
+    useEffect(() => {
+        const loadUserData = async () => {
+            try {
+                const data = await fetchUserData();
+                setUserData(data);
+            } catch (error) {
+                toast({
+                    title: 'Failed to load user data',
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true,
+                });
+            }
+        };
+        loadUserData();
+    }, []);
 
     const handleSave = () => {
         setShowModal(true);
@@ -352,10 +399,11 @@ export default function Dashboard(props) {
         setLoading(true);
         try {
             const reportData = generateReport();
-            // Get the user
-            const userId = getUser();
+            const token = getToken();
             // Send a POST request to save the report
-            const response = await axios.post(`http://localhost:5000/report/${userId}`, reportData);
+            const response = await axios.post(`http://localhost:5000/report`, reportData, {
+                headers: {Authorization: `Bearer ${token}`},
+            });
 
             // Handle success
             toast({
