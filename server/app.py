@@ -132,6 +132,32 @@ def verify_token():
         return jsonify({'valid': False}), 401
 
 
+@app.route('/change-password', methods=['POST'])
+@token_required
+def change_password(current_user):
+    try:
+        req = request.get_json()
+        current_password = req.get('currentPassword')
+        new_password = req.get('newPassword')
+
+        # Validate current password
+        if not current_user['password'] != current_password:
+            return jsonify({'error': 'Current password is incorrect'}), 401
+
+        # Update user's password
+        current_user['password'] = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+
+        # Revoke current session token
+        blacklist.add(request.headers.get('Authorization').split()[1])
+
+        # Respond with success message
+        return jsonify({'message': 'Password changed successfully'}), 200
+
+    except Exception as e:
+        print(f"Error changing password: {e}")
+        return jsonify({'error': 'Failed to change password'}), 500
+
+
 @app.route('/users', methods=['GET', 'POST'])
 @token_required
 def user_routes(current_user):

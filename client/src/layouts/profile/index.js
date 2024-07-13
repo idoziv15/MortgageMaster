@@ -10,6 +10,7 @@ import {SidebarContext} from "../../contexts/SidebarContext";
 import routes from "../../routes.js";
 import UserDetails from "../../views/profile/components/UserDetails";
 import Notifications from "../../views/profile/components/Notifications";
+import ChangePassword from "./components/ChangePassword";
 import {useNavigate} from "react-router-dom";
 
 export default function Profile() {
@@ -181,41 +182,22 @@ export default function Profile() {
                                 lg: "repeat(2, 1fr)",
                                 "2xl": "1.34fr 1.62fr 1fr",
                             }}
-                            // templateRows={{
-                            //     base: "1fr",
-                            //     lg: "repeat(2, 1fr)",
-                            //     "2xl": "1fr",
-                            // }}
                             gap={{base: "20px", xl: "20px"}}
                         >
-                            {/*<InvestorDetails*/}
-                            {/*    gridArea='1 / 2 / 2 / 2'*/}
-                            {/*    banner={banner}*/}
-                            {/*    avatar={avatar}*/}
-                            {/*    name='Adela Parkson'*/}
-                            {/*    job='Product Designer'*/}
-                            {/*    posts='17'*/}
-                            {/*    followers='9.7k'*/}
-                            {/*    following='274'*/}
-                            {/*    demiInvestor={demiInvestor}*/}
-                            {/*/>*/}
                             <UserDetails
                                 first_name={userData.first_name}
                                 last_name={userData.last_name}
                                 email={userData.email}
-                                gridArea={{base: "2 / 1 / 3 / 2", lg: "1 / 2 / 2 / 3"}}
-                                minH='365px'
+                                gridArea={{ base: "auto", lg: "auto", "2xl": "1 / 1 / 2 / 2" }}
+                                minH='350px'
                                 pe='20px'
                             />
                             <Notifications
                                 used={25.6}
                                 total={50}
-                                gridArea={{
-                                    base: "3 / 1 / 4 / 2",
-                                    lg: "2 / 1 / 3 / 3",
-                                    "2xl": "1 / 3 / 2 / 4",
-                                }}
+                                gridArea={{ base: "auto", lg: "auto", "2xl": "1 / 2 / 2 / 3" }}
                             />
+                            <ChangePassword />
                         </Grid>
                     </Box>
                     <Box mt="auto">

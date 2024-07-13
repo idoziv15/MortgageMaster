@@ -27,7 +27,7 @@ export default function Footer() {
                 {" "}
                 &copy; {1900 + new Date().getYear()}
                 <Text as='span' fontWeight='500' ms='4px'>
-                    Master Mortgage. All Rights Reserved. Made with ❤️ by Ido Ziv.
+                    Master Mortgage. All Rights Reserved. Made by Ido Ziv.
                 </Text>
             </Text>
             <List display='flex'>
