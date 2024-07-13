@@ -1,10 +1,7 @@
 import {
     Avatar,
-    Button,
     Flex,
     Icon,
-    Image,
-    Link,
     Menu,
     MenuButton,
     MenuItem,
@@ -19,27 +16,23 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import axios from 'axios';
 import {MdNotificationsNone, MdInfoOutline} from 'react-icons/md';
-import {FaEthereum} from 'react-icons/fa';
+import {NavLink} from "react-router-dom";
 import routes from '../../routes.js';
 import {ThemeEditor} from './ThemeEditor';
 import {useNavigate} from "react-router-dom";
 
 export default function HeaderLinks(props) {
-    const {secondary} = props;
-    // Chakra Color Mode
+    const {secondary, currUser } = props;
     const navbarIcon = useColorModeValue('gray.400', 'white');
-    let menuBg = useColorModeValue('white', 'navy.800');
+    const menuBg = useColorModeValue('white', 'navy.800');
     const textColor = useColorModeValue('secondaryGray.900', 'white');
     const textColorBrand = useColorModeValue('brand.700', 'brand.400');
-    const ethColor = useColorModeValue('gray.700', 'white');
     const borderColor = useColorModeValue('#E6ECFA', 'rgba(135, 140, 189, 0.3)');
-    const ethBg = useColorModeValue('secondaryGray.300', 'navy.900');
-    const ethBox = useColorModeValue('white', 'navy.800');
     const shadow = useColorModeValue(
         '14px 17px 40px 4px rgba(112, 144, 176, 0.18)',
         '14px 17px 40px 4px rgba(112, 144, 176, 0.06)'
     );
-    const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');
+    // const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');
     const toast = useToast();
     const navigate = useNavigate();
 
@@ -64,9 +57,7 @@ export default function HeaderLinks(props) {
 
             await axios.post('http://localhost:5000/logout', null, {headers});
             // Remove token from localStorage on successful logout
-            console.log('Before removing token:', sessionStorage.getItem('token'));
             sessionStorage.removeItem('token');
-            console.log('After removing token:', sessionStorage.getItem('token'));
             navigate('/');
         } catch (error) {
             console.error('Failed to log out:', error);
@@ -79,12 +70,6 @@ export default function HeaderLinks(props) {
         }
     };
 
-    const getUser = () => {
-        return 'Guest 1'
-    }
-
-    const userName = getUser()
-
     return (
         <Flex
             w={{sm: '100%', md: 'auto'}}
@@ -96,25 +81,6 @@ export default function HeaderLinks(props) {
             borderRadius="30px"
             boxShadow={shadow}>
             <SearchBar mb={secondary ? {base: '10px', md: 'unset'} : 'unset'} me="10px" borderRadius="30px"/>
-            <Flex
-                bg={ethBg}
-                display={secondary ? 'flex' : 'none'}
-                borderRadius="30px"
-                ms="auto"
-                p="6px"
-                align="center"
-                me="6px">
-                <Flex align="center" justify="center" bg={ethBox} h="29px" w="29px" borderRadius="30px" me="7px">
-                    <Icon color={ethColor} w="9px" h="14px" as={FaEthereum}/>
-                </Flex>
-                <Text w="max-content" color={ethColor} fontSize="sm" fontWeight="700" me="6px">
-                    1,924
-                    <Text as="span" display={{base: 'none', md: 'unset'}}>
-                        {' '}
-                        ETH
-                    </Text>
-                </Text>
-            </Flex>
             <SidebarResponsive routes={routes}/>
             <Menu>
                 <MenuButton p="0px">
@@ -140,10 +106,10 @@ export default function HeaderLinks(props) {
                     </Flex>
                     <Flex flexDirection="column">
                         <MenuItem _hover={{bg: 'none'}} _focus={{bg: 'none'}} px="0" borderRadius="8px" mb="10px">
-                            <ItemContent info="Master Mortgage PRO" aName="Alicia"/>
+                            <ItemContent info="Master Mortgage PRO" description='Have you tried PRO yet?'/>
                         </MenuItem>
                         <MenuItem _hover={{bg: 'none'}} _focus={{bg: 'none'}} px="0" borderRadius="8px" mb="10px">
-                            <ItemContent info="New property added" aName="Josh Henry"/>
+                            <ItemContent info="New property added" description='Congradulations'/>
                         </MenuItem>
                     </Flex>
                 </MenuList>
@@ -156,7 +122,7 @@ export default function HeaderLinks(props) {
                     <Avatar
                         _hover={{cursor: 'pointer'}}
                         color="white"
-                        name={userName}
+                        name={currUser.first_name}
                         bg="#11047A"
                         size="sm"
                         w="40px"
@@ -175,12 +141,13 @@ export default function HeaderLinks(props) {
                             fontSize="sm"
                             fontWeight="700"
                             color={textColor}>
-                            Hello, {userName}
+                            Hello, {currUser.first_name + ' ' + currUser.last_name}
                         </Text>
                     </Flex>
                     <Flex flexDirection="column" p="10px">
                         <MenuItem _hover={{bg: 'none'}} _focus={{bg: 'none'}} borderRadius="8px" px="14px">
-                            <Text fontSize="sm">Profile Settings</Text>
+                            {/*<Text fontSize="sm">Profile Settings</Text>*/}
+                            <NavLink to='/profile' fontSize="sm">Profile Settings</NavLink>
                         </MenuItem>
                         <MenuItem
                             _hover={{bg: 'none'}}
@@ -188,7 +155,6 @@ export default function HeaderLinks(props) {
                             color="red.400"
                             borderRadius="8px"
                             px="14px">
-                            {/*<Text fontSize="sm">Log out</Text>*/}
                             <Text fontSize="sm" onClick={handleLogout}>Log Out</Text>
                         </MenuItem>
                     </Flex>

@@ -1,9 +1,10 @@
-import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Link, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Text, useColorModeValue } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import React, { useState, useEffect } from 'react';
 import AdminNavbarLinks from './NavbarLinksAdmin';
 
 export default function AdminNavbar(props) {
+	const { secondary, message, brandText, currUser } = props;
 	const [ scrolled, setScrolled ] = useState(false);
 
 	useEffect(() => {
@@ -13,8 +14,6 @@ export default function AdminNavbar(props) {
 			window.removeEventListener('scroll', changeNavbar);
 		};
 	});
-
-	const { secondary, message, brandText } = props;
 
 	let mainText = useColorModeValue('navy.700', 'white');
 	let secondaryText = useColorModeValue('gray.700', 'white');
@@ -126,6 +125,7 @@ export default function AdminNavbar(props) {
 						secondary={props.secondary}
 						fixed={props.fixed}
 						scrolled={scrolled}
+						currUser={currUser}
 					/>
 				</Box>
 			</Flex>

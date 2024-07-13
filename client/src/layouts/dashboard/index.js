@@ -4,7 +4,7 @@ import Navbar from '../../components/navbar/NavbarAdmin.js';
 import Sidebar from '../../components/sidebar/Sidebar.js';
 import {SidebarContext} from '../../contexts/SidebarContext';
 import React, {useState, useEffect} from 'react';
-import {Route, useParams} from 'react-router-dom';
+import {Route, useNavigate, useParams} from 'react-router-dom';
 import routes from '../../routes.js';
 import InvestmentSummary from "../../views/dashboard/components/InvestmentSummary";
 import axios from 'axios';
@@ -14,9 +14,12 @@ import SaveReportModal from "../../views/dashboard/components/SaveReportModal";
 export default function Dashboard(props) {
     const {...rest} = props;
     const [fixed] = useState(false);
+    const mainBackground = useColorModeValue('gray.100', 'gray.900');
+    const boxBackground = useColorModeValue('white', 'gray.800');
     const [toggleSidebar, setToggleSidebar] = useState(false);
     const {onOpen} = useDisclosure();
     const toast = useToast();
+    const navigate = useNavigate();
     const {reportId} = useParams();
     const [showModal, setShowModal] = useState(false);
     const [reportName, setReportName] = useState('');
@@ -119,32 +122,6 @@ export default function Dashboard(props) {
     });
     const [loading, setLoading] = useState(false);
 
-    const fetchInitialData = async () => {
-        try {
-            // Create a request with the current states
-            let req = {
-                investment_data: investmentData,
-                investor_data: investorData,
-                property_data: propertyData,
-                mortgage_data: mortgageData,
-                other_data: otherData,
-            };
-
-            const response = await axios.post('http://localhost:5000/dashboard/bmm', req);
-            const insights = response.data.insights;
-            setInsightsData(insights);
-        } catch (error) {
-            console.error('Error fetching initial data', error);
-            toast({
-                title: 'Error fetching initial data',
-                description: 'An error occurred while fetching initial data.',
-                status: 'error',
-                duration: 5000,
-                isClosable: true,
-            });
-        }
-    };
-
     const getToken = () => {
         // Check if token is in sessionStorage
         let token = sessionStorage.getItem('token');
@@ -180,7 +157,10 @@ export default function Dashboard(props) {
         }
 
         try {
-            const res = await axios.put('http://localhost:5000/dashboard/bmm_update', dataToUpdate);
+            const token = getToken();
+            const res = await axios.put('http://localhost:5000/dashboard/bmm_update', dataToUpdate, {
+                headers: {Authorization: `Bearer ${token}`},
+            });
             const updatedInsights = res.data.insights;
             setInsightsData(updatedInsights);
             setLoading(false);
@@ -382,6 +362,7 @@ export default function Dashboard(props) {
                     duration: 5000,
                     isClosable: true,
                 });
+                navigate('/sign-in');
             }
         };
         loadUserData();
@@ -510,6 +491,14 @@ export default function Dashboard(props) {
         });
     };
 
+    if (!userData) {
+        return (
+            <Flex justifyContent="center" alignItems="center" height="100vh">
+                <Spinner size="xl" />
+            </Flex>
+        );
+    }
+
     return (
         <Box>
             <Box>
@@ -526,7 +515,7 @@ export default function Dashboard(props) {
                         overflow='auto'
                         position='relative'
                         maxHeight='100%'
-                        background={useColorModeValue("#F7FAFC", "whiteAlpha.100")}
+                        background={mainBackground}
                         w={{base: '100%', xl: 'calc( 100% - 290px )'}}
                         maxWidth={{base: '100%', xl: 'calc( 100% - 290px )'}}
                         transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
@@ -542,6 +531,7 @@ export default function Dashboard(props) {
                                     secondary={getActiveNavbar(routes)}
                                     message={getActiveNavbarText(routes)}
                                     fixed={fixed}
+                                    currUser={userData}
                                     {...rest}
                                 />
                             </Box>
@@ -564,7 +554,7 @@ export default function Dashboard(props) {
                             </Box>
                         </Flex>
                         <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'
-                              background={useColorModeValue("white", "whiteAlpha.100")}
+                              background={boxBackground}
                         >
                             <Button colorScheme="teal" onClick={updateBMM} isLoading={loading} mr={10}>
                                 {loading ? <Spinner size="sm"/> : 'Calculate'}
@@ -585,11 +575,6 @@ export default function Dashboard(props) {
                                 />
                             )}
                         </Flex>
-                        {/*{loading && (*/}
-                        {/*    <Flex justifyContent="center" alignItems="center" position="fixed" inset="0">*/}
-                        {/*        <Spinner size="xl"/>*/}
-                        {/*    </Flex>*/}
-                        {/*)}*/}
                         <InvestmentSummary insights={insightsData}/>
                         <Box mt="auto">
                             <Footer/>

@@ -26,7 +26,7 @@ function AuthIllustration(props) {
                 justifyContent='start'
                 direction='column'>
                 <NavLink
-                    to='/sign-in'
+                    to='/'
                     style={() => ({
                         width: "fit-content",
                         marginTop: "40px",

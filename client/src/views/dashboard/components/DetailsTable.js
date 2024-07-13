@@ -26,10 +26,6 @@ export default function DetailsTable({data, setData, tableName}) {
     const [inputValues, setInputValues] = useState(data);
     const [errors, setErrors] = useState({});
 
-    // useEffect(() => {
-    //     setInputValues(data);
-    // }, [data]);
-
     const validateInput = (field, value) => {
         const parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) {
@@ -297,6 +293,7 @@ export default function DetailsTable({data, setData, tableName}) {
                                                         size="sm"
                                                         width="80px"
                                                         ml={5}
+                                                        zIndex={0}
                                                         onChange={value => handleSliderChange(key, value)}
                                                     >
                                                         <SliderTrack>

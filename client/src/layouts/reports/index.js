@@ -1,4 +1,4 @@
-import {Portal, Box, useDisclosure, Image, Center, Flex, useToast} from '@chakra-ui/react';
+import {Portal, Box, useDisclosure, Image, Center, Flex, useToast, Spinner} from '@chakra-ui/react';
 import Footer from '../../components/footer/Footer.js';
 import Navbar from '../../components/navbar/NavbarAdmin.js';
 import Sidebar from '../../components/sidebar/Sidebar.js';
@@ -6,7 +6,7 @@ import ReportsList from './components/ReportsList';
 import noDataPic from "../../assets/img/layout/no_data.svg";
 import {SidebarContext} from '../../contexts/SidebarContext';
 import React, {useState, useEffect} from 'react';
-import {Route} from 'react-router-dom';
+import {Route, useNavigate} from 'react-router-dom';
 import routes from '../../routes.js';
 import axios from 'axios';
 
@@ -16,8 +16,46 @@ export default function ReportsDashboard(props) {
     const [toggleSidebar, setToggleSidebar] = useState(false);
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [userData, setUserData] = useState(null);
     const toast = useToast();
     const {onOpen} = useDisclosure();
+    const navigate = useNavigate();
+
+    const fetchUserData = async () => {
+        // Try to get the token from sessionStorage first, then from localStorage
+        const token = getToken();
+        if (token) {
+            try {
+                const response = await axios.get('http://localhost:5000/user', {
+                    headers: {Authorization: `Bearer ${token}`},
+                });
+                return response.data;
+            } catch (error) {
+                console.error('Failed to fetch user data:', error);
+                throw error;
+            }
+        } else {
+            throw new Error('No token found');
+        }
+    };
+
+    useEffect(() => {
+        const loadUserData = async () => {
+            try {
+                const data = await fetchUserData();
+                setUserData(data);
+            } catch (error) {
+                toast({
+                    title: 'Failed to load user data',
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true,
+                });
+                navigate('/sign-in');
+            }
+        };
+        loadUserData();
+    }, []);
 
     const getToken = () => {
         // Check if token is in sessionStorage
@@ -32,7 +70,8 @@ export default function ReportsDashboard(props) {
     };
 
     useEffect(() => {
-        const token = getToken();
+        if (userData) {
+            const token = getToken();
             axios.get(`http://localhost:5000/reports`, {
                 headers: {Authorization: `Bearer ${token}`},
             })
@@ -51,7 +90,9 @@ export default function ReportsDashboard(props) {
                         isClosable: true,
                     });
                 });
-    }, []);
+        }
+
+    }, [userData]);
 
     const getActiveRoute = (routes) => {
         let activeRoute = 'My reports';
@@ -135,6 +176,14 @@ export default function ReportsDashboard(props) {
         });
     };
 
+    if (!userData) {
+        return (
+            <Flex justifyContent="center" alignItems="center" height="100vh">
+                <Spinner size="xl" />
+            </Flex>
+        );
+    }
+
     return (
         <Box>
             <SidebarContext.Provider
@@ -167,6 +216,7 @@ export default function ReportsDashboard(props) {
                                 secondary={getActiveNavbar(routes)}
                                 message={getActiveNavbarText(routes)}
                                 fixed={fixed}
+                                currUser={userData}
                                 {...rest}
                             />
                         </Box>

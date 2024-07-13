@@ -117,8 +117,6 @@ def logout(current_user):
 @app.route('/verify-token', methods=['POST'])
 def verify_token():
     token = request.headers.get('Authorization').split()[1]
-    print("blacklist:", blacklist)
-    print("token:", token)
     # check if token in the server's black list
     if token in blacklist:
         return jsonify({'valid': False}), 401
@@ -126,7 +124,6 @@ def verify_token():
     try:
         data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         current_user = find_user_by_id(data['user_id'])
-        print("user is:", current_user)
         if current_user:
             return jsonify({'valid': True}), 200
         else:
