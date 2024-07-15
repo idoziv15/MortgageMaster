@@ -255,14 +255,13 @@ def save_report(user):
 def delete_report(current_user, report_id):
     try:
         # Get the user ID from the request body
-        request_data = request.get_json()
-        user_id = request_data.get('userId')
+        user_id = current_user['id']
 
         if not user_id:
             return jsonify({'error': 'User ID is required'}), 400
 
         # Find the report to delete
-        report = next((r for r in reports if r['id'] == report_id and r['user_id'] == user_id), None)
+        report = next((r for r in reports if r['id'] == int(report_id) and r['user_id'] == int(user_id)), None)
         if report:
             # Remove the report from the list
             reports.remove(report)

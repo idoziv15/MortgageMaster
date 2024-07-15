@@ -40,12 +40,27 @@ export default function InvestmentReport({report, onDelete}) {
     const [isDeleting, setIsDeleting] = useState(false);
     const toast = useToast();
 
+    const getToken = () => {
+        // Check if token is in sessionStorage
+        let token = sessionStorage.getItem('token');
+
+        // If token is not found in sessionStorage, check localStorage
+        if (!token) {
+            token = localStorage.getItem('token');
+        }
+
+        return token;
+    };
+
     const handleSave = async () => {
         setLoading(true);
+        const token = getToken();
         try {
             const response = await axios.put(`http://localhost:5000/investment_report/${report.id}`, {
                 name,
                 description
+            }, {
+                headers: {Authorization: `Bearer ${token}`}
             });
             if (response.status === 200) {
                 setLastUpdatedDate(moment());
@@ -70,6 +85,7 @@ export default function InvestmentReport({report, onDelete}) {
         setLoading(false);
     };
 
+
     const handleCancel = () => {
         setName(report.name);
         setDescription(report.description);
@@ -78,9 +94,10 @@ export default function InvestmentReport({report, onDelete}) {
 
     const handleDelete = async () => {
         setIsDeleting(true);
+        const token = getToken();
         try {
             const response = await axios.delete(`http://localhost:5000/investment_report/${report.id}`, {
-                data: { userId: report.user_id }
+                headers: {Authorization: `Bearer ${token}`}
             });
             if (response.status === 200) {
                 toast({
@@ -159,7 +176,7 @@ export default function InvestmentReport({report, onDelete}) {
                 {isEditing ? (
                     <Flex>
                         <Button size='sm' variant='solid' colorScheme='green' onClick={handleSave} ml={2}>
-                            <FaCheck />
+                            <FaCheck/>
                         </Button>
                         <Button size='sm' variant='outline' colorScheme='red' onClick={handleCancel} ml={2}>
                             X
@@ -167,7 +184,8 @@ export default function InvestmentReport({report, onDelete}) {
                     </Flex>
                 ) : (
                     <Flex>
-                        <Button size='sm' variant='outline' colorScheme='blue' onClick={() => setIsEditing(true)} ml={2}>
+                        <Button size='sm' variant='outline' colorScheme='blue' onClick={() => setIsEditing(true)}
+                                ml={2}>
                             <FaEdit/>
                         </Button>
                         <Button size='sm' variant='outline' colorScheme='red' onClick={handleDelete} ml={2}>
@@ -177,7 +195,8 @@ export default function InvestmentReport({report, onDelete}) {
                 )}
             </CardFooter>
             {loading && (
-                <Modal isOpen={loading} onClose={() => {}} isCentered>
+                <Modal isOpen={loading} onClose={() => {
+                }} isCentered>
                     <ModalOverlay/>
                     <ModalContent>
                         <ModalBody display="flex" justifyContent="center" alignItems="center" py={10}>
@@ -187,7 +206,8 @@ export default function InvestmentReport({report, onDelete}) {
                 </Modal>
             )}
             {isDeleting && (
-                <Modal isOpen={isDeleting} onClose={() => {}} isCentered>
+                <Modal isOpen={isDeleting} onClose={() => {
+                }} isCentered>
                     <ModalOverlay/>
                     <ModalContent>
                         <ModalBody display="flex" justifyContent="center" alignItems="center" py={10}>

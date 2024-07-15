@@ -3,6 +3,7 @@ import Footer from '../../components/footer/Footer.js';
 import Navbar from '../../components/navbar/NavbarAdmin.js';
 import Sidebar from '../../components/sidebar/Sidebar.js';
 import {SidebarContext} from '../../contexts/SidebarContext';
+import Favicon from '../../components/icons/TabIcon';
 import React, {useState, useEffect} from 'react';
 import {Route, useNavigate, useParams} from 'react-router-dom';
 import routes from '../../routes.js';
@@ -493,14 +494,19 @@ export default function Dashboard(props) {
 
     if (!userData) {
         return (
-            <Flex justifyContent="center" alignItems="center" height="100vh">
-                <Spinner size="xl" />
-            </Flex>
+            <>
+                <Favicon />
+                <Flex justifyContent="center" alignItems="center" height="100vh">
+                    <Spinner size="xl"/>
+                </Flex>
+            </>
         );
     }
 
     return (
-        <Box>
+        <>
+            <Favicon />
+            <Box>
             <Box>
                 <SidebarContext.Provider
                     value={{
@@ -583,5 +589,6 @@ export default function Dashboard(props) {
                 </SidebarContext.Provider>
             </Box>
         </Box>
+        </>
     );
 }
