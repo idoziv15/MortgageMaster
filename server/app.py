@@ -223,6 +223,7 @@ def get_user_reports(user):
 @app.route('/report', methods=['POST'])
 @token_required
 def save_report(user):
+    print('hello')
     try:
         # Get data from request JSON body
         request_data = request.get_json()
@@ -234,7 +235,7 @@ def save_report(user):
         # Process and save report data
         reports.append({
             'id': str(uuid.uuid4()),
-            'user_id': user.id,
+            'user_id': user['id'],
             'name': name,
             'description': description,
             'data': data
@@ -261,7 +262,7 @@ def delete_report(current_user, report_id):
             return jsonify({'error': 'User ID is required'}), 400
 
         # Find the report to delete
-        report = next((r for r in reports if r['id'] == int(report_id) and r['user_id'] == int(user_id)), None)
+        report = next((r for r in reports if str(r['id']) == str(report_id) and str(r['user_id']) == str(user_id)), None)
         if report:
             # Remove the report from the list
             reports.remove(report)

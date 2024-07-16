@@ -218,7 +218,7 @@ export default function Dashboard(props) {
     }, [reportId]);
 
     const handleReset = () => {
-        // Reset all data logic
+        console.log(investmentData)
         setInsightsData({
             "Price per meter": 0,
             "Loan to cost": 0,
@@ -318,6 +318,8 @@ export default function Dashboard(props) {
             'contractor_payment_distribution': [],
             'construction_input_index_annual_growth': 0,
         });
+
+        console.log(investmentData)
     };
 
     const generateReport = () => ({
