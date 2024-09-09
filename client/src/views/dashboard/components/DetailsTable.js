@@ -21,6 +21,7 @@ import {
     Text
 } from '@chakra-ui/react';
 import {debounce} from 'lodash';
+import MixTable from './MortgageMixTable';
 
 export default function DetailsTable({data, setData, tableName}) {
     const [inputValues, setInputValues] = useState(data);

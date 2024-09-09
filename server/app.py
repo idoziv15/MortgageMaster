@@ -1,13 +1,13 @@
 import datetime
 import uuid
 from functools import wraps
-
 import bcrypt
 import jwt
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
-from flask_sqlalchemy import SQLAlchemy
+from flask_pymongo import PyMongo
+from bson.objectid import ObjectId
 from flask_cors import CORS
 from BMM.business_models.model import BMM
 from DB.test1.reports import reports
@@ -21,29 +21,27 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-# Configure MySQL database
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Configure Mongo database
+app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 
-# Initialize SQLAlchemy Database
-db = SQLAlchemy(app)
+# Initialize PyMongo for MongoDB
+mongo = PyMongo(app)
 
 # Enable CORS for the Flask app
 CORS(app)
 
-
 # Define User model
-class Users(db.Model):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(45), nullable=False)
-    last_name = db.Column(db.String(45), nullable=False)
-    email = db.Column(db.String(45), unique=True, nullable=False)
-    date_added = db.Column(db.DateTime, default=datetime.utcnow())
-
-    def __init__(self, name, email):
-        self.name = name
-        self.email = email
+# class Users(db.Model):
+#     __tablename__ = "users"
+#     id = db.Column(db.Integer, primary_key=True)
+#     first_name = db.Column(db.String(45), nullable=False)
+#     last_name = db.Column(db.String(45), nullable=False)
+#     email = db.Column(db.String(45), unique=True, nullable=False)
+#     date_added = db.Column(db.DateTime, default=datetime.utcnow())
+#
+#     def __init__(self, name, email):
+#         self.name = name
+#         self.email = email
 
 
 # API routes
@@ -140,18 +138,27 @@ def change_password(current_user):
         current_password = req.get('currentPassword')
         new_password = req.get('newPassword')
 
-        # Validate current password
-        if not current_user['password'] != current_password:
-            return jsonify({'error': 'Current password is incorrect'}), 401
+        # Fetch the user from MongoDB by their ID
+        user = mongo.db.users.find_one({'_id': current_user['_id']})
 
-        # Update user's password
-        current_user['password'] = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        if user:
+            # Validate the current password
+            if not bcrypt.checkpw(current_password.encode('utf-8'), user['password'].encode('utf-8')):
+                return jsonify({'error': 'Current password is incorrect'}), 401
 
-        # Revoke current session token
-        blacklist.add(request.headers.get('Authorization').split()[1])
+            # Hash the new password
+            hashed_new_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-        # Respond with success message
-        return jsonify({'message': 'Password changed successfully'}), 200
+            # Update user's password in MongoDB
+            mongo.db.users.update_one({'_id': current_user['_id']}, {'$set': {'password': hashed_new_password}})
+
+            # Revoke current session token by adding it to the blacklist
+            blacklist.add(request.headers.get('Authorization').split()[1])
+
+            # Respond with success message
+            return jsonify({'message': 'Password changed successfully'}), 200
+        else:
+            return jsonify({'error': 'User not found'}), 404
 
     except Exception as e:
         print(f"Error changing password: {e}")
@@ -162,15 +169,31 @@ def change_password(current_user):
 @token_required
 def user_routes(current_user):
     if request.method == 'GET':
-        users = Users.query.all()
-        user_list = [{'id': user.id, 'username': user.name, 'email': user.email} for user in users]
-        return jsonify({'users': user_list})
+        # Fetch all users from the MongoDB "users" collection
+        users = mongo.db.users.find()
+        user_list = [{'id': str(user['_id']), 'first_name': user['first_name'], 'last_name': user['last_name'],
+                      'email': user['email']} for user in users]
+        return jsonify({'users': user_list}), 200
+
     elif request.method == 'POST':
-        data = request.json
-        new_user = Users(name=data['username'], email=data['email'])
-        db.session.add(new_user)
-        db.session.commit()
-        return jsonify({'message': 'User created successfully'}), 201
+        try:
+            data = request.json
+            # Create a new user document in MongoDB
+            new_user = {
+                'first_name': data['firstName'],
+                'last_name': data['lastName'],
+                'email': data['email'],
+                'password': bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+                # Hash the password
+                'registered_date': datetime.utcnow()
+            }
+
+            # Insert the new user into the MongoDB "users" collection
+            mongo.db.users.insert_one(new_user)
+            return jsonify({'message': 'User created successfully'}), 201
+        except Exception as e:
+            print(f"Error creating user: {e}")
+            return jsonify({'error': 'Failed to create user'}), 500
 
 
 # @app.route('/dashboard/bmm', methods=['POST'])
@@ -199,107 +222,133 @@ def update_investment(current_user):
     return jsonify({'insights': result}), 200
 
 
-@app.route('/report/<int:id>', methods=['GET'])
+@app.route('/report/<string:id>', methods=['GET'])
 @token_required
 def get_report(current_user, id):
-    for report in reports:
-        if report['id'] == id:
-            return jsonify({'report': report}), 200
+    try:
+        # Fetch report from MongoDB by its ObjectId
+        report = mongo.db.reports.find_one({"_id": ObjectId(id)})
 
-    return jsonify({'error': 'Report not found'}), 404
+        if report:
+            return jsonify({'report': report}), 200
+        else:
+            return jsonify({'error': 'Report not found'}), 404
+
+    except Exception as e:
+        print(f"Error fetching report: {e}")
+        return jsonify({'error': 'Failed to fetch report'}), 500
 
 
 @app.route('/reports', methods=['GET'])
 @token_required
-def get_user_reports(user):
-    user_reports = [report for report in reports if report['user_id'] == user['id']]
-    if user_reports:
-        return jsonify({'reports': user_reports}), 200
+def get_user_reports(current_user):
+    try:
+        # Fetch all reports for the current user from MongoDB
+        user_reports = mongo.db.reports.find({"user_id": current_user['_id']})
+        reports_list = [report for report in user_reports]
 
-    return jsonify({'error': 'No reports found for this user'}), 404
+        if reports_list:
+            return jsonify({'reports': reports_list}), 200
+        else:
+            return jsonify({'error': 'No reports found for this user'}), 404
+
+    except Exception as e:
+        print(f"Error fetching reports: {e}")
+        return jsonify({'error': 'Failed to fetch reports'}), 500
 
 
 # Route to handle saving reports
 @app.route('/report', methods=['POST'])
 @token_required
-def save_report(user):
-    print('hello')
+def save_report(current_user):
     try:
         # Get data from request JSON body
         request_data = request.get_json()
-        # Extract report details
-        name = request_data.get('name')
-        description = request_data.get('description')
-        data = request_data.get('data')
 
-        # Process and save report data
-        reports.append({
-            'id': str(uuid.uuid4()),
-            'user_id': user['id'],
-            'name': name,
-            'description': description,
-            'data': data
-        })
+        # Create report document
+        new_report = {
+            'user_id': current_user['_id'],
+            'name': request_data.get('name'),
+            'description': request_data.get('description'),
+            'data': request_data.get('data'),
+            'created_at': datetime.utcnow()
+        }
+
+        # Save the new report into "reports" collection
+        mongo.db.reports.insert_one(new_report)
 
         # Respond with success message
         return jsonify({'message': 'Report saved successfully'}), 200
 
     except Exception as e:
         print(f"Error saving report: {e}")
-        # Respond with error message
         return jsonify({'error': 'Failed to save report'}), 500
 
 
 # Route to handle deleting reports
-@app.route('/investment_report/<report_id>', methods=['DELETE'])
+@app.route('/investment_report/<string:report_id>', methods=['DELETE'])
 @token_required
 def delete_report(current_user, report_id):
     try:
-        # Get the user ID from the request body
-        user_id = current_user['id']
-
-        if not user_id:
-            return jsonify({'error': 'User ID is required'}), 400
-
         # Find the report to delete
-        report = next((r for r in reports if str(r['id']) == str(report_id) and str(r['user_id']) == str(user_id)), None)
-        if report:
-            # Remove the report from the list
-            reports.remove(report)
+        result = mongo.db.reports.delete_one({
+            '_id': ObjectId(report_id),
+            'user_id': current_user['_id']
+        })
+
+        if result.deleted_count > 0:
             return jsonify({'message': 'Report deleted successfully'}), 200
         else:
             return jsonify({'error': 'Report not found or user not authorized'}), 404
+
     except Exception as e:
         print(f"Error deleting report: {e}")
         return jsonify({'error': 'Failed to delete report'}), 500
 
 
-@app.route('/investment_report/<int:report_id>', methods=['PUT'])
+@app.route('/investment_report/<string:report_id>', methods=['PUT'])
 @token_required
 def update_report(current_user, report_id):
-    data = request.json
-    for report in reports:
-        if report['id'] == report_id:
-            report['name'] = data.get('name', report['name'])
-            report['description'] = data.get('description', report['description'])
-            report['lastUpdated'] = datetime.utcnow()
-            return jsonify({'report': report}), 200
-    return jsonify({'error': 'Report not found'}), 404
+    try:
+        data = request.get_json()
+
+        # Find and update the report
+        result = mongo.db.reports.update_one(
+            {"_id": ObjectId(report_id), "user_id": current_user['_id']},  # Ensure the user owns the report
+            {"$set": {
+                "name": data.get('name'),
+                "description": data.get('description'),
+                "lastUpdated": datetime.utcnow()
+            }}
+        )
+
+        if result.modified_count > 0:
+            return jsonify({'message': 'Report updated successfully'}), 200
+        else:
+            return jsonify({'error': 'Report not found or user not authorized'}), 404
+
+    except Exception as e:
+        print(f"Error updating report: {e}")
+        return jsonify({'error': 'Failed to update report'}), 500
 
 
 # Helper function to find a user by ID
 def find_user_by_id(user_id):
-    return next((user for user in users if user['id'] == user_id), None)
+    return mongo.db.users.find_one({"_id": user_id})
+    # return next((user for user in users if user['id'] == user_id), None)
 
 
 # Helper function to find a user by email
 def find_user_by_email(email):
-    return next((user for user in users if user['email'] == email), None)
+    return mongo.db.users.find_one({"email": email})
+    # return next((user for user in users if user['email'] == email), None)
 
 
 @app.route('/register', methods=['POST'])
 def create_user():
     try:
+        print(f"MONGO_URI: {app.config.get('MONGO_URI')}")
+        print(mongo.db)
         # Get data from request
         req = request.get_json()
         first_name = req.get('firstName')
@@ -317,17 +366,18 @@ def create_user():
 
         # Create new user
         new_user = {
-            'id': len(users) + 1,
             'first_name': first_name,
             'last_name': last_name,
             'email': email,
             'password': hashed_password.decode('utf-8'),
             'registered_date': registered_date
         }
-        users.append(new_user)
+
+        # Save the new user into Users collection
+        mongo.db.users.insert_one(new_user)
 
         # Respond with the new user
-        return jsonify(new_user), 201
+        return jsonify({'message': 'User created successfully', 'user': new_user}), 201
 
     except Exception as e:
         print(f"Error creating user: {e}")
@@ -339,15 +389,13 @@ def create_user():
 def get_user(current_user):
     try:
         if current_user:
-            # Create a dictionary copy of the current_user object
-            user_data = {
-                'id': current_user['id'],
+            return jsonify({
+                'id': str(current_user['_id']),
                 'first_name': current_user['first_name'],
                 'last_name': current_user['last_name'],
                 'email': current_user['email'],
                 'date_added': current_user['registered_date']
-            }
-            return jsonify(user_data), 200
+            }), 200
         else:
             return jsonify({'error': 'User not found'}), 404
     except Exception as e:
@@ -359,17 +407,24 @@ def get_user(current_user):
 @token_required
 def update_user(current_user):
     try:
-        user = find_user_by_id(current_user.id)
-        if user:
-            req = request.get_json()
-            user['first_name'] = req.get('firstName', user['firstName'])
-            user['last_name'] = req.get('lastName', user['lastName'])
-            user['email'] = req.get('email', user['email'])
-            if 'password' in req:
-                user['password'] = bcrypt.hashpw(req['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            return jsonify(user), 200
-        else:
-            return jsonify({'error': 'User not found'}), 404
+        req = request.get_json()
+        updates = {
+            "first_name": req.get('firstName', current_user['first_name']),
+            "last_name": req.get('lastName', current_user['last_name']),
+            "email": req.get('email', current_user['email'])
+        }
+
+        if 'password' in req:
+            updates['password'] = bcrypt.hashpw(req['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+        # Update user in MongoDB
+        mongo.db.users.update_one(
+            {"_id": current_user['_id']},
+            {"$set": updates}
+        )
+
+        return jsonify({'message': 'User updated successfully'}), 200
+
     except Exception as e:
         print(f"Error updating user: {e}")
         return jsonify({'error': 'Failed to update user'}), 500
@@ -379,12 +434,14 @@ def update_user(current_user):
 @token_required
 def delete_user(current_user):
     try:
-        user = find_user_by_id(current_user.id)
-        if user:
-            users.remove(user)
+        # Delete the user from MongoDB
+        result = mongo.db.users.delete_one({"_id": current_user['_id']})
+
+        if result.deleted_count > 0:
             return jsonify({'message': 'User deleted successfully'}), 200
         else:
             return jsonify({'error': 'User not found'}), 404
+
     except Exception as e:
         print(f"Error deleting user: {e}")
         return jsonify({'error': 'Failed to delete user'}), 500
@@ -397,6 +454,4 @@ def index():
 
 
 if __name__ == '__main__':
-    # Create all database tables
-    # db.create_all()
     app.run(debug=True)

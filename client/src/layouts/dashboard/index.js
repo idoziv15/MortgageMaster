@@ -15,7 +15,8 @@ import SaveReportModal from "../../views/dashboard/components/SaveReportModal";
 export default function Dashboard(props) {
     const {...rest} = props;
     const [fixed] = useState(false);
-    const mainBackground = useColorModeValue('gray.100', 'gray.900');
+    // const mainBackground = useColorModeValue('gray.100', 'gray.900');
+    const mainBackground = useColorModeValue('#EDF5F7', 'gray.900');
     const boxBackground = useColorModeValue('white', 'gray.800');
     const [toggleSidebar, setToggleSidebar] = useState(false);
     const {onOpen} = useDisclosure();
