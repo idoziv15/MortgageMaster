@@ -1,5 +1,4 @@
 import datetime
-import uuid
 from functools import wraps
 import bcrypt
 import jwt
@@ -7,12 +6,9 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
 from flask_pymongo import PyMongo
-from pymongo import MongoClient
 from bson.objectid import ObjectId
 from flask_cors import CORS
 from BMM.business_models.model import BMM
-from DB.test1.reports import reports
-from DB.test1.users import users
 from datetime import datetime, timedelta
 
 # Load environment variables from .env file
@@ -23,8 +19,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Configure Mongo database
-app.config[
-    'MONGO_URI'] = 'mongodb+srv://ido_ziv:Aa123456@mastermortgage.g7nra.mongodb.net/MasterMortgage?retryWrites=true&w=majority'
+app.config['MONGO_URI'] = 'mongodb+srv://ido_ziv:Aa123456@mastermortgage.g7nra.mongodb.net/MasterMortgage?retryWrites=true&w=majority'
 print(f"Loaded MONGO_URI: {app.config['MONGO_URI']}")
 
 # Initialize PyMongo for MongoDB
@@ -33,21 +28,9 @@ mongo = PyMongo(app)
 # Enable CORS for the Flask app
 CORS(app)
 
-# Define User model
-# class Users(db.Model):
-#     __tablename__ = "users"
-#     id = db.Column(db.Integer, primary_key=True)
-#     first_name = db.Column(db.String(45), nullable=False)
-#     last_name = db.Column(db.String(45), nullable=False)
-#     email = db.Column(db.String(45), unique=True, nullable=False)
-#     date_added = db.Column(db.DateTime, default=datetime.utcnow())
-#
-#     def __init__(self, name, email):
-#         self.name = name
-#         self.email = email
-
 
 # API routes
+
 # Secret key for JWT encoding/decoding
 SECRET_KEY = app.config['SECRET_KEY']
 blacklist = set()
