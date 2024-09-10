@@ -6,7 +6,7 @@ export default function ReportsList({ reports }) {
     const [reportList, setReportList] = useState(reports);
 
     const handleDeleteReport = (reportId) => {
-        setReportList(reportList.filter(report => report.id !== reportId));
+        setReportList(reportList.filter(report => report._id !== reportId));
     };
 
     return (

@@ -12,6 +12,7 @@ import UserDetails from "../../views/profile/components/UserDetails";
 import Notifications from "../../views/profile/components/Notifications";
 import ChangePassword from "./components/ChangePassword";
 import {useNavigate} from "react-router-dom";
+import DeleteAccount from "./components/DeleteAccount";
 
 export default function Profile() {
     const toast = useToast();
@@ -20,6 +21,7 @@ export default function Profile() {
     const {onOpen} = useDisclosure();
     const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(false);
     const getToken = () => {
         // Check if token is in sessionStorage
         let token = sessionStorage.getItem('token');
@@ -67,6 +69,13 @@ export default function Profile() {
         };
         loadUserData();
     }, []);
+
+    const onUpdateDetail = (updatedField, newValue) => {
+        setUserData((prevUserData) => ({
+            ...prevUserData,
+            [updatedField]: newValue
+        }));
+    }
 
     const getActiveRoute = (routes) => {
         let activeRoute = "Profile";
@@ -137,7 +146,15 @@ export default function Profile() {
     if (!userData) {
         return (
             <Flex justifyContent="center" alignItems="center" height="100vh">
-                <Spinner size="xl" />
+                <Spinner size="xl"/>
+            </Flex>
+        );
+    }
+
+    if (loading) {
+        return (
+            <Flex justifyContent="center" alignItems="center" height="100vh">
+                <Spinner size="xl"/>
             </Flex>
         );
     }
@@ -188,16 +205,21 @@ export default function Profile() {
                                 first_name={userData.first_name}
                                 last_name={userData.last_name}
                                 email={userData.email}
-                                gridArea={{ base: "auto", lg: "auto", "2xl": "1 / 1 / 2 / 2" }}
+                                userId={userData.id}
+                                loading={loading}
+                                setLoading={setLoading}
+                                onUpdateDetail={onUpdateDetail}
+                                gridArea={{base: "auto", lg: "auto", "2xl": "1 / 1 / 2 / 2"}}
                                 minH='350px'
                                 pe='20px'
                             />
                             <Notifications
                                 used={25.6}
                                 total={50}
-                                gridArea={{ base: "auto", lg: "auto", "2xl": "1 / 2 / 2 / 3" }}
+                                gridArea={{base: "auto", lg: "auto", "2xl": "1 / 2 / 2 / 3"}}
                             />
-                            <ChangePassword />
+                            <ChangePassword/>
+                            <DeleteAccount/>
                         </Grid>
                     </Box>
                     <Box mt="auto">

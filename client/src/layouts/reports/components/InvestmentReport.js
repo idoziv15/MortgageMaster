@@ -56,7 +56,7 @@ export default function InvestmentReport({report, onDelete}) {
         setLoading(true);
         const token = getToken();
         try {
-            const response = await axios.put(`http://localhost:5000/investment_report/${report.id}`, {
+            const response = await axios.put(`http://localhost:5000/investment_report/${report._id}`, {
                 name,
                 description
             }, {
@@ -96,7 +96,7 @@ export default function InvestmentReport({report, onDelete}) {
         setIsDeleting(true);
         const token = getToken();
         try {
-            const response = await axios.delete(`http://localhost:5000/investment_report/${report.id}`, {
+            const response = await axios.delete(`http://localhost:5000/investment_report/${report._id}`, {
                 headers: {Authorization: `Bearer ${token}`}
             });
             if (response.status === 200) {
@@ -107,7 +107,7 @@ export default function InvestmentReport({report, onDelete}) {
                     duration: 5000,
                     isClosable: true,
                 });
-                onDelete(report.id);
+                onDelete(report._id);
             }
         } catch (error) {
             toast({

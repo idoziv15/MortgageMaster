@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
 from flask_pymongo import PyMongo
+from pymongo import MongoClient
 from bson.objectid import ObjectId
 from flask_cors import CORS
 from BMM.business_models.model import BMM
@@ -22,7 +23,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Configure Mongo database
-app.config['MONGO_URI'] = os.getenv('MONGO_URI')
+app.config[
+    'MONGO_URI'] = 'mongodb+srv://ido_ziv:Aa123456@mastermortgage.g7nra.mongodb.net/MasterMortgage?retryWrites=true&w=majority'
+print(f"Loaded MONGO_URI: {app.config['MONGO_URI']}")
 
 # Initialize PyMongo for MongoDB
 mongo = PyMongo(app)
@@ -66,7 +69,8 @@ def token_required(f):
         try:
             data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
             current_user = find_user_by_id(data['user_id'])
-        except:
+        except Exception as e:
+            print(f"Error: {e}")
             return jsonify({'message': 'Token is invalid'}), 401
 
         return f(current_user, *args, **kwargs)
@@ -87,7 +91,7 @@ def login():
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             # Create JWT token
             token = jwt.encode({
-                'user_id': user['id'],
+                'user_id': str(user['_id']),
                 'exp': datetime.utcnow() + timedelta(hours=1)
             }, SECRET_KEY, algorithm='HS256')
             return jsonify({'token': token}), 200
@@ -126,7 +130,8 @@ def verify_token():
             return jsonify({'valid': True}), 200
         else:
             return jsonify({'valid': False}), 401
-    except:
+    except Exception as e:
+        print(f"Error changing password: {e}")
         return jsonify({'valid': False}), 401
 
 
@@ -239,13 +244,20 @@ def get_report(current_user, id):
         return jsonify({'error': 'Failed to fetch report'}), 500
 
 
+def serialize_report(report):
+    # Convert the ObjectId to a string for JSON serialization
+    report['_id'] = str(report['_id'])
+    report['user_id'] = str(report['user_id'])
+    return report
+
+
 @app.route('/reports', methods=['GET'])
 @token_required
 def get_user_reports(current_user):
     try:
         # Fetch all reports for the current user from MongoDB
-        user_reports = mongo.db.reports.find({"user_id": current_user['_id']})
-        reports_list = [report for report in user_reports]
+        user_reports = mongo.db.reports.find({"user_id": ObjectId(current_user['_id'])})
+        reports_list = [serialize_report(report) for report in user_reports]
 
         if reports_list:
             return jsonify({'reports': reports_list}), 200
@@ -334,21 +346,21 @@ def update_report(current_user, report_id):
 
 # Helper function to find a user by ID
 def find_user_by_id(user_id):
-    return mongo.db.users.find_one({"_id": user_id})
-    # return next((user for user in users if user['id'] == user_id), None)
+    try:
+        return mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    except Exception as e:
+        print(f"Error finding user by id: {e}")
+        return None
 
 
 # Helper function to find a user by email
 def find_user_by_email(email):
     return mongo.db.users.find_one({"email": email})
-    # return next((user for user in users if user['email'] == email), None)
 
 
 @app.route('/register', methods=['POST'])
 def create_user():
     try:
-        print(f"MONGO_URI: {app.config.get('MONGO_URI')}")
-        print(mongo.db)
         # Get data from request
         req = request.get_json()
         first_name = req.get('firstName')
@@ -374,7 +386,10 @@ def create_user():
         }
 
         # Save the new user into Users collection
-        mongo.db.users.insert_one(new_user)
+        result = mongo.db.users.insert_one(new_user)
+
+        # Convert ObjectId to string for JSON serialization
+        new_user['_id'] = str(result.inserted_id)
 
         # Respond with the new user
         return jsonify({'message': 'User created successfully', 'user': new_user}), 201
@@ -403,14 +418,14 @@ def get_user(current_user):
         return jsonify({'error': 'Failed to retrieve user'}), 500
 
 
-@app.route('/users', methods=['PUT'])
+@app.route('/users/<string:user_id>', methods=['PUT'])
 @token_required
-def update_user(current_user):
+def update_user(current_user, user_id):
     try:
         req = request.get_json()
         updates = {
-            "first_name": req.get('firstName', current_user['first_name']),
-            "last_name": req.get('lastName', current_user['last_name']),
+            "first_name": req.get('first_name', current_user['first_name']),
+            "last_name": req.get('last_name', current_user['last_name']),
             "email": req.get('email', current_user['email'])
         }
 
@@ -418,12 +433,15 @@ def update_user(current_user):
             updates['password'] = bcrypt.hashpw(req['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
         # Update user in MongoDB
-        mongo.db.users.update_one(
-            {"_id": current_user['_id']},
+        result = mongo.db.users.update_one(
+            {"_id": ObjectId(user_id)},
             {"$set": updates}
         )
 
-        return jsonify({'message': 'User updated successfully'}), 200
+        if result.modified_count > 0:
+            return jsonify({'message': 'User updated successfully'}), 200
+        else:
+            return jsonify({'message': 'No changes were made'}), 200
 
     except Exception as e:
         print(f"Error updating user: {e}")
@@ -445,12 +463,6 @@ def delete_user(current_user):
     except Exception as e:
         print(f"Error deleting user: {e}")
         return jsonify({'error': 'Failed to delete user'}), 500
-
-
-@app.route('/')
-def index():
-    # Return a simple message
-    return jsonify({'message': 'Welcome to the API!'})
 
 
 if __name__ == '__main__':
