@@ -435,6 +435,15 @@ def update_user(current_user, user_id):
 @token_required
 def delete_user(current_user):
     try:
+        # Delete all reports for this user
+        reports_result = mongo.db.reports.delete_many({"user_id": current_user['_id']})
+        if reports_result.deleted_count == 0:
+            print("No reports found for the user, continuing with user deletion.")
+        elif reports_result.acknowledged:
+            print(f"Deleted {reports_result.deleted_count} report(s) successfully.")
+        else:
+            return jsonify({'error': 'Failed to delete user'}), 500
+
         # Delete the user from MongoDB
         result = mongo.db.users.delete_one({"_id": current_user['_id']})
 
