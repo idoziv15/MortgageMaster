@@ -21,7 +21,6 @@ import {
     Text
 } from '@chakra-ui/react';
 import {debounce} from 'lodash';
-import MixTable from './MortgageMixTable';
 
 export default function DetailsTable({data, setData, tableName}) {
     const [inputValues, setInputValues] = useState(data);
@@ -59,6 +58,11 @@ export default function DetailsTable({data, setData, tableName}) {
             debouncedUpdate(field, parsedValue);
         }
     };
+
+    useEffect(() => {
+        // Sync input values with the prop when it changes
+        setInputValues(data);
+    }, [data]);
 
     const debouncedUpdate = debounce((field, value) => {
         setData(prevState => ({

@@ -219,7 +219,6 @@ export default function Dashboard(props) {
     }, [reportId]);
 
     const handleReset = () => {
-        console.log(investmentData)
         setInsightsData({
             "Price per meter": 0,
             "Loan to cost": 0,
@@ -319,8 +318,6 @@ export default function Dashboard(props) {
             'contractor_payment_distribution': [],
             'construction_input_index_annual_growth': 0,
         });
-
-        console.log(investmentData)
     };
 
     const generateReport = () => ({
@@ -498,7 +495,7 @@ export default function Dashboard(props) {
     if (!userData) {
         return (
             <>
-                <Favicon />
+                <Favicon/>
                 <Flex justifyContent="center" alignItems="center" height="100vh">
                     <Spinner size="xl"/>
                 </Flex>
@@ -508,90 +505,91 @@ export default function Dashboard(props) {
 
     return (
         <>
-            <Favicon />
+            <Favicon/>
             <Box>
-            <Box>
-                <SidebarContext.Provider
-                    value={{
-                        toggleSidebar,
-                        setToggleSidebar
-                    }}>
-                    <Sidebar routes={routes} display='none' {...rest} />
-                    <Box
-                        float='right'
-                        minHeight='100vh'
-                        height='100%'
-                        overflow='auto'
-                        position='relative'
-                        maxHeight='100%'
-                        background={mainBackground}
-                        w={{base: '100%', xl: 'calc( 100% - 290px )'}}
-                        maxWidth={{base: '100%', xl: 'calc( 100% - 290px )'}}
-                        transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
-                        transitionDuration='.2s, .2s, .35s'
-                        transitionProperty='top, bottom, width'
-                        transitionTimingFunction='linear, linear, ease'
-                        pt='110px'>
-                        <Portal>
-                            <Box>
-                                <Navbar
-                                    onOpen={onOpen}
-                                    brandText={getActiveRoute(routes)}
-                                    secondary={getActiveNavbar(routes)}
-                                    message={getActiveNavbarText(routes)}
-                                    fixed={fixed}
-                                    currUser={userData}
-                                    {...rest}
-                                />
+                <Box>
+                    <SidebarContext.Provider
+                        value={{
+                            toggleSidebar,
+                            setToggleSidebar
+                        }}>
+                        <Sidebar routes={routes} display='none' {...rest} />
+                        <Box
+                            float='right'
+                            minHeight='100vh'
+                            height='100%'
+                            overflow='auto'
+                            position='relative'
+                            maxHeight='100%'
+                            background={mainBackground}
+                            w={{base: '100%', xl: 'calc( 100% - 290px )'}}
+                            maxWidth={{base: '100%', xl: 'calc( 100% - 290px )'}}
+                            transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
+                            transitionDuration='.2s, .2s, .35s'
+                            transitionProperty='top, bottom, width'
+                            transitionTimingFunction='linear, linear, ease'
+                            pt='110px'>
+                            <Portal>
+                                <Box>
+                                    <Navbar
+                                        onOpen={onOpen}
+                                        brandText={getActiveRoute(routes)}
+                                        secondary={getActiveNavbar(routes)}
+                                        message={getActiveNavbarText(routes)}
+                                        fixed={fixed}
+                                        currUser={userData}
+                                        {...rest}
+                                    />
+                                </Box>
+                            </Portal>
+                            <Flex>
+                                {/* Left Side */}
+                                <Box flex='1'>
+                                    <DetailsTable data={investmentData} tableName={'Investment Details'}
+                                                  setData={setInvestmentData}/>
+                                    <DetailsTable data={otherData} tableName={'Additional Details'}
+                                                  setData={setOtherData}/>
+                                </Box>
+                                {/* Right Side */}
+                                <Box flex='1'>
+                                    <DetailsTable data={investorData} tableName={'Investor Details'}
+                                                  setData={setInvestorData}/>
+                                    <DetailsTable data={propertyData} tableName={'Property Details'}
+                                                  setData={setPropertyData}/>
+                                    <DetailsTable data={mortgageData} tableName={'Mortgage Details'}
+                                                  setData={setMortgageData}/>
+                                </Box>
+                            </Flex>
+                            <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'
+                                  background={boxBackground}
+                            >
+                                <Button colorScheme="teal" onClick={updateBMM} isLoading={loading} mr={10}>
+                                    {loading ? <Spinner size="sm"/> : 'Calculate'}
+                                </Button>
+                                <Button colorScheme="blue" variant='outline' onClick={handleReset} mr={2}>
+                                    Reset
+                                </Button>
+                                <Button colorScheme="green" variant='outline' onClick={handleSave}>
+                                    Save
+                                </Button>
+                                {showModal && (
+                                    <SaveReportModal
+                                        isOpen={showModal}
+                                        onClose={handleCloseModal}
+                                        setReportName={setReportName}
+                                        setReportDescription={setReportDescription}
+                                        handleSaveReport={handleSaveReport}
+                                    />
+                                )}
+                            </Flex>
+                            <InvestmentSummary insights={insightsData}/>
+                            <Box mt="auto">
+                                <Footer/>
                             </Box>
-                        </Portal>
-                        <Flex>
-                            {/* Left Side */}
-                            <Box flex='1'>
-                                <DetailsTable data={investmentData} tableName={'Investment Details'}
-                                              setData={setInvestmentData}/>
-                                <DetailsTable data={otherData} tableName={'Additional Details'} setData={setOtherData}/>
-                            </Box>
-                            {/* Right Side */}
-                            <Box flex='1'>
-                                <DetailsTable data={investorData} tableName={'Investor Details'}
-                                              setData={setInvestorData}/>
-                                <DetailsTable data={propertyData} tableName={'Property Details'}
-                                              setData={setPropertyData}/>
-                                <DetailsTable data={mortgageData} tableName={'Mortgage Details'}
-                                              setData={setMortgageData}/>
-                            </Box>
-                        </Flex>
-                        <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'
-                              background={boxBackground}
-                        >
-                            <Button colorScheme="teal" onClick={updateBMM} isLoading={loading} mr={10}>
-                                {loading ? <Spinner size="sm"/> : 'Calculate'}
-                            </Button>
-                            <Button colorScheme="blue" variant='outline' onClick={handleReset} mr={2}>
-                                Reset
-                            </Button>
-                            <Button colorScheme="green" variant='outline' onClick={handleSave}>
-                                Save
-                            </Button>
-                            {showModal && (
-                                <SaveReportModal
-                                    isOpen={showModal}
-                                    onClose={handleCloseModal}
-                                    setReportName={setReportName}
-                                    setReportDescription={setReportDescription}
-                                    handleSaveReport={handleSaveReport}
-                                />
-                            )}
-                        </Flex>
-                        <InvestmentSummary insights={insightsData}/>
-                        <Box mt="auto">
-                            <Footer/>
                         </Box>
-                    </Box>
-                </SidebarContext.Provider>
+                    </SidebarContext.Provider>
+                </Box>
             </Box>
-        </Box>
         </>
     );
 }
