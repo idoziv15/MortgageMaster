@@ -2,7 +2,7 @@ import datetime
 from functools import wraps
 import bcrypt
 import jwt
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response, render_template
 from dotenv import load_dotenv
 import os
 from flask_pymongo import PyMongo
@@ -12,6 +12,8 @@ from BMM.business_models.model import BMM
 from datetime import datetime, timedelta
 from google.oauth2 import id_token
 from google.auth.transport import requests
+import pdfkit
+from io import BytesIO
 
 # Load environment variables from .env file
 load_dotenv()
@@ -517,6 +519,49 @@ def delete_user(current_user):
     except Exception as e:
         print(f"Error deleting user: {e}")
         return jsonify({'error': 'Failed to delete user'}), 500
+
+
+@app.route('/report/<string:report_id>/download', methods=['GET'])
+@token_required
+def download_report(current_user, report_id):
+    try:
+        # Ensure the report_id is valid
+        if not ObjectId.is_valid(report_id):
+            return jsonify({'error': 'Invalid report ID'}), 400
+
+        # Fetch the report data
+        report = mongo.db.reports.find_one({"_id": ObjectId(report_id)})
+        if not report:
+            return jsonify({'error': 'Report not found'}), 404
+
+        # Generate HTML content for the PDF
+        html_content = render_template(
+            "report_template.html",
+            report_name=report['name'],
+            report_description=report['description'],
+            created_at=report['created_at'].strftime('%Y-%m-%d %H:%M:%S'),
+            investmentData=report['data']['investmentData'],
+            investorData=report['data']['investorData'],
+            propertyData=report['data']['propertyData'],
+            mortgageData=report['data']['mortgageData'],
+            otherData=report['data']['otherData'],
+            insightsData=report['data']['insightsData'],
+            current_year=datetime.now().year
+        )
+
+        # Generate PDF using pdfkit
+        pdf = pdfkit.from_string(html_content, False)
+
+        # Send the PDF as a downloadable file
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename={report_id}.pdf'
+
+        return response
+
+    except Exception as e:
+        print(f"Error generating PDF: {e}")
+        return jsonify({'error': 'Failed to generate PDF'}), 500
 
 
 if __name__ == '__main__':

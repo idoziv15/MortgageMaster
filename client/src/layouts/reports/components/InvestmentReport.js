@@ -23,14 +23,14 @@ import {
 import React, {useState} from "react";
 import moment from "moment";
 import {TimeIcon} from "@chakra-ui/icons";
-import {FaArrowRight, FaEdit, FaCheck, FaTrash} from "react-icons/fa";
+import {FaArrowRight, FaEdit, FaCheck, FaTrash, FaDownload} from "react-icons/fa";
 import reportImg from "../../../assets/img/reports/report_preview.svg";
 import {Link} from "react-router-dom";
 import axios from "axios";
 
 export default function InvestmentReport({report, onDelete}) {
     const badgeColor = useColorModeValue("red.500", "red.300");
-    const [lastUpdatedDate, setLastUpdatedDate] = useState(moment(report.lastUpdated));
+    const [lastUpdatedDate, setLastUpdatedDate] = useState(moment(report['created_at']));
     const isNew = moment().diff(lastUpdatedDate, 'hours') < 24;
 
     const [isEditing, setIsEditing] = useState(false);
@@ -85,7 +85,6 @@ export default function InvestmentReport({report, onDelete}) {
         setLoading(false);
     };
 
-
     const handleCancel = () => {
         setName(report.name);
         setDescription(report.description);
@@ -119,6 +118,39 @@ export default function InvestmentReport({report, onDelete}) {
             });
         }
         setIsDeleting(false);
+    };
+
+    const handleDownloadReport = async () => {
+        setLoading(true);
+        try {
+            const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+
+            const response = await axios.get(`http://localhost:5000/report/${report._id}/download`, {
+                headers: {Authorization: `Bearer ${token}`},
+                responseType: 'blob',  // To handle binary data
+            });
+
+            // Create a download link and click it programmatically
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `report_${report.name}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+        } catch (error) {
+            console.error('Error downloading report:', error);
+            toast({
+                title: 'Error downloading report',
+                description: 'An error occurred while trying to download the report.',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -166,11 +198,11 @@ export default function InvestmentReport({report, onDelete}) {
                 </Stack>
             </CardBody>
             <Divider/>
-            <CardFooter py={2} display="flex" justifyContent="space-between">
+            <CardFooter p={2} display="flex" justifyContent="space-between">
                 <Link to={`/report/${report._id}`}>
                     <Button size='sm' variant='solid' colorScheme='blue'>
                         View report
-                        <Box as={FaArrowRight} ml={2}/>
+                        <Box as={FaArrowRight}/>
                     </Button>
                 </Link>
                 {isEditing ? (
@@ -184,6 +216,10 @@ export default function InvestmentReport({report, onDelete}) {
                     </Flex>
                 ) : (
                     <Flex>
+                        <Button size='sm' variant='outline' colorScheme='green' onClick={() => handleDownloadReport()}
+                        ml={2}>
+                            <FaDownload/>
+                        </Button>
                         <Button size='sm' variant='outline' colorScheme='blue' onClick={() => setIsEditing(true)}
                                 ml={2}>
                             <FaEdit/>

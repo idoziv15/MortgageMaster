@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            color: #2980b9;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-size: 20px;
+            border-bottom: 2px solid #2980b9;
+            padding-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #2980b9;
+            color: white;
+        }
+
+        .table-title {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+<h1>{{ report_name }}</h1>
+<p><strong>Description:</strong> {{ report_description }}</p>
+<p><strong>Created At:</strong> {{ created_at }}</p>
+
+<!-- Investment Table -->
+<div class="section-title">Investment Details</div>
+<table>
+    <thead>
+    <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Appraiser Cost</td>
+        <td>{{ investmentData.appraiser_cost }}</td>
+    </tr>
+    <tr>
+        <td>Lawyer Cost</td>
+        <td>{{ investmentData.lawyer_cost }}</td>
+    </tr>
+    <tr>
+        <td>Escort Costs</td>
+        <td>{{ investmentData.escort_costs }}</td>
+    </tr>
+    <tr>
+        <td>Furniture Cost</td>
+        <td>{{ investmentData.furniture_cost }}</td>
+    </tr>
+    <tr>
+        <td>Vacancy Percentage</td>
+        <td>{{ investmentData.vacancy_percentage }}</td>
+    </tr>
+    <!-- Add more fields as necessary -->
+    </tbody>
+</table>
+
+<!-- Investor Table -->
+<div class="section-title">Investor Details</div>
+<table>
+    <thead>
+    <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Net Monthly Income</td>
+        <td>{{ investorData.net_monthly_income }}</td>
+    </tr>
+    <tr>
+        <td>Total Debt Payment</td>
+        <td>{{ investorData.total_debt_payment }}</td>
+    </tr>
+    <tr>
+        <td>Real Estate Investment Type</td>
+        <td>{{ investorData.RealEstateInvestmentType }}</td>
+    </tr>
+    <tr>
+        <td>Total Available Equity</td>
+        <td>{{ investorData.total_available_equity }}</td>
+    </tr>
+    <tr>
+        <td>Gross Rental Income</td>
+        <td>{{ investorData.gross_rental_income }}</td>
+    </tr>
+    <!-- Add more fields as necessary -->
+    </tbody>
+</table>
+
+<!-- Property Table -->
+<div class="section-title">Property Details</div>
+<table>
+    <thead>
+    <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Purchase Price</td>
+        <td>{{ propertyData.purchase_price }}</td>
+    </tr>
+    <tr>
+        <td>Monthly Rent Income</td>
+        <td>{{ propertyData.monthly_rent_income }}</td>
+    </tr>
+    <tr>
+        <td>Square Meters</td>
+        <td>{{ propertyData.square_meters }}</td>
+    </tr>
+    <tr>
+        <td>Parking Spots</td>
+        <td>{{ propertyData.parking_spots }}</td>
+    </tr>
+    <tr>
+        <td>Warehouse</td>
+        <td>{{ propertyData.warehouse }}</td>
+    </tr>
+    <!-- Add more fields as necessary -->
+    </tbody>
+</table>
+
+<!-- Mortgage Table -->
+<div class="section-title">Mortgage Details</div>
+<table>
+    <thead>
+    <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Mortgage Advisor Cost</td>
+        <td>{{ mortgageData.mortgage_advisor_cost }}</td>
+    </tr>
+    <tr>
+        <td>Interest Rate</td>
+        <td>{{ mortgageData.interest_rate }}</td>
+    </tr>
+    <tr>
+        <td>Number of Payments</td>
+        <td>{{ mortgageData.num_payments }}</td>
+    </tr>
+    <tr>
+        <td>Initial Loan Amount</td>
+        <td>{{ mortgageData.initial_loan_amount }}</td>
+    </tr>
+    <tr>
+        <td>Interest Only Period</td>
+        <td>{{ mortgageData.interest_only_period }}</td>
+    </tr>
+    <!-- Add more fields as necessary -->
+    </tbody>
+</table>
+
+<!-- Additional Details Table -->
+<div class="section-title">Additional Details</div>
+<table>
+    <thead>
+    <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Years Until Key Reception</td>
+        <td>{{ otherData.years_until_key_reception }}</td>
+    </tr>
+    <tr>
+        <td>Construction Input Index Annual Growth</td>
+        <td>{{ otherData.construction_input_index_annual_growth }}</td>
+    </tr>
+    <!-- Add more fields as necessary -->
+    </tbody>
+</table>
+
+<!-- Insights Table -->
+<div class="section-title">Insights</div>
+<table>
+    <thead>
+    <tr>
+        <th>Insight</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Price per Meter</td>
+        <td>{{ insightsData["Price per meter"] }}</td>
+    </tr>
+    <tr>
+        <td>Loan to Cost</td>
+        <td>{{ insightsData["Loan to cost"] }}</td>
+    </tr>
+    <tr>
+        <td>Loan to Value</td>
+        <td>{{ insightsData["Loan to value"] }}</td>
+    </tr>
+    <tr>
+        <td>Renovation Expenses</td>
+        <td>{{ insightsData["Renovation expenses"] }}</td>
+    </tr>
+    <tr>
+        <td>Cash on Cash</td>
+        <td>{{ insightsData["Cash on cash"] }}</td>
+    </tr>
+    <!-- Add more fields as necessary -->
+    </tbody>
+</table>
+
+<div class="footer">
+    Report generated by MasterMortgage &copy; {{ current_year }}
+</div>
+
+</body>
+</html>
