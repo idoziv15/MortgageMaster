@@ -160,7 +160,7 @@ export default function Dashboard(props) {
 
         try {
             const token = getToken();
-            const res = await axios.put('http://localhost:5000/dashboard/bmm_update', dataToUpdate, {
+            const res = await axios.put(`${process.env.REACT_APP_SERVER_URL}/dashboard/bmm_update`, dataToUpdate, {
                 headers: {Authorization: `Bearer ${token}`},
             });
             const updatedInsights = res.data.insights;
@@ -182,7 +182,7 @@ export default function Dashboard(props) {
         try {
             setLoading(true);
             const token = getToken();
-            const response = await axios.get(`http://localhost:5000/report/${reportId}`, {
+            const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/report/${reportId}`, {
                 headers: {Authorization: `Bearer ${token}`},
             })
             const reportData = response.data.report.data;
@@ -340,7 +340,7 @@ export default function Dashboard(props) {
         const token = getToken();
         if (token) {
             try {
-                const response = await axios.get('http://localhost:5000/user', {
+                const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/user`, {
                     headers: {Authorization: `Bearer ${token}`},
                 });
                 return response.data;
@@ -386,7 +386,7 @@ export default function Dashboard(props) {
             const token = getToken();
 
             // Check if reportId is available
-            const url = reportId ? `http://localhost:5000/report/${reportId}` : 'http://localhost:5000/report';
+            const url = reportId ? `${process.env.REACT_APP_SERVER_URL}/report/${reportId}` : `${process.env.REACT_APP_SERVER_URL}/report`;
             const method = reportId ? 'put' : 'post';
 
             // Send a POST request to save the report

@@ -80,7 +80,7 @@ export default function SignIn() {
         setLoading(true);
         try {
             const req = {email: email, password: password}
-            const response = await axios.post('http://localhost:5000/login', req);
+            const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/login`, req);
             if (rememberMe) {
                 localStorage.setItem('token', response.data.token);
             } else {
@@ -99,7 +99,7 @@ export default function SignIn() {
     const handleGoogleLoginSuccess = async (response) => {
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/login/google', {
+            const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/login/google`, {
                 token: response.credential
             });
             localStorage.setItem('token', res.data.token);

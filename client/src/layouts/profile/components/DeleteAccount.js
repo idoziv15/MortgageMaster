@@ -37,7 +37,7 @@ const DeleteAccount = () => {
     const handleDeleteAccount = async () => {
         try {
             const token = getToken();
-            const response = await axios.delete("http://localhost:5000/users", {
+            const response = await axios.delete(`${process.env.REACT_APP_SERVER_URL}/users`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

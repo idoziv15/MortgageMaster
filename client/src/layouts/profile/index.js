@@ -39,7 +39,7 @@ export default function Profile() {
         const token = getToken();
         if (token) {
             try {
-                const response = await axios.get('http://localhost:5000/user', {
+                const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/user`, {
                     headers: {Authorization: `Bearer ${token}`},
                 });
                 return response.data;

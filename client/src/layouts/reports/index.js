@@ -26,7 +26,7 @@ export default function ReportsDashboard(props) {
         const token = getToken();
         if (token) {
             try {
-                const response = await axios.get('http://localhost:5000/user', {
+                const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/user`, {
                     headers: {Authorization: `Bearer ${token}`},
                 });
                 return response.data;
@@ -72,7 +72,7 @@ export default function ReportsDashboard(props) {
     useEffect(() => {
         if (userData) {
             const token = getToken();
-            axios.get(`http://localhost:5000/reports`, {
+            axios.get(`${process.env.REACT_APP_SERVER_URL}/reports`, {
                 headers: {Authorization: `Bearer ${token}`},
             })
                 .then(response => {

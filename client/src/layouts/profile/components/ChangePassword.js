@@ -65,7 +65,7 @@ const ChangePassword = () => {
             }
 
             const token = getToken();
-            const response = await axios.post("http://localhost:5000/change-password", {
+            const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/change-password`, {
                     currentPassword, newPassword}, { headers: {Authorization: `Bearer ${token}`}});
             toast({
                 title: "Password changed successfully",

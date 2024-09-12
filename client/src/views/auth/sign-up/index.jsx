@@ -93,7 +93,7 @@ export default function SignUp() {
                 email: email,
                 password: password
             }
-            const response = await axios.post('http://localhost:5000/register', req);
+            const response = await axios.post(`${process.env.REACT_APP_SERVER_URL}/register`, req);
             // Reset inputs
             setFirstName("");
             setLastName("");

@@ -30,7 +30,7 @@ export default function UserDetail(props) {
         try {
             setLoading(true);
             const token = getToken();
-            const response = await axios.put(`http://localhost:5000/users/${userId}`, {
+            const response = await axios.put(`${process.env.REACT_APP_SERVER_URL}/users/${userId}`, {
                 [title.toLowerCase().replace(" ", "_")]: newValue,
             }, {
                 headers: {Authorization: `Bearer ${token}`},

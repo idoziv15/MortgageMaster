@@ -56,7 +56,7 @@ export default function InvestmentReport({report, onDelete}) {
         setLoading(true);
         const token = getToken();
         try {
-            const response = await axios.put(`http://localhost:5000/investment_report/${report._id}`, {
+            const response = await axios.put(`${process.env.REACT_APP_SERVER_URL}/investment_report/${report._id}`, {
                 name,
                 description
             }, {
@@ -95,7 +95,7 @@ export default function InvestmentReport({report, onDelete}) {
         setIsDeleting(true);
         const token = getToken();
         try {
-            const response = await axios.delete(`http://localhost:5000/investment_report/${report._id}`, {
+            const response = await axios.delete(`${process.env.REACT_APP_SERVER_URL}/investment_report/${report._id}`, {
                 headers: {Authorization: `Bearer ${token}`}
             });
             if (response.status === 200) {
@@ -125,7 +125,7 @@ export default function InvestmentReport({report, onDelete}) {
         try {
             const token = sessionStorage.getItem('token') || localStorage.getItem('token');
 
-            const response = await axios.get(`http://localhost:5000/report/${report._id}/download`, {
+            const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/report/${report._id}/download`, {
                 headers: {Authorization: `Bearer ${token}`},
                 responseType: 'blob',  // To handle binary data
             });
@@ -134,7 +134,7 @@ export default function InvestmentReport({report, onDelete}) {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `report_${report.name}.pdf`);
+            link.setAttribute('download', `${report.name}.pdf`);
             document.body.appendChild(link);
             link.click();
             link.remove();
