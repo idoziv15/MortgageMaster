@@ -14,7 +14,7 @@ import {
     InputRightElement,
     Text,
     useColorModeValue,
-    Spinner,
+    Spinner, useToast,
 } from "@chakra-ui/react";
 import {HSeparator} from "../../../components/separator/Separator";
 import DefaultAuth from "../../../layouts/auth/login";
@@ -22,11 +22,11 @@ import illustration from "../../../assets/img/auth/login-img.jpeg";
 import {FcGoogle} from "react-icons/fc";
 import {MdOutlineRemoveRedEye} from "react-icons/md";
 import {RiEyeCloseLine} from "react-icons/ri";
-import {GoogleOAuthProvider, GoogleLogin} from '@react-oauth/google';
+import {GoogleOAuthProvider, useGoogleLogin, GoogleLogin} from '@react-oauth/google';
 import axios from 'axios';
 
 export default function SignIn() {
-    const googleClientId = 'YOUR_GOOGLE_CLIENT_ID';
+    const googleClientId = '198457481215-avuhedrtvurgkvp2k4b7pv54qli66t64.apps.googleusercontent.com';
     const textColor = useColorModeValue("navy.700", "white");
     const textColorSecondary = "gray.400";
     const textColorDetails = useColorModeValue("navy.700", "secondaryGray.600");
@@ -51,6 +51,7 @@ export default function SignIn() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const toast = useToast();
 
     const validateEmail = (email) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,7 +67,7 @@ export default function SignIn() {
     const handleSignIn = async () => {
         setError("");
 
-        if (!email || !password ) {
+        if (!email || !password) {
             setError("All fields are required.");
             return;
         }
@@ -78,7 +79,7 @@ export default function SignIn() {
 
         setLoading(true);
         try {
-            const req = {email: email, password :password}
+            const req = {email: email, password: password}
             const response = await axios.post('http://localhost:5000/login', req);
             if (rememberMe) {
                 localStorage.setItem('token', response.data.token);
@@ -94,6 +95,41 @@ export default function SignIn() {
             setLoading(false);
         }
     };
+
+    const handleGoogleLoginSuccess = async (response) => {
+        setLoading(true);
+        try {
+            const res = await axios.post('http://localhost:5000/login/google', {
+                token: response.credential
+            });
+            localStorage.setItem('token', res.data.token);
+            navigate('/dashboard');
+        } catch (error) {
+            // setError("Google Login failed.");
+            toast({
+                title: 'Google Login failed.',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleLoginFailure = () => {
+        toast({
+            title: 'Google Login failed. Please try again.',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+        });
+    };
+
+    // const googleLogin = useGoogleLogin({
+    //     onSuccess: handleGoogleLoginSuccess,
+    //     onError: handleGoogleLoginFailure,
+    // });
 
     return (
         <GoogleOAuthProvider clientId={googleClientId}>
@@ -132,10 +168,10 @@ export default function SignIn() {
                         mx={{base: "auto", lg: "unset"}}
                         me='auto'
                         mb={{base: "20px", md: "auto"}}>
-                        {/*<GoogleLogin*/}
-                        {/*                          onSuccess={response => console.log('Login Success: ', response)}*/}
-                        {/*                          onError={() => console.log('Login Failed')}*/}
-                        {/*/>*/}
+                        <GoogleLogin
+                            onSuccess={handleGoogleLoginSuccess}
+                            onError={handleGoogleLoginFailure}
+                        />
                         <Button
                             fontSize='sm'
                             me='0px'
@@ -150,6 +186,7 @@ export default function SignIn() {
                             _active={googleActive}
                             _focus={googleActive}>
                             <Icon as={FcGoogle} w='20px' h='20px' me='10px'/>
+                            {/*onClick={() => googleLogin()}*/}
                             Sign in with Google
                         </Button>
                         <Flex align='center' mb='25px'>

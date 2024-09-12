@@ -167,7 +167,7 @@ export default function InvestmentReport({report, onDelete}) {
             </CardBody>
             <Divider/>
             <CardFooter py={2} display="flex" justifyContent="space-between">
-                <Link to={`/report/${report.id}`}>
+                <Link to={`/report/${report._id}`}>
                     <Button size='sm' variant='solid' colorScheme='blue'>
                         View report
                         <Box as={FaArrowRight} ml={2}/>

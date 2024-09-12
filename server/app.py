@@ -10,6 +10,8 @@ from bson.objectid import ObjectId
 from flask_cors import CORS
 from BMM.business_models.model import BMM
 from datetime import datetime, timedelta
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 # Load environment variables from .env file
 load_dotenv()
@@ -19,7 +21,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Configure Mongo database
-app.config['MONGO_URI'] = 'mongodb+srv://ido_ziv:Aa123456@mastermortgage.g7nra.mongodb.net/MasterMortgage?retryWrites=true&w=majority'
+app.config[
+    'MONGO_URI'] = 'mongodb+srv://ido_ziv:Aa123456@mastermortgage.g7nra.mongodb.net/MasterMortgage?retryWrites=true&w=majority'
 print(f"Loaded MONGO_URI: {app.config['MONGO_URI']}")
 
 # Initialize PyMongo for MongoDB
@@ -27,7 +30,6 @@ mongo = PyMongo(app)
 
 # Enable CORS for the Flask app
 CORS(app)
-
 
 # API routes
 
@@ -84,6 +86,36 @@ def login():
     except Exception as e:
         print(f"Error logging in: {e}")
         return jsonify({'error': 'Failed to login'}), 500
+
+
+@app.route('/login/google', methods=['POST'])
+def login_google():
+    try:
+        token = request.json['token']
+        id_info = id_token.verify_oauth2_token(token, requests.Request(), 'YOUR_GOOGLE_CLIENT_ID')
+
+        # Check if user exists in your DB, if not create them
+        user = mongo.db.users.find_one({"email": id_info['email']})
+        if not user:
+            user = {
+                'first_name': id_info['given_name'],
+                'last_name': id_info['family_name'],
+                'email': id_info['email'],
+                'registered_date': datetime.utcnow(),
+            }
+            mongo.db.users.insert_one(user)
+
+        # Generate JWT token
+        token = jwt.encode({
+            'user_id': str(user['_id']),
+            'exp': datetime.utcnow() + timedelta(hours=1)
+        }, SECRET_KEY, algorithm='HS256')
+
+        return jsonify({'token': token}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'message': 'Google login failed'}), 400
 
 
 @app.route('/logout', methods=['POST'])
@@ -210,15 +242,14 @@ def update_investment(current_user):
     return jsonify({'insights': result}), 200
 
 
-@app.route('/report/<string:id>', methods=['GET'])
+@app.route('/report/<string:report_id>', methods=['GET'])
 @token_required
-def get_report(current_user, id):
+def get_report(current_user, report_id):
     try:
         # Fetch report from MongoDB by its ObjectId
-        report = mongo.db.reports.find_one({"_id": ObjectId(id)})
-
+        report = mongo.db.reports.find_one({"_id": ObjectId(report_id)})
         if report:
-            return jsonify({'report': report}), 200
+            return jsonify({'report': serialize_report(report)}), 200
         else:
             return jsonify({'error': 'Report not found'}), 404
 
@@ -301,9 +332,40 @@ def delete_report(current_user, report_id):
         return jsonify({'error': 'Failed to delete report'}), 500
 
 
-@app.route('/investment_report/<string:report_id>', methods=['PUT'])
+@app.route('/report/<string:report_id>', methods=['PUT'])
 @token_required
 def update_report(current_user, report_id):
+    try:
+        report_data = request.json
+        # Fetch report from DB
+        report = mongo.db.reports.find_one({"_id": ObjectId(report_id)})
+
+        if report:
+            # Update existing report
+            updated_data = {
+                "name": report_data.get("name", report.get("name")),
+                "description": report_data.get("description", report.get("description")),
+                "data": report_data.get("data", report.get("data"))
+            }
+
+            # Perform the update in MongoDB
+            mongo.db.reports.update_one(
+                {"_id": ObjectId(report_id)},
+                {"$set": updated_data}
+            )
+
+            return jsonify({'message': 'Report updated successfully'}), 200
+        else:
+            return jsonify({'error': 'Report not found'}), 404
+
+    except Exception as e:
+        print(f"Error saving report: {e}")
+        return jsonify({'error': 'Failed to save report'}), 500
+
+
+@app.route('/investment_report/<string:report_id>', methods=['PUT'])
+@token_required
+def update_report_details(current_user, report_id):
     try:
         data = request.get_json()
 

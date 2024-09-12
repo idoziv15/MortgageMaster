@@ -198,6 +198,8 @@ export default function Dashboard(props) {
             setPropertyData(property);
             setMortgageData(mortgage);
             setOtherData(other);
+            setReportName(response.data.report.name);
+            setReportDescription(response.data.report.description);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching report data', error);
@@ -382,15 +384,23 @@ export default function Dashboard(props) {
         try {
             const reportData = generateReport();
             const token = getToken();
+
+            // Check if reportId is available
+            const url = reportId ? `http://localhost:5000/report/${reportId}` : 'http://localhost:5000/report';
+            const method = reportId ? 'put' : 'post';
+
             // Send a POST request to save the report
-            const response = await axios.post(`http://localhost:5000/report`, reportData, {
+            const response = await axios({
+                method,
+                url,
+                data: reportData,
                 headers: {Authorization: `Bearer ${token}`},
             });
 
             // Handle success
             toast({
-                title: 'Report saved successfully',
-                description: 'Your report has been saved successfully.',
+                title: reportId ? 'Report updated successfully' : 'Report saved successfully',
+                description: 'You can now see the report at My reports.',
                 status: 'success',
                 duration: 5000,
                 isClosable: true,
@@ -576,7 +586,9 @@ export default function Dashboard(props) {
                                     <SaveReportModal
                                         isOpen={showModal}
                                         onClose={handleCloseModal}
+                                        reportName={reportName}
                                         setReportName={setReportName}
+                                        reportDescription={reportDescription}
                                         setReportDescription={setReportDescription}
                                         handleSaveReport={handleSaveReport}
                                     />
