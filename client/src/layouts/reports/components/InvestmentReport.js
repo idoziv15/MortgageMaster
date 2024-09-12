@@ -154,7 +154,13 @@ export default function InvestmentReport({report, onDelete}) {
     };
 
     return (
-        <Card maxW='xs' position="relative">
+        <Card maxW='xs' position="relative"
+              transition="transform 0.2s"
+              _hover={{transform: "scale(1.05)"}}
+              borderRadius="md"
+              boxShadow="lg"
+              cursor="pointer"
+        >
             {isNew && (
                 <Badge
                     position="absolute"
@@ -217,7 +223,7 @@ export default function InvestmentReport({report, onDelete}) {
                 ) : (
                     <Flex>
                         <Button size='sm' variant='outline' colorScheme='green' onClick={() => handleDownloadReport()}
-                        ml={2}>
+                                ml={2}>
                             <FaDownload/>
                         </Button>
                         <Button size='sm' variant='outline' colorScheme='blue' onClick={() => setIsEditing(true)}
