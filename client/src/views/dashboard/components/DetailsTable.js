@@ -198,7 +198,7 @@ export default function DetailsTable({data, setData, tableName}) {
 
     return (
         <ChakraProvider>
-            <Box p={4} mx={5}>
+            <Box p={4} >
                 <Card>
                     <CardHeader py={1} px={3}>
                         <Heading size="md">{tableName}</Heading>
@@ -279,7 +279,7 @@ export default function DetailsTable({data, setData, tableName}) {
                                                             type="number"
                                                             size="sm"
                                                             bg="gray.100"
-                                                            width="80px"
+                                                            width="120px"
                                                             p={1}
                                                             my={0.5}
                                                             onChange={(e) => handleChange(key, e.target.value)}

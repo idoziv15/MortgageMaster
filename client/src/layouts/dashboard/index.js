@@ -11,6 +11,7 @@ import InvestmentSummary from "../../views/dashboard/components/InvestmentSummar
 import axios from 'axios';
 import DetailsTable from "../../views/dashboard/components/DetailsTable";
 import SaveReportModal from "../../views/dashboard/components/SaveReportModal";
+import MortgageTable from "../../views/dashboard/components/MortgageTable";
 
 export default function Dashboard(props) {
     const {...rest} = props;
@@ -566,8 +567,9 @@ export default function Dashboard(props) {
                                                   setData={setInvestorData}/>
                                     <DetailsTable data={propertyData} tableName={'Property Details'}
                                                   setData={setPropertyData}/>
-                                    <DetailsTable data={mortgageData} tableName={'Mortgage Details'}
-                                                  setData={setMortgageData}/>
+                                    {/*<DetailsTable data={mortgageData} tableName={'Mortgage Details'}*/}
+                                    {/*              setData={setMortgageData}/>*/}
+                                    <MortgageTable tableName={'Mortgage Details'} />
                                 </Box>
                             </Flex>
                             <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'
