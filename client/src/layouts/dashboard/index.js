@@ -13,6 +13,7 @@ import DetailsTable from "../../views/dashboard/components/DetailsTable";
 import SaveReportModal from "../../views/dashboard/components/SaveReportModal";
 import MortgageTable from "../../views/dashboard/components/MortgageTable";
 import AdditionalTable from "../../views/dashboard/components/AdditionalTable";
+import PropertyTable from "../../views/dashboard/components/PropertyTable";
 
 export default function Dashboard(props) {
     const {...rest} = props;
@@ -102,14 +103,14 @@ export default function Dashboard(props) {
         'gross_rental_income': 0,
     });
     const [propertyData, setPropertyData] = useState({
-        'purchase_price': 0,
-        'monthly_rent_income': 0,
-        'square_meters': 0,
-        'parking_spots': 0,
-        'warehouse': false,
-        'balcony_square_meter': 0,
-        'after_repair_value': 0,
-        'annual_appreciation_percentage': 0
+        'purchase_price': {value: 0, range: [0, 100000000], step: 100000},
+        'monthly_rent_income': {value: 0, range: [0, 50000], step: 1000},
+        'square_meters': {value: 0, range: [0, 10000], step: 10},
+        'parking_spots': {value: 0, range: [0, 1000], step: 1},
+        'warehouse': {value: false},
+        'balcony_square_meter': {value: 0, range: [0, 1000], step: 10},
+        'after_repair_value': {value: 0, range: [0, 100000000], step: 100000},
+        'annual_appreciation_percentage': {value: 0, range: [0, 100], step: 1}
     });
     const [mortgageData, setMortgageData] = useState({
         'mortgage_advisor_cost': 0,
@@ -573,8 +574,8 @@ export default function Dashboard(props) {
                                 <Box flex='1'>
                                     <DetailsTable data={investorData} tableName={'Investor Details'}
                                                   setData={setInvestorData}/>
-                                    <DetailsTable data={propertyData} tableName={'Property Details'}
-                                                  setData={setPropertyData}/>
+                                    <PropertyTable data={propertyData} tableName={'Property Details'}
+                                                   setData={setPropertyData}/>
                                     <MortgageTable tableName={'Mortgage Details'} data={mortgageData}
                                                    setData={setMortgageData}/>
                                 </Box>
