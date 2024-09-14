@@ -12,6 +12,7 @@ import axios from 'axios';
 import DetailsTable from "../../views/dashboard/components/DetailsTable";
 import SaveReportModal from "../../views/dashboard/components/SaveReportModal";
 import MortgageTable from "../../views/dashboard/components/MortgageTable";
+import AdditionalTable from "../../views/dashboard/components/AdditionalTable";
 
 export default function Dashboard(props) {
     const {...rest} = props;
@@ -122,9 +123,9 @@ export default function Dashboard(props) {
         'average_interest_when_taken': null
     });
     const [otherData, setOtherData] = useState({
-        'years_until_key_reception': 0,
-        'contractor_payment_distribution': [],
-        'construction_input_index_annual_growth': 0,
+        'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
+        'contractor_payment_distribution': {value: []},
+        'construction_input_index_annual_growth': {value: 0, range: [0, 10], step: 0.1}
     });
     const [loading, setLoading] = useState(false);
 
@@ -565,8 +566,8 @@ export default function Dashboard(props) {
                                 <Box flex='1'>
                                     <DetailsTable data={investmentData} tableName={'Investment Details'}
                                                   setData={setInvestmentData}/>
-                                    <DetailsTable data={otherData} tableName={'Additional Details'}
-                                                  setData={setOtherData}/>
+                                    <AdditionalTable data={otherData} tableName={'Additional Details'}
+                                                     setData={setOtherData}/>
                                 </Box>
                                 {/* Right Side */}
                                 <Box flex='1'>

@@ -234,6 +234,7 @@ def user_routes(current_user):
 @token_required
 def update_investment(current_user):
     data = request.json
+    print(data)
     investment_data = data['investment_data']
     investor_data = data['investor_data']
     property_data = data['property_data']
@@ -391,7 +392,6 @@ def update_report_details(current_user, report_id):
         return jsonify({'error': 'Failed to update report'}), 500
 
 
-# Helper function to find a user by ID
 def find_user_by_id(user_id):
     try:
         return mongo.db.users.find_one({"_id": ObjectId(user_id)})
@@ -400,7 +400,6 @@ def find_user_by_id(user_id):
         return None
 
 
-# Helper function to find a user by email
 def find_user_by_email(email):
     return mongo.db.users.find_one({"email": email})
 

@@ -18,12 +18,12 @@ import {
     Modal,
     ModalOverlay,
     ModalContent,
-    ModalBody,
+    ModalBody, Textarea, IconButton,
 } from "@chakra-ui/react";
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import moment from "moment";
 import {TimeIcon} from "@chakra-ui/icons";
-import {FaArrowRight, FaEdit, FaCheck, FaTrash, FaDownload} from "react-icons/fa";
+import {FaArrowRight, FaEdit, FaCheck, FaTrash, FaDownload, FaChevronUp, FaChevronDown} from "react-icons/fa";
 import reportImg from "../../../assets/img/reports/report_preview.svg";
 import {Link} from "react-router-dom";
 import axios from "axios";
@@ -38,6 +38,9 @@ export default function InvestmentReport({report, onDelete}) {
     const [description, setDescription] = useState(report.description);
     const [loading, setLoading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [isOverflowing, setIsOverflowing] = useState(false);
+    const textRef = useRef(null);
     const toast = useToast();
 
     const getToken = () => {
@@ -153,6 +156,13 @@ export default function InvestmentReport({report, onDelete}) {
         }
     };
 
+    useEffect(() => {
+        if (textRef.current) {
+            const isOverflow = textRef.current.scrollHeight > textRef.current.clientHeight;
+            setIsOverflowing(isOverflow);
+        }
+    }, [description, isEditing]);
+
     return (
         <Card maxW='xs' position="relative"
               transition="transform 0.2s"
@@ -180,21 +190,29 @@ export default function InvestmentReport({report, onDelete}) {
                 <Stack mt='6' spacing='1'>
                     {isEditing ? (
                         <>
-                            <Input
-                                size='sm'
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
+                            <Input size='sm' value={name}
+                                   onChange={(e) => setName(e.target.value)}
                             />
-                            <Input
-                                size='sm'
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
+                            <Textarea size='sm' value={description}
+                                      onChange={(e) => setDescription(e.target.value)}
                             />
                         </>
                     ) : (
                         <>
                             <Heading size='sm'>{name}</Heading>
-                            <Text size='sm'>{description}</Text>
+                            <Text size='sm' ref={textRef} noOfLines={isExpanded ? undefined : 1}>
+                                {isOverflowing && (
+                                    <IconButton
+                                        size="sm"
+                                        aria-label={isExpanded ? "Collapse" : "Expand"}
+                                        icon={isExpanded ? <FaChevronUp/> : <FaChevronDown/>}
+                                        onClick={() => setIsExpanded(!isExpanded)}
+                                        variant="ghost"
+                                        alignSelf="start"
+                                    />
+                                )}
+                                {description}
+                            </Text>
                         </>
                     )}
                     <Flex align="center" color="blue.600" fontSize="sm">
@@ -207,8 +225,8 @@ export default function InvestmentReport({report, onDelete}) {
             <CardFooter p={2} display="flex" justifyContent="space-between">
                 <Link to={`/report/${report._id}`}>
                     <Button size='sm' variant='solid' colorScheme='blue'>
-                        View report
-                        <Box as={FaArrowRight}/>
+                        View
+                        <Box as={FaArrowRight} ml={1}/>
                     </Button>
                 </Link>
                 {isEditing ? (
