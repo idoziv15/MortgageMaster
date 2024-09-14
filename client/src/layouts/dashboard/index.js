@@ -14,6 +14,7 @@ import SaveReportModal from "../../views/dashboard/components/SaveReportModal";
 import MortgageTable from "../../views/dashboard/components/MortgageTable";
 import AdditionalTable from "../../views/dashboard/components/AdditionalTable";
 import PropertyTable from "../../views/dashboard/components/PropertyTable";
+import InvestorTable from "../../views/dashboard/components/InvestorTable";
 
 export default function Dashboard(props) {
     const {...rest} = props;
@@ -29,6 +30,7 @@ export default function Dashboard(props) {
     const [reportName, setReportName] = useState('');
     const [reportDescription, setReportDescription] = useState('');
     const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const [insightsData, setInsightsData] = useState({
         "Price per meter": 0,
@@ -96,11 +98,11 @@ export default function Dashboard(props) {
         'average_interest_in_exit': 0
     });
     const [investorData, setInvestorData] = useState({
-        'net_monthly_income': 0,
-        'total_debt_payment': 0,
-        'RealEstateInvestmentType': 'house',
-        'total_available_equity': 0,
-        'gross_rental_income': 0,
+        'net_monthly_income': {value: 0, range: [0, 1000000], step: 1000},
+        'total_debt_payment': {value: 0, range: [0, 10000000], step: 10000},
+        'real_estate_investment_type': {value: 'house'},
+        'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
+        'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000}
     });
     const [propertyData, setPropertyData] = useState({
         'purchase_price': {value: 0, range: [0, 100000000], step: 100000},
@@ -128,7 +130,6 @@ export default function Dashboard(props) {
         'contractor_payment_distribution': {value: []},
         'construction_input_index_annual_growth': {value: 0, range: [0, 10], step: 0.1}
     });
-    const [loading, setLoading] = useState(false);
 
     const getToken = () => {
         // Check if token is in sessionStorage
@@ -295,22 +296,22 @@ export default function Dashboard(props) {
         });
 
         setInvestorData({
-            'net_monthly_income': 0,
-            'total_debt_payment': 0,
-            'RealEstateInvestmentType': 'house',
-            'total_available_equity': 0,
-            'gross_rental_income': 0,
+            'net_monthly_income': {value: 0, range: [0, 1000000], step: 1000},
+            'total_debt_payment': {value: 0, range: [0, 10000000], step: 10000},
+            'real_estate_investment_type': {value: 'house'},
+            'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
+            'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000}
         });
 
         setPropertyData({
-            'purchase_price': 0,
-            'monthly_rent_income': 0,
-            'square_meters': 0,
-            'parking_spots': 0,
-            'warehouse': false,
-            'balcony_square_meter': 0,
-            'after_repair_value': 0,
-            'annual_appreciation_percentage': 0
+            'purchase_price': {value: 0, range: [0, 100000000], step: 100000},
+            'monthly_rent_income': {value: 0, range: [0, 50000], step: 1000},
+            'square_meters': {value: 0, range: [0, 10000], step: 10},
+            'parking_spots': {value: 0, range: [0, 1000], step: 1},
+            'warehouse': {value: false},
+            'balcony_square_meter': {value: 0, range: [0, 1000], step: 10},
+            'after_repair_value': {value: 0, range: [0, 100000000], step: 100000},
+            'annual_appreciation_percentage': {value: 0, range: [0, 100], step: 1}
         });
 
         setMortgageData({
@@ -326,9 +327,9 @@ export default function Dashboard(props) {
         });
 
         setOtherData({
-            'years_until_key_reception': 0,
-            'contractor_payment_distribution': [],
-            'construction_input_index_annual_growth': 0,
+            'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
+            'contractor_payment_distribution': {value: []},
+            'construction_input_index_annual_growth': {value: 0, range: [0, 10], step: 0.1}
         });
     };
 
@@ -572,8 +573,8 @@ export default function Dashboard(props) {
                                 </Box>
                                 {/* Right Side */}
                                 <Box flex='1'>
-                                    <DetailsTable data={investorData} tableName={'Investor Details'}
-                                                  setData={setInvestorData}/>
+                                    <InvestorTable data={investorData} tableName={'Investor Details'}
+                                                   setData={setInvestorData}/>
                                     <PropertyTable data={propertyData} tableName={'Property Details'}
                                                    setData={setPropertyData}/>
                                     <MortgageTable tableName={'Mortgage Details'} data={mortgageData}

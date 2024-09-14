@@ -43,7 +43,7 @@ export default function AdditionalTable({tableName, data, setData}) {
     return (
         <ChakraProvider>
             <Box p={4}>
-                <Card>
+                <Card pt={2}>
                     <CardHeader py={1} px={3} display="flex" justifyContent="space-between" alignItems="center">
                         <Heading size="md">{tableName}</Heading>
                     </CardHeader>
