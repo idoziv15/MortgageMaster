@@ -50,9 +50,9 @@ export default function InvestorTable({tableName, data, setData}) {
                                         <GridItem colSpan={2}>
                                             <Select value={value} size="sm" bg="gray.100" width="43%"
                                                 onChange={e => handleInputChange(key, e.target.value)} >
-                                                <option value="House">House</option>
-                                                <option value="Building">Building</option>
-                                                <option value="Field">Field</option>
+                                                <option value="single apartment">Single Apartment</option>
+                                                <option value="alternative apartment">Alternative Apartment</option>
+                                                <option value="additional apartment">Additional Apartment</option>
                                             </Select>
                                         </GridItem>
                                     ) : (

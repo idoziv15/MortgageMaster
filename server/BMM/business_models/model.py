@@ -11,13 +11,28 @@ from ..investors.real_estate_investors_portfolio import RealEstateInvestorsPortf
 from ..mortgage.mortgage_pipeline import MortgagePipeline
 from ..mortgage.mortgage_tracks.constant_not_linked import ConstantNotLinked
 
+
+def get_real_estate_investment_type(real_estate_investment_type: str) -> RealEstateInvestmentType:
+    try:
+        final_type = None
+        if real_estate_investment_type == 'single apartment':
+            final_type = 'SingleApartment'
+        elif real_estate_investment_type == 'single apartment':
+            final_type = 'alternative apartment'
+        elif real_estate_investment_type == 'additional apartment':
+            final_type = 'AdditionalApartment'
+        return RealEstateInvestmentType[final_type]
+    except KeyError:
+        raise ValueError(f"Invalid real estate investment type: {real_estate_investment_type}")
+
+
 class BMM(SingleHouseIsraelModel):
     def __init__(self, investment_data: Dict, investor_data: Dict, property_data: Dict, mortgage_data: Dict,
                  other_data: Dict):
         investor = RealEstateInvestor(
             net_monthly_income=investor_data['net_monthly_income'],
             total_debt_payment=investor_data['total_debt_payment'],
-            real_estate_investment_type=RealEstateInvestmentType.SingleApartment,
+            real_estate_investment_type=get_real_estate_investment_type(investor_data['real_estate_investment_type']),
             total_available_equity=investor_data['total_available_equity'],
             gross_rental_income=investor_data['gross_rental_income']
         )
@@ -45,7 +60,7 @@ class BMM(SingleHouseIsraelModel):
             investors_portfolio, mortgage, property,
             years_to_exit=investment_data['years_to_exit'],
             average_interest_in_exit=investment_data['average_interest_in_exit'],
-            mortgage_advisor_cost=mortgage_data['mortgage_advisor_cost'],
+            mortgage_advisor_cost=investment_data['mortgage_advisor_cost'],
             appraiser_cost=investment_data['appraiser_cost'],
             lawyer_cost=investment_data['lawyer_cost'],
             escort_costs=investment_data['escort_costs'],
@@ -195,9 +210,9 @@ class BMM(SingleHouseIsraelModel):
                                                      for i in range(self.investment_data['years_to_exit'])] + [0]
 
         # TODO: I assume here that the mortgage is only taken upon receiving a key, additional scenarios must be created
-        estimated_mortgage_monthly_payments =\
+        estimated_mortgage_monthly_payments = \
             [0] * self.other_data['years_until_key_reception'] + self.mortgage.get_annual_payments()[:(
-            self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'])] + [0]
+                    self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'])] + [0]
 
         equity_distribution_to_property_purchase = self.calculate_equity_payments() + [0] * (
                 self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'])
@@ -267,39 +282,73 @@ class BMM(SingleHouseIsraelModel):
         insights["Broker purchase cost"] = self.calculate_broker_purchase_cost()
         insights["Monthly operating expenses"] = self.calculate_monthly_operating_expenses()
         insights["Cash on cash"] = self.calculate_cash_on_cash()
+        return insights
         insights["Net Yearly Cash Flow"] = self.calculate_net_annual_cash_flow()
+        return insights
         insights["Net Monthly Cash Flow"] = self.calculate_net_monthly_cash_flow()
+        return insights
         insights["Yearly IRR"] = 0 if math.isnan(self.calculate_annual_irr()) else self.calculate_annual_irr()
+        return insights
         insights["Annual rent income"] = self.calculate_annual_rent_income()
+        return insights
         insights["ROI"] = self.calculate_roi()
+        return insights
         insights["Monthly NOI"] = self.calculate_monthly_noi()
+        return insights
         insights["Annual NOI"] = self.calculate_annual_noi()
+        return insights
         insights["Monthly rental property taxes"] = self.calculate_monthly_rental_property_taxes()
+        return insights
         insights["Annual rental property taxes"] = self.calculate_annual_rental_property_taxes()
+        return insights
         insights["Cap rate"] = self.calculate_annual_cap_rate()
+        return insights
         insights["Gross yield"] = self.calculate_annual_gross_yield()
+        return insights
         insights["Monthly insurances expenses"] = self.calculate_monthly_insurances_expenses()
+        return insights
         insights["Annual insurances expenses"] = self.calculate_annual_insurances_expenses()
+        return insights
         insights["Monthly maintenance and repairs"] = self.calculate_monthly_maintenance_and_repairs()
+        return insights
         insights["Annual maintenance and repairs"] = self.calculate_annual_maintenance_and_repairs()
+        return insights
         insights["Monthly vacancy cost"] = self.calculate_monthly_vacancy_cost()
+        return insights
         insights["Annual vacancy cost"] = self.calculate_annual_vacancy_cost()
+        return insights
         insights["Estimated sale price"] = self.estimate_sale_price()
+        return insights
         insights["Selling expenses"] = self.calculate_selling_expenses()
+        return insights
         insights["Sale proceeds"] = self.calculate_sale_proceeds()
+        return insights
         insights["Total revenue"] = self.calculate_total_revenue()
+        return insights
         insights["Annual revenue distribution"] = self.calculate_annual_revenue_distribution()
+        return insights
         insights["Annual operating expenses"] = self.calculate_annual_operating_expenses()
+        return insights
         insights["Annual cash flow"] = self.calculate_net_annual_cash_flow()
+        return insights
         insights["Mortgage remain balance in exit"] = self.calculate_mortgage_remain_balance_in_exit()
+        return insights
         insights["Constructor index linked compensation"] = self.calculate_constructor_index_linked_compensation()
+        return insights
         insights["Total expenses"] = self.calculate_total_expenses()
+        return insights
         insights["Equity needed for purchase"] = self.calculate_total_equity_needed_for_purchase()
+        return insights
         insights["Contractor payments"] = self.calculate_equity_payments()
+        return insights
         insights["Annual expenses distribution"] = self.calculate_annual_expenses_distribution()
+        return insights
         insights["Monthly property management fees"] = self.calculate_monthly_property_management_fees()
+        return insights
         insights["Annual property management fees"] = self.calculate_annual_property_management_fees()
+        return insights
         insights["Net profit"] = self.calculate_net_profit()
+        return insights
         insights["Capital gain tax"] = self.calculate_capital_gain_tax()
 
         return insights

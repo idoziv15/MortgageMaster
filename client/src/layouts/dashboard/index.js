@@ -83,6 +83,7 @@ export default function Dashboard(props) {
         'appraiser_cost': {value: 0, range: [0, 1000000], step: 10000},
         'lawyer_cost': {value: 0, range: [0, 1000000], step: 10000},
         'escort_costs': {value: 0, range: [0, 1000000], step: 100000},
+        'mortgage_advisor_cost': {value: 0, range: [0, 100000], step: 10000},
         'additional_transaction_costs_dic': {tax: {value: null}, fee: {value: null}},
         'renovation_expenses_dic': {painting: {value: null}, flooring: {value: null}},
         'furniture_cost': {value: 0, range: [0, 500000], step: 1000},
@@ -101,7 +102,7 @@ export default function Dashboard(props) {
     const [investorData, setInvestorData] = useState({
         'net_monthly_income': {value: 0, range: [0, 1000000], step: 1000},
         'total_debt_payment': {value: 0, range: [0, 10000000], step: 10000},
-        'real_estate_investment_type': {value: 'house'},
+        'real_estate_investment_type': {value: 'single apartment'},
         'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
         'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000}
     });
@@ -124,7 +125,8 @@ export default function Dashboard(props) {
         'linked_index': [],
         'forecasting_interest_rate': [],
         'interest_changing_period': 0,
-        'average_interest_when_taken': null
+        'average_interest_when_taken': null,
+        'mortgage_type': 'constant_not_linked'
     });
     const [otherData, setOtherData] = useState({
         'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
@@ -144,31 +146,43 @@ export default function Dashboard(props) {
         return token;
     };
 
+    const filterValues = (data) => {
+        // Iterate over each key in the data object and return only the 'value' property
+        return Object.entries(data).reduce((acc, [key, field]) => {
+            if (typeof field === 'object' && field !== null && 'value' in field) {
+                acc[key] = field.value;
+            } else {
+                acc[key] = field;
+            }
+            return acc;
+        }, {});
+    };
+
     const updateBMM = async (newData) => {
         setLoading(true);
         let dataToUpdate = {
-            investment_data: investmentData,
-            investor_data: investorData,
-            property_data: propertyData,
+            investment_data: filterValues(investmentData),
+            investor_data: filterValues(investorData),
+            property_data: filterValues(propertyData),
             mortgage_data: mortgageData,
-            other_data: otherData,
+            other_data: filterValues(otherData)
         };
 
-        if (newData.investment_data) {
-            dataToUpdate.investment_data = {...investmentData, ...newData.investment_data};
-        } else if (newData.investor_data) {
-            dataToUpdate.investor_data = {...investorData, ...newData.investor_data};
-        } else if (newData.property_data) {
-            dataToUpdate.property_data = {...propertyData, ...newData.property_data};
-        } else if (newData.mortgage_data) {
-            dataToUpdate.mortgage_data = {...mortgageData, ...newData.mortgage_data};
-        } else if (newData.other_data) {
-            dataToUpdate.other_data = {...otherData, ...newData.other_data};
-        }
+        // if (newData.investment_data) {
+        //     dataToUpdate.investment_data = {...investmentData, ...newData.investment_data};
+        // } else if (newData.investor_data) {
+        //     dataToUpdate.investor_data = {...investorData, ...newData.investor_data};
+        // } else if (newData.property_data) {
+        //     dataToUpdate.property_data = {...propertyData, ...newData.property_data};
+        // } else if (newData.mortgage_data) {
+        //     dataToUpdate.mortgage_data = {...mortgageData, ...newData.mortgage_data};
+        // } else if (newData.other_data) {
+        //     dataToUpdate.other_data = {...otherData, ...newData.other_data};
+        // }
 
         try {
             const token = getToken();
-            const res = await axios.put(`${process.env.REACT_APP_SERVER_URL}/dashboard/bmm_update`, dataToUpdate, {
+            const res = await axios.put(`${process.env.REACT_APP_SERVER_URL}/bmm`, dataToUpdate, {
                 headers: {Authorization: `Bearer ${token}`},
             });
             const updatedInsights = res.data.insights;
@@ -208,7 +222,6 @@ export default function Dashboard(props) {
             setOtherData(other);
             setReportName(response.data.report.name);
             setReportDescription(response.data.report.description);
-            setLoading(false);
         } catch (error) {
             console.error('Error fetching report data', error);
             setLoading(false);
@@ -219,6 +232,8 @@ export default function Dashboard(props) {
                 duration: 5000,
                 isClosable: true,
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -280,6 +295,7 @@ export default function Dashboard(props) {
             'appraiser_cost': {value: 0, range: [0, 1000000], step: 10000},
             'lawyer_cost': {value: 0, range: [0, 1000000], step: 10000},
             'escort_costs': {value: 0, range: [0, 1000000], step: 100000},
+            'mortgage_advisor_cost': {value: 0, range: [0, 100000], step: 10000},
             'additional_transaction_costs_dic': {tax: {value: null}, fee: {value: null}},
             'renovation_expenses_dic': {painting: {value: null}, flooring: {value: null}},
             'furniture_cost': {value: 0, range: [0, 500000], step: 1000},
@@ -299,7 +315,7 @@ export default function Dashboard(props) {
         setInvestorData({
             'net_monthly_income': {value: 0, range: [0, 1000000], step: 1000},
             'total_debt_payment': {value: 0, range: [0, 10000000], step: 10000},
-            'real_estate_investment_type': {value: 'house'},
+            'real_estate_investment_type': {value: 'single apartment'},
             'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
             'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000}
         });
@@ -324,7 +340,8 @@ export default function Dashboard(props) {
             'linked_index': [],
             'forecasting_interest_rate': [],
             'interest_changing_period': 0,
-            'average_interest_when_taken': null
+            'average_interest_when_taken': null,
+            'mortgage_type': 'constant_not_linked'
         });
 
         setOtherData({
@@ -338,12 +355,12 @@ export default function Dashboard(props) {
         name: reportName,
         description: reportDescription,
         data: {
-            insightsData,
-            investmentData,
-            investorData,
-            propertyData,
-            mortgageData,
-            otherData
+            insightsData: filterValues(insightsData),
+            investmentData: filterValues(investmentData),
+            investorData: filterValues(investorData),
+            propertyData: filterValues(propertyData),
+            mortgageData: filterValues(mortgageData),
+            otherData: filterValues(otherData)
         }
     });
 

@@ -230,19 +230,24 @@ def user_routes(current_user):
 #     return jsonify({'insights': result}), 200
 
 
-@app.route('/dashboard/bmm_update', methods=['PUT'])
+@app.route('/bmm', methods=['PUT'])
 @token_required
-def update_investment(current_user):
-    data = request.json
-    print(data)
-    investment_data = data['investment_data']
-    investor_data = data['investor_data']
-    property_data = data['property_data']
-    mortgage_data = data['mortgage_data']
-    other_data = data['other_data']
-    result = BMM(investment_data, investor_data, property_data, mortgage_data, other_data).calculate_insights()
-    print(result)
-    return jsonify({'insights': result}), 200
+def calculate_BMM(current_user):
+    try:
+        data = request.json
+        # print(data)
+        investment_data = data['investment_data']
+        investor_data = data['investor_data']
+        property_data = data['property_data']
+        mortgage_data = data['mortgage_data']
+        other_data = data['other_data']
+        result = BMM(investment_data, investor_data, property_data, mortgage_data, other_data).calculate_insights()
+        print(result)
+        return jsonify({'insights': result}), 200
+
+    except Exception as e:
+        print(f"Error calculating BMM: {e}")
+        return jsonify({'error': 'Failed to calculate BMM'}), 500
 
 
 @app.route('/report/<string:report_id>', methods=['GET'])

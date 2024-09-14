@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -112,6 +112,12 @@ export default function MortgageTable({tableName, data, setData}) {
         ]
     };
 
+    useEffect(() => {
+        if (data.mortgage_type) {
+            setMortgageType(data.mortgage_type);
+        }
+    }, [data]);
+
     const handleInputListChange = (key, value) => {
         setData(prevData => ({
             ...prevData,
@@ -125,7 +131,7 @@ export default function MortgageTable({tableName, data, setData}) {
         if (typeof rawValue === 'string') {
             setData(prevData => ({
                 ...prevData,
-                 // Convert to array of numbers
+                // Convert to array of numbers
                 [key]: rawValue.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v))
             }));
         }
@@ -139,13 +145,16 @@ export default function MortgageTable({tableName, data, setData}) {
     };
 
     const handleSelectMortgageType = (type) => {
+        setMortgageType(type);
         const newFields = mortgageTypes[type].reduce((acc, field) => {
-            acc[field.key] = data[field.key] !== undefined ? data[field.key] : null;
+            acc[field.key] = data[field.key] !== undefined ? data[field.key] : (field.isList ? [] : null);
             return acc;
         }, {});
-
-        setMortgageType(type);
-        setData(newFields);
+        setData(prevData => ({
+            ...prevData,
+            ...newFields,
+            mortgage_type: type
+        }));
     };
 
     const renderFields = () => {
