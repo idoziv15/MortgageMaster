@@ -16,7 +16,6 @@ import MortgageTable from "../../views/dashboard/components/MortgageTable";
 export default function Dashboard(props) {
     const {...rest} = props;
     const [fixed] = useState(false);
-    // const mainBackground = useColorModeValue('gray.100', 'gray.900');
     const mainBackground = useColorModeValue('#EDF5F7', 'gray.900');
     const boxBackground = useColorModeValue('white', 'gray.800');
     const [toggleSidebar, setToggleSidebar] = useState(false);
@@ -116,7 +115,11 @@ export default function Dashboard(props) {
         'interest_rate': 3.5,
         'num_payments': 0,
         'initial_loan_amount': 0,
-        'interest_only_period': 0
+        'interest_only_period': 0,
+        'linked_index': [],
+        'forecasting_interest_rate': [],
+        'interest_changing_period': 0,
+        'average_interest_when_taken': null
     });
     const [otherData, setOtherData] = useState({
         'years_until_key_reception': 0,
@@ -313,7 +316,11 @@ export default function Dashboard(props) {
             'interest_rate': 3.5,
             'num_payments': 0,
             'initial_loan_amount': 0,
-            'interest_only_period': 0
+            'interest_only_period': 0,
+            'linked_index': [],
+            'forecasting_interest_rate': [],
+            'interest_changing_period': 0,
+            'average_interest_when_taken': null
         });
 
         setOtherData({
@@ -567,9 +574,8 @@ export default function Dashboard(props) {
                                                   setData={setInvestorData}/>
                                     <DetailsTable data={propertyData} tableName={'Property Details'}
                                                   setData={setPropertyData}/>
-                                    {/*<DetailsTable data={mortgageData} tableName={'Mortgage Details'}*/}
-                                    {/*              setData={setMortgageData}/>*/}
-                                    <MortgageTable tableName={'Mortgage Details'} />
+                                    <MortgageTable tableName={'Mortgage Details'} data={mortgageData}
+                                                   setData={setMortgageData}/>
                                 </Box>
                             </Flex>
                             <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'

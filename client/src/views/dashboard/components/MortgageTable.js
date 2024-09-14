@@ -22,21 +22,8 @@ import {
 } from '@chakra-ui/react';
 import {ChevronDownIcon} from '@chakra-ui/icons';
 
-export default function MortgageTable({tableName}) {
-    const initialData = {
-        interest_rate: 3.5,
-        num_payments: 0,
-        initial_loan_amount: 0,
-        linked_index: [],
-        forecasting_interest_rate: [],
-        interest_changing_period: 0,
-        average_interest_when_taken: null,
-        interest_only_period: 0,
-    };
-
+export default function MortgageTable({tableName, data, setData}) {
     const [mortgageType, setMortgageType] = useState('constant_not_linked');
-    const [mortgageData, setMortgageData] = useState(initialData);
-
     const mortgageTypes = {
         constant_not_linked: [
             {label: 'Interest Rate', key: 'interest_rate', range: [0, 20], step: 0.1},
@@ -126,30 +113,26 @@ export default function MortgageTable({tableName}) {
     };
 
     const handleInputListChange = (key, value) => {
-        // Split the input value by commas and map to numbers
-        const values = value.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
-
-        setMortgageData(prevData => ({
+        setData(prevData => ({
             ...prevData,
-            [key]: values
+            [key]: value
         }));
     };
 
-    const handleInputChange = (key, value) => {
-        // Convert value to number if it's a number field
-        const newValue = key === 'interest_rate' || key === 'num_payments' || key === 'initial_loan_amount'
-            ? parseFloat(value)
-            : value; // For non-number fields, use the string value directly
-
-        setMortgageData(prevData => ({
-            ...prevData,
-            [key]: newValue
-        }));
+    const handleListInputBlur = (key) => {
+        // Convert the string into an array on blur
+        const rawValue = data[key];
+        if (typeof rawValue === 'string') {
+            setData(prevData => ({
+                ...prevData,
+                 // Convert to array of numbers
+                [key]: rawValue.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v))
+            }));
+        }
     };
-
 
     const handleSliderChange = (key, value) => {
-        setMortgageData(prevData => ({
+        setData(prevData => ({
             ...prevData,
             [key]: value
         }));
@@ -157,12 +140,12 @@ export default function MortgageTable({tableName}) {
 
     const handleSelectMortgageType = (type) => {
         const newFields = mortgageTypes[type].reduce((acc, field) => {
-            acc[field.key] = initialData[field.key] !== undefined ? initialData[field.key] : null;
+            acc[field.key] = data[field.key] !== undefined ? data[field.key] : null;
             return acc;
         }, {});
 
         setMortgageType(type);
-        setMortgageData(newFields);
+        setData(newFields);
     };
 
     const renderFields = () => {
@@ -180,11 +163,10 @@ export default function MortgageTable({tableName}) {
                             width="100%"
                             p={1}
                             my={0.5}
-                            value={mortgageData[key].join(', ')}
+                            value={Array.isArray(data[key]) ? data[key].join(', ') : data[key] || ''}
                             placeholder="Enter values separated with a comma"
-                            onChange={(e) => {
-                                handleInputListChange(key, e.target.value);
-                            }}
+                            onChange={(e) => handleInputListChange(key, e.target.value)}
+                            onBlur={() => handleListInputBlur(key)}
                         />
                     </GridItem>
                 ) : (
@@ -197,13 +179,14 @@ export default function MortgageTable({tableName}) {
                                 width="90%"
                                 p={1}
                                 my={0.5}
-                                value={mortgageData[key]}
+                                // value={data[key]}
+                                value={data[key] !== null ? data[key] : 0}
                                 onChange={(e) => handleSliderChange(key, parseFloat(e.target.value))}
                             />
                         </GridItem>
                         <GridItem>
                             <Slider
-                                value={mortgageData[key]}
+                                value={data[key] !== null ? data[key] : 0}
                                 onChange={(value) => handleSliderChange(key, value)}
                                 min={range ? range[0] : 0}
                                 max={range ? range[1] : 100}
