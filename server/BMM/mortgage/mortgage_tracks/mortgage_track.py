@@ -46,6 +46,7 @@ class MortgageTrack(ABC):
 
         :return: A list of monthly payments.
         """
+        one = self._calculate_payments()[2]
         return self._calculate_payments()[2]
 
     def get_remaining_balances(self) -> List[int]:
@@ -169,7 +170,6 @@ class MortgageTrack(ABC):
             interest_payments.append(interest_payment)
             remaining_balances.append(remaining_balance)
             monthly_payments.append(principal_payment + interest_payment)
-
         return principal_payments, interest_payments, monthly_payments, remaining_balances, total_principal_paid, total_interest_paid
 
     def calculate_highest_monthly_payment(self) -> int:

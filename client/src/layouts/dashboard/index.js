@@ -84,8 +84,10 @@ export default function Dashboard(props) {
         'lawyer_cost': {value: 0, range: [0, 1000000], step: 10000},
         'escort_costs': {value: 0, range: [0, 1000000], step: 100000},
         'mortgage_advisor_cost': {value: 0, range: [0, 100000], step: 10000},
-        'additional_transaction_costs_dic': {tax: {value: null}, fee: {value: null}},
-        'renovation_expenses_dic': {painting: {value: null}, flooring: {value: null}},
+        // 'additional_transaction_costs_dic': {tax: {value: null}, fee: {value: null}},
+        // 'renovation_expenses_dic': {painting: {value: null}, flooring: {value: null}},
+        'additional_transaction_costs_dic': {tax: null, fee: null},
+        'renovation_expenses_dic': {painting: null, flooring: null},
         'furniture_cost': {value: 0, range: [0, 500000], step: 1000},
         'broker_purchase_percentage': {value: 0, range: [0, 50], step: 1},
         'broker_rent_percentage': {value: 0, range: [0, 50], step: 1},
@@ -147,16 +149,22 @@ export default function Dashboard(props) {
     };
 
     const filterValues = (data) => {
-        // Iterate over each key in the data object and return only the 'value' property
         return Object.entries(data).reduce((acc, [key, field]) => {
-            if (typeof field === 'object' && field !== null && 'value' in field) {
-                acc[key] = field.value;
+            if (typeof field === 'object' && field !== null) {
+                if ('value' in field) {
+                    acc[key] = field.value;
+                } else {
+                    acc[key] = Object.fromEntries(
+                        Object.entries(field).map(([subKey, subValue]) => [subKey, subValue])
+                    );
+                }
             } else {
                 acc[key] = field;
             }
             return acc;
         }, {});
     };
+
 
     const updateBMM = async (newData) => {
         setLoading(true);
@@ -167,18 +175,6 @@ export default function Dashboard(props) {
             mortgage_data: mortgageData,
             other_data: filterValues(otherData)
         };
-
-        // if (newData.investment_data) {
-        //     dataToUpdate.investment_data = {...investmentData, ...newData.investment_data};
-        // } else if (newData.investor_data) {
-        //     dataToUpdate.investor_data = {...investorData, ...newData.investor_data};
-        // } else if (newData.property_data) {
-        //     dataToUpdate.property_data = {...propertyData, ...newData.property_data};
-        // } else if (newData.mortgage_data) {
-        //     dataToUpdate.mortgage_data = {...mortgageData, ...newData.mortgage_data};
-        // } else if (newData.other_data) {
-        //     dataToUpdate.other_data = {...otherData, ...newData.other_data};
-        // }
 
         try {
             const token = getToken();

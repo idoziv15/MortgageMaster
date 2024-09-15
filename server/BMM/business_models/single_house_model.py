@@ -277,7 +277,7 @@ class SingleHouseModel(ABC):
 
         :return: The total equity needed for the purchase.
         """
-        return round((self.equity_required_by_percentage / 100) * self.real_estate_property.purchase_price) + \
+        return round((self.equity_required_by_percentage / 100) * self.real_estate_property.purchase_price) +\
             self.calculate_closing_costs()
 
     def calculate_equity_payments(self) -> List[int]:

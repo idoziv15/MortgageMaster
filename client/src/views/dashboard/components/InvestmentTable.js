@@ -27,15 +27,26 @@ export default function InvestmentTable({tableName, data, setData}) {
         }));
     };
 
+    // const handleNestedChange = (field, subfield, value) => {
+    //     setData(prevState => ({
+    //         ...prevState,
+    //         [field]: {
+    //             ...prevState[field],
+    //             [subfield]: parseFloat(value) || 0,
+    //         },
+    //     }));
+    // };
+
     const handleNestedChange = (field, subfield, value) => {
         setData(prevState => ({
             ...prevState,
             [field]: {
                 ...prevState[field],
-                [subfield]: parseFloat(value) || 0,
+                [subfield]: parseFloat(value) || 0, // direct value update
             },
         }));
     };
+
 
     return (
         <ChakraProvider>
