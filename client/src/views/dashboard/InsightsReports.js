@@ -40,7 +40,7 @@ import CheckTable from "./components/CheckTable";
 import ComplexTable from "./components/ComplexTable";
 import DailyTraffic from "./components/DailyTraffic";
 import PieCard from "./components/PieCard";
-import Tasks from "./components/Tasks";
+import Tasks from "../../layouts/reports/components/Tasks";
 import TotalSpent from "./components/TotalSpent";
 import WeeklyRevenue from "./components/WeeklyRevenue";
 import {columnsDataCheck, columnsDataComplex} from "./variables/columnsData";

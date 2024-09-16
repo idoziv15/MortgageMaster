@@ -568,5 +568,128 @@ def download_report(current_user, report_id):
         return jsonify({'error': 'Failed to generate PDF'}), 500
 
 
+def serialize_task(task):
+    return {
+        'id': str(task['_id']),
+        'content': task.get('content'),
+        'completed': task.get('completed', False)
+    }
+
+
+@app.route('/tasks', methods=['GET'])
+@token_required
+def get_user_tasks(current_user):
+    try:
+        tasks = mongo.db.tasks.find({"user_id": current_user["_id"]})
+        tasks_list = [serialize_task(task) for task in tasks]
+        return jsonify({'tasks': tasks_list}), 200
+    except Exception as e:
+        print(f"Error fetching tasks: {e}")
+        return jsonify({'error': 'Failed to fetch tasks'}), 500
+
+
+@app.route('/tasks', methods=['POST'])
+@token_required
+def save_task(current_user):
+    try:
+        data = request.json
+        new_task = {
+            'user_id': str(current_user["_id"]),
+            'content': data.get('content'),
+            'completed': data.get('completed', False)
+        }
+        result = mongo.db.tasks.insert_one(new_task)
+        new_task['_id'] = str(result.inserted_id)
+
+        return jsonify(new_task), 201
+    except Exception as e:
+        print(f"Error saving task: {e}")
+        return jsonify({'error': 'Failed to save task'}), 500
+
+
+@app.route('/tasks/<string:task_id>', methods=['PUT'])
+@token_required
+def edit_task(current_user, task_id):
+    try:
+        data = request.json
+        updated_task = {
+            'content': data.get('content'),
+            'completed': data.get('completed', False)
+        }
+        result = mongo.db.tasks.update_one(
+            {"_id": ObjectId(task_id), "user_id": current_user["_id"]},
+            {"$set": updated_task}
+        )
+        if result.matched_count:
+            return jsonify({'message': 'Task updated successfully'}), 200
+        else:
+            return jsonify({'error': 'Task not found'}), 404
+    except Exception as e:
+        print(f"Error updating task: {e}")
+        return jsonify({'error': 'Failed to update task'}), 500
+
+
+@app.route('/task/<string:task_id>', methods=['DELETE'])
+@token_required
+def delete_task(current_user, task_id):
+    try:
+        result = mongo.db.tasks.delete_one(
+            {"_id": ObjectId(task_id), "user_id": current_user["_id"]}
+        )
+        if result.deleted_count:
+            return jsonify({'message': 'Task deleted successfully'}), 200
+        else:
+            return jsonify({'error': 'Task not found'}), 404
+    except Exception as e:
+        print(f"Error deleting task: {e}")
+        return jsonify({'error': 'Failed to delete task'}), 500
+
+
+@app.route('/tasks', methods=['DELETE'])
+@token_required
+def delete_all_tasks(current_user):
+    try:
+        result = mongo.db.tasks.delete_many({"user_id": current_user["_id"]})
+        return jsonify({'message': f'{result.deleted_count} tasks deleted successfully'}), 200
+    except Exception as e:
+        print(f"Error deleting all tasks: {e}")
+        return jsonify({'error': 'Failed to delete all tasks'}), 500
+
+
+@app.route('/tasks/delete-selected', methods=['POST'])
+@token_required
+def delete_selected_tasks(current_user):
+    try:
+        data = request.json
+        task_ids = data.get('taskIds', [])
+        result = mongo.db.tasks.delete_many({
+            "_id": {"$in": [ObjectId(task_id) for task_id in task_ids]},
+            "user_id": current_user["_id"]
+        })
+        return jsonify({'message': f'{result.deleted_count} tasks deleted successfully'}), 200
+    except Exception as e:
+        print(f"Error deleting selected tasks: {e}")
+        return jsonify({'error': 'Failed to delete selected tasks'}), 500
+
+
+@app.route('/tasks/<string:task_id>/completion', methods=['PUT'])
+@token_required
+def update_task_completion(current_user, task_id):
+    try:
+        data = request.json
+        completed = data.get('completed', False)
+        result = mongo.db.tasks.update_one(
+            {"_id": ObjectId(task_id), "user_id": current_user["_id"]},
+            {"$set": {'completed': completed}}
+        )
+        if result.matched_count:
+            return jsonify({'message': 'Task completion status updated successfully'}), 200
+        else:
+            return jsonify({'error': 'Task not found'}), 404
+    except Exception as e:
+        print(f"Error updating task completion status: {e}")
+        return jsonify({'error': 'Failed to update task completion status'}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True)

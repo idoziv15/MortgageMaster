@@ -42,7 +42,7 @@ import DailyTraffic from "./DailyTraffic";
 import PieCard from "./PieCard";
 import ComplexTable from "./ComplexTable";
 import tableDataComplex from "../variables/tableDataComplex.json";
-import Tasks from "./Tasks";
+import Tasks from "../../../layouts/reports/components/Tasks";
 import MiniCalendar from "../../../components/calendar/MiniCalendar";
 
 const iconMapping = {
@@ -159,16 +159,6 @@ const InvestmentSummary = ({insights}) => {
                 <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px'>
                     <DailyTraffic/>
                     <PieCard/>
-                </SimpleGrid>
-            </SimpleGrid>
-            <SimpleGrid columns={{base: 1, md: 1, xl: 2}} gap='20px' mb='20px'>
-                <ComplexTable
-                    columnsData={columnsDataComplex}
-                    tableData={tableDataComplex}
-                />
-                <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px'>
-                    <Tasks/>
-                    <MiniCalendar h='100%' minW='100%' selectRange={false}/>
                 </SimpleGrid>
             </SimpleGrid>
         </Box>

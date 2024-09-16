@@ -20,7 +20,7 @@ import {
 } from "react-table";
 
 import Card from "../../../components/card/Card";
-import Menu from "../../../components/menu/MainMenu";
+import Menu from "../../../layouts/reports/components/TasksMenu";
 import { MdCheckCircle, MdCancel, MdOutlineError } from "react-icons/md";
 export default function ColumnsTable(props) {
   const { columnsData, tableData } = props;

@@ -1,4 +1,15 @@
-import {Portal, Box, useDisclosure, Image, Center, Flex, useToast, Spinner} from '@chakra-ui/react';
+import {
+    Portal,
+    Box,
+    useDisclosure,
+    Image,
+    Center,
+    Flex,
+    useToast,
+    Spinner,
+    Heading,
+    SimpleGrid
+} from '@chakra-ui/react';
 import Footer from '../../components/footer/Footer.js';
 import Navbar from '../../components/navbar/NavbarAdmin.js';
 import Sidebar from '../../components/sidebar/Sidebar.js';
@@ -9,6 +20,18 @@ import React, {useState, useEffect} from 'react';
 import {Route, useNavigate} from 'react-router-dom';
 import routes from '../../routes.js';
 import axios from 'axios';
+import MiniStatistics from "../../components/card/MiniStatistics";
+import TotalSpent from "../../views/dashboard/components/TotalSpent";
+import WeeklyRevenue from "../../views/properties/components/WeeklyRevenue";
+import CheckTable from "../../views/dashboard/components/CheckTable";
+import {columnsDataCheck, columnsDataComplex} from "../../views/dashboard/variables/columnsData";
+import tableDataCheck from "../../views/dashboard/variables/tableDataCheck.json";
+import DailyTraffic from "../../views/dashboard/components/DailyTraffic";
+import PieCard from "../../views/dashboard/components/PieCard";
+import ComplexTable from "../../views/dashboard/components/ComplexTable";
+import tableDataComplex from "../../views/dashboard/variables/tableDataComplex.json";
+import Tasks from "./components/Tasks";
+import MiniCalendar from "../../components/calendar/MiniCalendar";
 
 export default function ReportsDashboard(props) {
     const {...rest} = props;
@@ -225,7 +248,21 @@ export default function ReportsDashboard(props) {
                         {loading ? (
                             <Center flex="1">Loading...</Center>
                         ) : reports.length > 0 ? (
-                            <ReportsList reports={reports}/>
+                            <>
+                                <ReportsList reports={reports}/>
+                                <Box p={7}>
+                                    <SimpleGrid columns={{base: 1, md: 1, xl: 2}} gap='20px' mb='20px'>
+                                        <ComplexTable
+                                            columnsData={columnsDataComplex}
+                                            tableData={tableDataComplex}
+                                        />
+                                        <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px'>
+                                            <Tasks user={userData}/>
+                                            <MiniCalendar h='100%' minW='100%' selectRange={false}/>
+                                        </SimpleGrid>
+                                    </SimpleGrid>
+                                </Box>
+                            </>
                         ) : (
                             <Center flex="1">
                                 <Image src={noDataPic} boxSize="250px"/>
