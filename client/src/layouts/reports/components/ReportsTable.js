@@ -1,3 +1,4 @@
+import React from "react";
 import {
     Flex,
     Table,
@@ -9,144 +10,105 @@ import {
     Th,
     Thead,
     Tr,
-    useColorModeValue,
+    Tooltip,
+    useColorModeValue
 } from "@chakra-ui/react";
-import React, {useMemo} from "react";
-import {
-    useGlobalFilter,
-    usePagination,
-    useSortBy,
-    useTable,
-} from "react-table";
-
-import Card from "../../../components/card/Card";
-import Menu from "./TasksMenu";
 import {MdCheckCircle, MdCancel, MdOutlineError} from "react-icons/md";
+import Card from "../../../components/card/Card.js";
 
-export const columnsData = [
-    {Header: "NAME", accessor: "name"},
-    {Header: "STATUS", accessor: "status"},
-    {Header: "LAST UPDATED", accessor: "lastUpdated"},
-    {Header: "PROGRESS", accessor: "progress"}
-];
-
-export default function ReportsTable(props) {
-    const {reports} = props;
-
+export default function ReportsTable({reports}) {
     const calculateProgress = (report) => {
-        const reportData = Object.values(report);
-        const totalFields = reportData.length;
-        const filledFields = reportData.filter(val => val !== null && val !== 0 && val !== '').length;
+        const countFilledFields = (data) => {
+            let totalFields = 0;
+            let filledFields = 0;
+
+            const traverse = (obj) => {
+                Object.values(obj).forEach((value) => {
+                    if (typeof value === 'object' && value !== null) {
+                        traverse(value);
+                    } else {
+                        totalFields++;
+                        if (value !== null && value !== 0 && value !== '') {
+                            filledFields++;
+                        }
+                    }
+                });
+            };
+
+            traverse(data);
+            return {totalFields, filledFields};
+        };
+
+        const {totalFields, filledFields} = countFilledFields(report.data);
         return (filledFields / totalFields) * 100;
     };
-
-    const tableData = reports.map(report => ({
-        name: report.name,
-        status: "Active",
-        lastUpdated: report.lastUpdated,
-        progress: calculateProgress(report)
-    }));
-
-    const columns = useMemo(() => columnsData, []);
-    const data = useMemo(() => tableData, [tableData]);
-
-    const tableInstance = useTable({columns, data}, useGlobalFilter, useSortBy, usePagination);
-    const {getTableProps, getTableBodyProps, headerGroups, page, prepareRow, initialState} = tableInstance;
-
-    initialState.pageSize = reports.length;
     const textColor = useColorModeValue("secondaryGray.900", "white");
     const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
 
     return (
-        <Card direction='column' w='100%' px='0px' overflowX={{sm: "scroll", lg: "hidden"}}>
+        <Card direction='column' w='100%' p='20px' overflowX={{sm: "scroll", lg: "hidden"}}>
             <Flex px='25px' justify='space-between' mb='10px' align='center'>
                 <Text color={textColor} fontSize='22px' fontWeight='700' lineHeight='100%'>
                     Reports Table
                 </Text>
             </Flex>
-            <Table {...getTableProps()} variant='simple' color='gray.500'>
+            <Table variant='simple' color='gray.500'>
                 <Thead>
-                    {headerGroups.map((headerGroup, index) => (
-                        <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                            {headerGroup.headers.map((column, index) => (
-                                <Th
-                                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                                    pe='10px'
-                                    key={index}
-                                    borderColor={borderColor}>
-                                    <Flex
-                                        justify='space-between'
-                                        align='center'
-                                        fontSize={{sm: "10px", lg: "12px"}}
-                                        color='gray.400'>
-                                        {column.render("Header")}
-                                    </Flex>
-                                </Th>
-                            ))}
-                        </Tr>
-                    ))}
+                    <Tr>
+                        <Th pe='10px' borderColor={borderColor}>Name</Th>
+                        <Th pe='10px' borderColor={borderColor}>Status</Th>
+                        <Th pe='10px' borderColor={borderColor}>Last Updated</Th>
+                        <Th pe='10px' borderColor={borderColor}>Progress</Th>
+                    </Tr>
                 </Thead>
-                <Tbody {...getTableBodyProps()}>
-                    {page.map((row, index) => {
-                        prepareRow(row);
+                <Tbody>
+                    {reports.map((report, index) => {
+                        const progress = calculateProgress(report);
+
                         return (
-                            <Tr {...row.getRowProps()} key={index}>
-                                {row.cells.map((cell, index) => {
-                                    let data = "";
-                                    if (cell.column.Header === "NAME") {
-                                        data = (
-                                            <Text color={textColor} fontSize='sm' fontWeight='700'>
-                                                {cell.value}
-                                            </Text>
-                                        );
-                                    } else if (cell.column.Header === "STATUS") {
-                                        data = (
-                                            <Flex align='center'>
-                                                <Icon
-                                                    w='24px'
-                                                    h='24px'
-                                                    me='5px'
-                                                    color="green.500"
-                                                    as={MdCheckCircle}
-                                                />
-                                                <Text color={textColor} fontSize='sm' fontWeight='700'>
-                                                    {cell.value}
-                                                </Text>
-                                            </Flex>
-                                        );
-                                    } else if (cell.column.Header === "LAST UPDATED") {
-                                        data = (
-                                            <Text color={textColor} fontSize='sm' fontWeight='700'>
-                                                {/*{new Date(cell.value).toLocaleDateString()}*/}
-                                                {cell.value}
-                                            </Text>
-                                        );
-                                    } else if (cell.column.Header === "PROGRESS") {
-                                        data = (
-                                            <Flex align='center'>
-                                                <Progress
-                                                    variant='table'
-                                                    colorScheme='brandScheme'
-                                                    h='8px'
-                                                    w='108px'
-                                                    value={cell.value}
-                                                />
-                                            </Flex>
-                                        );
-                                    }
-                                    return (
-                                        <Td
-                                            {...cell.getCellProps()}
-                                            key={index}
-                                            fontSize={{sm: "14px"}}
-                                            maxH='30px !important'
-                                            py='8px'
-                                            minW={{sm: "150px", md: "200px", lg: "auto"}}
-                                            borderColor='transparent'>
-                                            {data}
-                                        </Td>
-                                    );
-                                })}
+                            <Tr key={index}>
+                                <Td fontSize='sm' fontWeight='700' color={textColor} py={0} pl={5}>{report.name}</Td>
+                                <Td fontSize='sm' fontWeight='700' color={textColor} py={0} px={2}>
+                                    <Flex align='center'>
+                                        <Icon
+                                            w='24px'
+                                            h='24px'
+                                            me='5px'
+                                            color={
+                                                progress > 85 ? "green.500" :
+                                                    progress < 15 ? "red.500" :
+                                                        "yellow.500"
+                                            }
+                                            as={
+                                                progress > 85 ? MdCheckCircle :
+                                                    progress < 15 ? MdCancel :
+                                                        MdOutlineError
+                                            }
+                                        />
+                                        <Text color={textColor} fontSize='sm' fontWeight='700'>
+                                            {progress > 85 ? 'Active' :
+                                                progress < 15 ? 'Inactive' :
+                                                    'Incomplete'}
+                                        </Text>
+                                    </Flex>
+                                </Td>
+
+                                <Td fontSize='sm' fontWeight='700' color={textColor} py={0} pl={7}>
+                                    {report.lastUpdated ? new Date(report.lastUpdated).toLocaleDateString() : 'N/A'}
+                                </Td>
+                                <Td fontSize='sm' fontWeight='700'>
+                                    <Tooltip label={`${progress.toFixed(2)}%`} aria-label='Progress tooltip'>
+                                        <Flex align='center'>
+                                            <Progress
+                                                variant='table'
+                                                colorScheme='brandScheme'
+                                                h='8px'
+                                                w='108px'
+                                                value={progress}
+                                            />
+                                        </Flex>
+                                    </Tooltip>
+                                </Td>
                             </Tr>
                         );
                     })}
