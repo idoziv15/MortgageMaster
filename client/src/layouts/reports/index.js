@@ -7,7 +7,6 @@ import {
     Flex,
     useToast,
     Spinner,
-    Heading,
     SimpleGrid
 } from '@chakra-ui/react';
 import Footer from '../../components/footer/Footer.js';
@@ -20,18 +19,9 @@ import React, {useState, useEffect} from 'react';
 import {Route, useNavigate} from 'react-router-dom';
 import routes from '../../routes.js';
 import axios from 'axios';
-import MiniStatistics from "../../components/card/MiniStatistics";
-import TotalSpent from "../../views/dashboard/components/TotalSpent";
-import WeeklyRevenue from "../../views/properties/components/WeeklyRevenue";
-import CheckTable from "../../views/dashboard/components/CheckTable";
-import {columnsDataCheck, columnsDataComplex} from "../../views/dashboard/variables/columnsData";
-import tableDataCheck from "../../views/dashboard/variables/tableDataCheck.json";
-import DailyTraffic from "../../views/dashboard/components/DailyTraffic";
-import PieCard from "../../views/dashboard/components/PieCard";
-import ComplexTable from "../../views/dashboard/components/ComplexTable";
-import tableDataComplex from "../../views/dashboard/variables/tableDataComplex.json";
 import Tasks from "./components/Tasks";
 import MiniCalendar from "../../components/calendar/MiniCalendar";
+import ReportsTable from "./components/ReportsTable";
 
 export default function ReportsDashboard(props) {
     const {...rest} = props;
@@ -252,9 +242,8 @@ export default function ReportsDashboard(props) {
                                 <ReportsList reports={reports}/>
                                 <Box p={7}>
                                     <SimpleGrid columns={{base: 1, md: 1, xl: 2}} gap='20px' mb='20px'>
-                                        <ComplexTable
-                                            columnsData={columnsDataComplex}
-                                            tableData={tableDataComplex}
+                                        <ReportsTable
+                                            reports={reports}
                                         />
                                         <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px'>
                                             <Tasks user={userData}/>

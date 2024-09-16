@@ -37,13 +37,13 @@ import IconBox from "../../components/icons/IconBox";
 import React from "react";
 import {MdAddTask, MdAttachMoney, MdBarChart, MdFileCopy} from "react-icons/md";
 import CheckTable from "./components/CheckTable";
-import ComplexTable from "./components/ComplexTable";
+import ComplexTable from "../../layouts/reports/components/ReportsTable";
 import DailyTraffic from "./components/DailyTraffic";
 import PieCard from "./components/PieCard";
 import Tasks from "../../layouts/reports/components/Tasks";
 import TotalSpent from "./components/TotalSpent";
 import WeeklyRevenue from "./components/WeeklyRevenue";
-import {columnsDataCheck, columnsDataComplex} from "./variables/columnsData";
+import {columnsDataCheck, columnsDataComplex} from "../../layouts/reports/components/columnsData";
 import tableDataCheck from "./variables/tableDataCheck.json";
 import tableDataComplex from "./variables/tableDataComplex.json";
 
