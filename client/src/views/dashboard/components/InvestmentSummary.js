@@ -122,7 +122,7 @@ const InvestmentSummary = ({insights, investmentData, investorData, propertyData
 
             <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px' mb='20px'>
                 <TotalSpent investorData={investorData}/>
-                <WeeklyRevenue/>
+                <WeeklyRevenue investorData={investorData}/>
             </SimpleGrid>
             <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px'>
                 <DailyTraffic/>

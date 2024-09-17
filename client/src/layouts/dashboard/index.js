@@ -19,7 +19,7 @@ import InvestmentTable from "../../views/dashboard/components/InvestmentTable";
 export default function Dashboard(props) {
     const {...rest} = props;
     const [fixed] = useState(false);
-    const mainBackground = useColorModeValue('#EDF5F7', 'gray.900');
+    const mainBackground = useColorModeValue('#f2f3f5', 'gray.900');
     const boxBackground = useColorModeValue('white', 'gray.800');
     const [toggleSidebar, setToggleSidebar] = useState(false);
     const {onOpen} = useDisclosure();
@@ -104,8 +104,8 @@ export default function Dashboard(props) {
         'real_estate_investment_type': {value: 'single apartment'},
         'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
         'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000},
-        'last_six_months_revenue': {value: []},
-        'last_six_months_expenses': {value: []}
+        'yearly_revenue': {value: []},
+        'yearly_expenses': {value: []}
     });
     const [propertyData, setPropertyData] = useState({
         'purchase_price': {value: 0, range: [0, 100000000], step: 100000},
@@ -312,8 +312,8 @@ export default function Dashboard(props) {
             'real_estate_investment_type': {value: 'single apartment'},
             'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
             'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000},
-            'last_six_months_revenue': {value: []},
-            'last_six_months_expenses': {value: []}
+            'yearly_revenue': {value: []},
+            'yearly_expenses': {value: []}
         });
 
         setPropertyData({

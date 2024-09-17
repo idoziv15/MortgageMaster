@@ -28,7 +28,7 @@ const lineChartOptionsTotalSpent = {
     stroke: {curve: "smooth", type: "line"},
     xaxis: {
         type: "numeric",
-        categories: ["SEP", "OCT", "NOV", "DEC", "JAN", "FEB"],
+        categories: ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"],
         labels: {style: {colors: "#A3AED0", fontSize: "12px", fontWeight: "500"}},
         axisBorder: {show: false},
         axisTicks: {show: false}
@@ -50,22 +50,22 @@ export default function TotalSpent(props) {
     const bgFocus = useColorModeValue({bg: "secondaryGray.300"}, {bg: "whiteAlpha.100"});
 
     const [lineChartDataTotalSpent, setLineChartDataTotalSpent] = useState([
-        { name: "Revenue", data: [0, 0, 0, 0, 0, 0] },
-        { name: "Profit", data: [0, 0, 0, 0, 0, 0] }
+        { name: "Revenue", data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+        { name: "Profit", data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
         // {name: "Revenue", data: [50, 64, 48, 66, 49, 68]},
         // {name: "Profit", data: [30, 40, 24, 46, 20, 46]}
     ]);
 
     useEffect(() => {
-        const revenueData = investorData.last_six_months_revenue.value;
-        const expensesData = investorData.last_six_months_expenses.value;
+        const revenueData = investorData.yearly_revenue.value;
+        const expensesData = investorData.yearly_expenses.value;
         const profitData = revenueData.map((revenue, index) => revenue - (expensesData[index] || 0));
 
         setLineChartDataTotalSpent([
             { name: "Revenue", data: revenueData },
             { name: "Profit", data: profitData }
         ]);
-    }, [investorData.last_six_months_revenue, investorData.last_six_months_expenses]);
+    }, [investorData.yearly_revenue, investorData.yearly_expenses]);
     const calculatePercentageDifference = (debtPayment, netIncome, grossRentalIncome) => {
         const totalIncome = netIncome + grossRentalIncome;
         const difference = totalIncome - debtPayment;
