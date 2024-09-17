@@ -9,7 +9,6 @@ import {Route, useNavigate, useParams} from 'react-router-dom';
 import routes from '../../routes.js';
 import InvestmentSummary from "../../views/dashboard/components/InvestmentSummary";
 import axios from 'axios';
-import DetailsTable from "../../views/dashboard/components/DetailsTable";
 import SaveReportModal from "../../views/dashboard/components/SaveReportModal";
 import MortgageTable from "../../views/dashboard/components/MortgageTable";
 import AdditionalTable from "../../views/dashboard/components/AdditionalTable";
@@ -84,8 +83,6 @@ export default function Dashboard(props) {
         'lawyer_cost': {value: 0, range: [0, 1000000], step: 10000},
         'escort_costs': {value: 0, range: [0, 1000000], step: 100000},
         'mortgage_advisor_cost': {value: 0, range: [0, 100000], step: 10000},
-        // 'additional_transaction_costs_dic': {tax: {value: null}, fee: {value: null}},
-        // 'renovation_expenses_dic': {painting: {value: null}, flooring: {value: null}},
         'additional_transaction_costs_dic': {tax: null, fee: null},
         'renovation_expenses_dic': {painting: null, flooring: null},
         'furniture_cost': {value: 0, range: [0, 500000], step: 1000},
@@ -106,7 +103,9 @@ export default function Dashboard(props) {
         'total_debt_payment': {value: 0, range: [0, 10000000], step: 10000},
         'real_estate_investment_type': {value: 'single apartment'},
         'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
-        'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000}
+        'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000},
+        'last_six_months_revenue': {value: []},
+        'last_six_months_expenses': {value: []}
     });
     const [propertyData, setPropertyData] = useState({
         'purchase_price': {value: 0, range: [0, 100000000], step: 100000},
@@ -164,7 +163,6 @@ export default function Dashboard(props) {
             return acc;
         }, {});
     };
-
 
     const updateBMM = async (newData) => {
         setLoading(true);
@@ -313,7 +311,9 @@ export default function Dashboard(props) {
             'total_debt_payment': {value: 0, range: [0, 10000000], step: 10000},
             'real_estate_investment_type': {value: 'single apartment'},
             'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
-            'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000}
+            'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000},
+            'last_six_months_revenue': {value: []},
+            'last_six_months_expenses': {value: []}
         });
 
         setPropertyData({
@@ -619,7 +619,9 @@ export default function Dashboard(props) {
                                     />
                                 )}
                             </Flex>
-                            <InvestmentSummary insights={insightsData}/>
+                            <InvestmentSummary insights={insightsData} investmentData={investmentData}
+                                               investorData={investorData} propertyData={propertyData}
+                                               mortgageData={mortgageData} otherData={otherData}/>
                             <Box mt="auto">
                                 <Footer/>
                             </Box>

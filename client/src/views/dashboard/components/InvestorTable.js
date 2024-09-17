@@ -13,7 +13,7 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem, Switch, Select
+    GridItem, Select
 } from '@chakra-ui/react';
 
 export default function InvestorTable({tableName, data, setData}) {
@@ -27,6 +27,19 @@ export default function InvestorTable({tableName, data, setData}) {
         }));
     };
 
+    const handleListInputBlur = (key) => {
+        const rawValue = data[key].value;
+        if (typeof rawValue === 'string') {
+            setData(prevData => ({
+                ...prevData,
+                [key]: {
+                    ...prevData[key],
+                    value: rawValue.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v))
+                }
+            }));
+        }
+    };
+
     return (
         <ChakraProvider>
             <Box p={4}>
@@ -38,6 +51,7 @@ export default function InvestorTable({tableName, data, setData}) {
                         {Object.entries(data).map(([key, field]) => {
                             const {value, range, step} = field;
                             const isString = typeof value === 'string';
+                            const isList = Array.isArray(value);
                             const isOptional = false;
                             const label = key.replace(/_/g, ' ');
 
@@ -49,11 +63,26 @@ export default function InvestorTable({tableName, data, setData}) {
                                     {isString ? (
                                         <GridItem colSpan={2}>
                                             <Select value={value} size="sm" bg="gray.100" width="43%"
-                                                onChange={e => handleInputChange(key, e.target.value)} >
+                                                    onChange={e => handleInputChange(key, e.target.value)}>
                                                 <option value="single apartment">Single Apartment</option>
                                                 <option value="alternative apartment">Alternative Apartment</option>
                                                 <option value="additional apartment">Additional Apartment</option>
                                             </Select>
+                                        </GridItem>
+                                    ) : isList ? (
+                                        <GridItem colSpan={2}>
+                                            <Input
+                                                size="sm"
+                                                type="text"
+                                                bg="gray.100"
+                                                width="100%"
+                                                p={1}
+                                                my={0.5}
+                                                value={value.join(', ')}
+                                                placeholder="Enter values separated with a comma"
+                                                onChange={(e) => handleInputChange(key, e.target.value.split(',').map(item => item.trim()))}
+                                                onBlur={() => handleListInputBlur(key)}
+                                            />
                                         </GridItem>
                                     ) : (
                                         <>

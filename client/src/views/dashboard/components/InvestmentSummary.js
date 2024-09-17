@@ -95,44 +95,14 @@ const iconMapping = {
 const getComponentIcon = (name, boxBg, brandColor) => {
     const IconComponent = iconMapping[name];
     return (
-        <IconBox w='36px' h='36px' bg={boxBg} icon={<Icon w='27px' h='27px' as={IconComponent} color={brandColor}/>} />
+        <IconBox w='36px' h='36px' bg={boxBg} icon={<Icon w='27px' h='27px' as={IconComponent} color={brandColor}/>}/>
     );
 };
-const InvestmentSummary = ({insights}) => {
+const InvestmentSummary = ({insights, investmentData, investorData, propertyData, mortgageData, otherData}) => {
     const brandColor = useColorModeValue("brand.500", "white");
     const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
 
     return (
-        // <ChakraProvider>
-        //     <Box p={4} mx={5}>
-        //         <Card>
-        //             <CardHeader py={1} px={3}>
-        //                 <Heading size="md">Investment Summary</Heading>
-        //             </CardHeader>
-        //             <CardBody py={1} px={3}>
-        //                 <SimpleGrid columns={{base: 1, md: 2, lg: 3, "2xl": 6}} gap="20px" mb="20px">
-        //                     {Object.entries(insights).map(([key, value], index) => {
-        //                         const Component = componentMapping[key] || MiniStatistics;
-        //                         return (
-        //                             <Component
-        //                                 key={index}
-        //                                 name={key}
-        //                                 value={value}
-        //                                 startContent={
-        //                                     <IconBox w="56px" h="56px" bg={boxBg}
-        //                                              icon={
-        //                                                  <Icon w="32px" h="32px" as={MdBarChart} color={brandColor}/>
-        //                                              }
-        //                                     />
-        //                                 }
-        //                             />
-        //                         );
-        //                     })}
-        //                 </SimpleGrid>
-        //             </CardBody>
-        //         </Card>
-        //     </Box>
-        // </ChakraProvider>
         <Box p={7}>
             <Heading>Investment Summary</Heading>
             <SimpleGrid
@@ -151,35 +121,15 @@ const InvestmentSummary = ({insights}) => {
             </SimpleGrid>
 
             <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px' mb='20px'>
-                <TotalSpent/>
+                <TotalSpent investorData={investorData}/>
                 <WeeklyRevenue/>
             </SimpleGrid>
-            <SimpleGrid columns={{base: 1, md: 1, xl: 2}} gap='20px' mb='20px'>
-                <CheckTable columnsData={columnsDataCheck} tableData={tableDataCheck}/>
-                <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px'>
-                    <DailyTraffic/>
-                    <PieCard/>
-                </SimpleGrid>
+            <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px'>
+                <DailyTraffic/>
+                <PieCard/>
             </SimpleGrid>
         </Box>
     );
 };
 
 export default InvestmentSummary;
-
-// <SimpleGrid columns={{base: 1, md: 2, lg: 3, "2xl": 6}} gap="20px" mb="20px">
-//     {Object.entries(insights).map(([key, value], index) => (
-//         <MiniStatistics
-//             key={index}
-//             name={key}
-//             value={value}
-//             startContent={
-//                 <IconBox w="56px" h="56px" bg={boxBg}
-//                          icon={
-//                              <Icon w="32px" h="32px" as={MdBarChart} color={brandColor}/>
-//                          }
-//                 />
-//             }
-//         />
-//     ))}
-// </SimpleGrid>
