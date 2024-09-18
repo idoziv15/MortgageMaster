@@ -275,8 +275,10 @@ class MortgagePipeline:
     def plot_remain_balances(self) -> None:
         plot_remain_balances(self.get_remain_balances())
 
-    def calculate_early_payment_fee(self, num_of_months: int, average_interest_in_early_payment: Optional[
-        Dict[MortgageTrack.__class__, float]] = None) -> int:
+    def calculate_early_payment_fee(self, num_of_months: int, average_interest_in_early_payment: float = None) -> int:
+    # TODO: change back to this function signature when multiply mortgages are inserted
+    # def calculate_early_payment_fee(self, num_of_months: int, average_interest_in_early_payment: Optional[
+    #     Dict[MortgageTrack.__class__, float]] = None) -> int:
         """
         Calculate the early payment fee for the mortgage after a specified number of months.
 
@@ -291,8 +293,12 @@ class MortgagePipeline:
 
         # TODO : test this
         full_early_payment_fee = sum(
-            track.calculate_early_payment_fee(num_of_months, average_interest_in_early_payment[track.__class__]) for
+            track.calculate_early_payment_fee(num_of_months, average_interest_in_early_payment) for
             track in self.tracks)
+        # TODO: change back to this code when more mortgages will be given and not only one
+        # full_early_payment_fee = sum(
+        #     track.calculate_early_payment_fee(num_of_months, average_interest_in_early_payment[track.__class__]) for
+        #     track in self.tracks)
         eligibility_present = any(isinstance(track, Eligibility) for track in self.tracks)
         discount_factor = calculate_discount_factor(num_of_months, eligibility_present)
         return round(discount_factor * full_early_payment_fee)

@@ -53,6 +53,8 @@ class BMM(SingleHouseIsraelModel):
             gross_rental_income=investor_data['gross_rental_income']
         )
         investors_portfolio = RealEstateInvestorsPortfolio(investor)
+        # investor = RealEstateInvestor(25_000, 0, RealEstateInvestmentType.SingleApartment, 1_000_000, 0)
+        # investors_portfolio = RealEstateInvestorsPortfolio(investor)
 
         property = RealEstateProperty(
             purchase_price=property_data['purchase_price'],
@@ -64,8 +66,42 @@ class BMM(SingleHouseIsraelModel):
             after_repair_value=property_data['after_repair_value'],
             annual_appreciation_percentage=property_data['annual_appreciation_percentage']
         )
+        # property = RealEstateProperty(purchase_price=1_850_000,
+        #                               monthly_rent_income=4100,
+        #                               square_meters=60,
+        #                               parking_spots=1,
+        #                               warehouse=False,
+        #                               balcony_square_meter=13,
+        #                               after_repair_value=1_850_000,
+        #                               annual_appreciation_percentage=3.5)
 
         mortgage = MortgagePipeline(self.initialize_mortgage(mortgage_data))
+        # mortgage = MortgagePipeline(ConstantNotLinked(interest_rate=3.5 / 100,
+        #                                               num_payments=360,
+        #                                               initial_loan_amount=round(0.6 * property.purchase_price),
+        #                                               interest_only_period=0 * 12))
+
+        # years_to_exit: int = 30,
+        # average_interest_in_exit: Optional[Dict[MortgageTrack.__class__, float]] = None,
+        # mortgage_advisor_cost: int = 0,
+        # appraiser_cost: int = 0,
+        # lawyer_cost: int = 0,
+        # escort_costs: int = 0,
+        # additional_transaction_costs_dic: Union[int, Dict[str, int]] = 0,
+        # renovation_expenses_dic: Union[int, Dict[str, int]] = 0,
+        # furniture_cost: int = 0,
+        # broker_purchase_percentage: float = 0.0,
+        # broker_rent_percentage: float = 0.0,
+        # broker_sell_percentage: float = 0.0,
+        # vacancy_percentage: float = 0.0,
+        # annual_maintenance_cost_percentage: float = 0.0,
+        # annual_life_insurance_cost: int = 0,
+        # annual_house_insurance_cost: int = 0,
+        # equity_required_by_percentage: float = 0.25,
+        # management_fees_percentage: int = 0,
+        # years_until_key_reception: int = 0,
+        # contractor_payment_distribution: List[float] = 0,
+        # construction_input_index_annual_growth: int = 0
 
         super().__init__(
             investors_portfolio, mortgage, property,
@@ -86,7 +122,26 @@ class BMM(SingleHouseIsraelModel):
             annual_life_insurance_cost=investment_data['annual_life_insurance_cost'],
             annual_house_insurance_cost=investment_data['annual_house_insurance_cost'],
             equity_required_by_percentage=investment_data['equity_required_by_percentage'],
-            management_fees_percentage=investment_data['management_fees_percentage'],
+            management_fees_percentage=investment_data['management_fees_percentage']
+
+            # years_to_exit=years_to_exit,
+            # average_interest_in_exit=average_interest_in_exit,
+            # mortgage_advisor_cost=mortgage_advisor_cost,
+            # appraiser_cost=appraiser_cost,
+            # lawyer_cost=lawyer_cost,
+            # escort_costs=escort_costs,
+            # additional_transaction_costs_dic=additional_transaction_costs_dic,
+            # renovation_expenses_dic=renovation_expenses_dic,
+            # furniture_cost=furniture_cost,
+            # broker_purchase_percentage=broker_purchase_percentage,
+            # broker_rent_percentage=broker_rent_percentage,
+            # broker_sell_percentage=broker_sell_percentage,
+            # vacancy_percentage=vacancy_percentage,
+            # annual_maintenance_cost_percentage=annual_maintenance_cost_percentage,
+            # annual_life_insurance_cost=annual_life_insurance_cost,
+            # annual_house_insurance_cost=annual_house_insurance_cost,
+            # equity_required_by_percentage=equity_required_by_percentage,
+            # management_fees_percentage=management_fees_percentage,
         )
 
         self.investment_data = investment_data
@@ -275,28 +330,43 @@ class BMM(SingleHouseIsraelModel):
 
         :return: A list of annual expenses distribution.
         """
-        annual_distribution_operating_expenses = [0 if i < self.other_data['years_until_key_reception']
-                                                  else self.calculate_annual_operating_expenses()
-                                                  for i in range(self.investment_data['years_to_exit'])] + [0]
+        # annual_distribution_operating_expenses = [0 if i < self.other_data['years_until_key_reception']
+        #                                           else self.calculate_annual_operating_expenses()
+        #                                           for i in range(self.investment_data['years_to_exit'])] + [0]
+        annual_distribution_operating_expenses = [0.0 if i < self.other_data['years_until_key_reception']
+                                                  else float(self.calculate_annual_operating_expenses())
+                                                  for i in range(self.investment_data['years_to_exit'])
+                                                  ] + [0.0]
 
         # TODO: I assume here that the mortgage is only taken upon receiving a key, additional scenarios must be created
-        one = self.other_data['years_until_key_reception']
-        two = self.investment_data['years_to_exit']
-        three = self.other_data['years_until_key_reception']
-        four = two - three
-        five = self.mortgage.get_annual_payments()[:four]
-        six = [0] * one
-        seven = six + five + [0]
-        estimated_mortgage_monthly_payments = \
-            [0] * self.other_data['years_until_key_reception'] + self.mortgage.get_annual_payments()[:(
-                    self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'])] + [0]
+        # estimated_mortgage_monthly_payments = \
+        #     [0] * self.other_data['years_until_key_reception'] + self.mortgage.get_annual_payments()[:(
+        #             self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'])] + [0]
+        estimated_mortgage_monthly_payments = (
+                [0.0] * self.other_data['years_until_key_reception'] +
+                [float(payment) for payment in self.mortgage.get_annual_payments()[:(
+                        self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception']
+                )]] + [0.0]
+        )
 
-        equity_distribution_to_property_purchase = self.calculate_equity_payments() + [0] * (
-                self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'])
+        # equity_distribution_to_property_purchase = self.calculate_equity_payments() + [0] * (
+        #         self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'])
+        equity_distribution_to_property_purchase = [
+                                                       float(payment) for payment in self.calculate_equity_payments()
+                                                   ] + [0.0] * (self.investment_data['years_to_exit'] - self.other_data[
+            'years_until_key_reception'])
 
-        annual_distribution_expenses = [a + b + c for a, b, c in zip(equity_distribution_to_property_purchase,
-                                                                     estimated_mortgage_monthly_payments,
-                                                                     annual_distribution_operating_expenses)]
+        # annual_distribution_expenses = [a + b + c for a, b, c in zip(equity_distribution_to_property_purchase,
+        #                                                              estimated_mortgage_monthly_payments,
+        #                                                              annual_distribution_operating_expenses)]
+        annual_distribution_expenses = [
+            float(a) + float(b) + float(c)
+            for a, b, c in zip(
+                equity_distribution_to_property_purchase,
+                estimated_mortgage_monthly_payments,
+                annual_distribution_operating_expenses
+            )
+        ]
 
         if self.investment_data['average_interest_in_exit'] == 0:
             mortgage_early_repayment_fee = self.mortgage.calculate_early_payment_fee(
@@ -306,13 +376,17 @@ class BMM(SingleHouseIsraelModel):
                 12 * self.investment_data['years_to_exit'],
                 self.investment_data['average_interest_in_exit'])
 
-        capital_gain_tax = self.calculate_capital_gain_tax()
-        selling_expenses = self.calculate_selling_expenses()
-        mortgage_remain_balance = self.calculate_mortgage_remain_balance_in_exit()
+        # capital_gain_tax = self.calculate_capital_gain_tax()
+        # selling_expenses = self.calculate_selling_expenses()
+        # mortgage_remain_balance = self.calculate_mortgage_remain_balance_in_exit()
+        capital_gain_tax = float(self.calculate_capital_gain_tax())
+        selling_expenses = float(self.calculate_selling_expenses())
+        mortgage_remain_balance = float(self.calculate_mortgage_remain_balance_in_exit())
 
         annual_distribution_expenses[-1] += (
                 selling_expenses + capital_gain_tax + mortgage_early_repayment_fee + mortgage_remain_balance)
-        return annual_distribution_expenses
+        # return annual_distribution_expenses
+        return [float(expense) for expense in annual_distribution_expenses]
 
     def get_annual_property_remain_balances(self):
         """
@@ -361,11 +435,10 @@ class BMM(SingleHouseIsraelModel):
         insights["Cash on cash"] = self.calculate_cash_on_cash()
         insights["Net Yearly Cash Flow"] = self.calculate_net_annual_cash_flow()
         insights["Net Monthly Cash Flow"] = self.calculate_net_monthly_cash_flow()
-        # annual_irr = self.calculate_annual_irr()
-        # insights["Yearly IRR"] = 0 if math.isnan(annual_irr) else annual_irr
-        # return insights
+        annual_irr = self.calculate_annual_irr()
+        insights["Yearly IRR"] = 0 if math.isnan(annual_irr) else annual_irr
         insights["Annual rent income"] = self.calculate_annual_rent_income()
-        # insights["ROI"] = self.calculate_roi()
+        insights["ROI"] = self.calculate_roi()
         insights["Monthly NOI"] = self.calculate_monthly_noi()
         insights["Annual NOI"] = self.calculate_annual_noi()
         insights["Monthly rental property taxes"] = self.calculate_monthly_rental_property_taxes()
@@ -387,13 +460,13 @@ class BMM(SingleHouseIsraelModel):
         insights["Annual cash flow"] = self.calculate_net_annual_cash_flow()
         insights["Mortgage remain balance in exit"] = self.calculate_mortgage_remain_balance_in_exit()
         insights["Constructor index linked compensation"] = self.calculate_constructor_index_linked_compensation()
-        # insights["Total expenses"] = self.calculate_total_expenses()
+        insights["Total expenses"] = self.calculate_total_expenses()
         insights["Equity needed for purchase"] = self.calculate_total_equity_needed_for_purchase()
         insights["Contractor payments"] = self.calculate_equity_payments()
-        # insights["Annual expenses distribution"] = self.calculate_annual_expenses_distribution()
+        insights["Annual expenses distribution"] = self.calculate_annual_expenses_distribution()
         insights["Monthly property management fees"] = self.calculate_monthly_property_management_fees()
         insights["Annual property management fees"] = self.calculate_annual_property_management_fees()
-        # insights["Net profit"] = self.calculate_net_profit()
+        insights["Net profit"] = self.calculate_net_profit()
         insights["Capital gain tax"] = self.calculate_capital_gain_tax()
 
         return insights

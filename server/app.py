@@ -1,4 +1,5 @@
 import datetime
+import traceback
 from functools import wraps
 import bcrypt
 import jwt
@@ -79,7 +80,7 @@ def login():
             # Create JWT token
             token = jwt.encode({
                 'user_id': str(user['_id']),
-                'exp': datetime.utcnow() + timedelta(hours=1)
+                'exp': datetime.utcnow() + timedelta(days=1)
             }, SECRET_KEY, algorithm='HS256')
             return jsonify({'token': token}), 200
         else:
@@ -110,7 +111,7 @@ def login_google():
         # Generate JWT token
         token = jwt.encode({
             'user_id': str(user['_id']),
-            'exp': datetime.utcnow() + timedelta(hours=1)
+            'exp': datetime.utcnow() + timedelta(days=1)
         }, SECRET_KEY, algorithm='HS256')
 
         return jsonify({'token': token}), 200
@@ -247,6 +248,7 @@ def calculate_BMM(current_user):
 
     except Exception as e:
         print(f"Error calculating BMM: {e}")
+        traceback.print_exc()
         return jsonify({'error': 'Failed to calculate BMM'}), 500
 
 

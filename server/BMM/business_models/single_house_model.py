@@ -146,8 +146,8 @@ class SingleHouseModel(ABC):
         if annual_revenue_distribution is None or annual_expenses_distribution is None:
             raise ValueError("Annual revenue or expenses distribution cannot be None")
 
-        if len(annual_revenue_distribution) != len(annual_expenses_distribution):
-            raise ValueError("Annual revenue and expenses distributions must have the same length")
+        # if len(annual_revenue_distribution) != len(annual_expenses_distribution):
+        #     raise ValueError("Annual revenue and expenses distributions must have the same length")
 
         annual_cash_flow_distribution = [
             round((a if a is not None else 0) - (b if b is not None else 0))
