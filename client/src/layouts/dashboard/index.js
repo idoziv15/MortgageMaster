@@ -31,6 +31,7 @@ export default function Dashboard(props) {
     const [reportDescription, setReportDescription] = useState('');
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [nextId, setNextId] = useState(2);
 
     const [insightsData, setInsightsData] = useState({
         "Price per meter": 0,
@@ -129,11 +130,49 @@ export default function Dashboard(props) {
         'average_interest_when_taken': null,
         'mortgage_type': 'constant_not_linked'
     });
+    const [mortgageTracks, setMortgageTracks] = useState([
+        {
+            id: Date.now(),
+            data: {
+                'mortgage_advisor_cost': 0,
+                'interest_rate': 3.5,
+                'num_payments': 0,
+                'initial_loan_amount': 0,
+                'interest_only_period': 0,
+                'linked_index': [],
+                'forecasting_interest_rate': [],
+                'interest_changing_period': 0,
+                'average_interest_when_taken': null,
+                'mortgage_type': 'constant_not_linked'
+            }
+        }
+    ]);
     const [otherData, setOtherData] = useState({
         'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
         'contractor_payment_distribution': {value: []},
         'construction_input_index_annual_growth': {value: 0, range: [0, 10], step: 0.1}
     });
+
+    const addMortgageTrack = () => {
+        setMortgageTracks(prevTracks => [
+            ...prevTracks,
+            {
+                id: Date.now(),
+                data: {
+                    'mortgage_advisor_cost': 0,
+                    'interest_rate': 3.5,
+                    'num_payments': 0,
+                    'initial_loan_amount': 0,
+                    'interest_only_period': 0,
+                    'linked_index': [],
+                    'forecasting_interest_rate': [],
+                    'interest_changing_period': 0,
+                    'average_interest_when_taken': null,
+                    'mortgage_type': 'constant_not_linked'
+                }
+            }
+        ]);
+    };
 
     const getToken = () => {
         // Check if token is in sessionStorage
@@ -591,8 +630,14 @@ export default function Dashboard(props) {
                                                    setData={setInvestorData}/>
                                     <PropertyTable data={propertyData} tableName={'Property Details'}
                                                    setData={setPropertyData}/>
-                                    <MortgageTable tableName={'Mortgage Details'} data={mortgageData}
-                                                   setData={setMortgageData}/>
+                                    {/*<MortgageTable tableName={'Mortgage Details'} data={mortgageData}*/}
+                                    {/*               setData={setMortgageData}/>*/}
+                                    <MortgageTable
+                                        tableName="Mortgage Details"
+                                        tracks={mortgageTracks}
+                                        addTrack={addMortgageTrack}
+                                        setTracks={setMortgageTracks}
+                                    />
                                 </Box>
                             </Flex>
                             <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'

@@ -9,14 +9,8 @@ from ..investors.real_estate_investors_portfolio import RealEstateInvestorsPortf
 from ..mortgage.mortgage_pipeline import MortgagePipeline
 from .real_estate_property import RealEstateProperty
 from ..mortgage.mortgage_tracks.mortgage_track import MortgageTrack
-from .real_estate_financial_utils import (
-    gross_yield,
-    loan_to_cost,
-    loan_to_value,
-    cash_of_cash,
-    return_on_investment,
-    noi, cap_rate,
-)
+from .real_estate_financial_utils import (gross_yield, loan_to_cost, loan_to_value, cash_of_cash, return_on_investment,
+                                          noi, cap_rate)
 
 matplotlib.use('TkAgg')
 
@@ -277,7 +271,7 @@ class SingleHouseModel(ABC):
 
         :return: The total equity needed for the purchase.
         """
-        return round((self.equity_required_by_percentage / 100) * self.real_estate_property.purchase_price) +\
+        return round((self.equity_required_by_percentage / 100) * self.real_estate_property.purchase_price) + \
             self.calculate_closing_costs()
 
     def calculate_equity_payments(self) -> List[int]:

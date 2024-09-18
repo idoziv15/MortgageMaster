@@ -1,8 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
     Box,
     Button,
     Menu,
+    Text,
     MenuButton,
     MenuList,
     MenuItem,
@@ -18,16 +19,12 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem, Tabs, TabList, Tab, TabPanels, TabPanel
+    GridItem, Tabs, TabList, Tab, TabPanels, TabPanel, IconButton
 } from '@chakra-ui/react';
-import {ChevronDownIcon} from '@chakra-ui/icons';
+import {AddIcon, ChevronDownIcon} from '@chakra-ui/icons';
 
-export default function MortgageTable({tableName, data, setData}) {
-    const [mortgageTracks, setMortgageTracks] = useState([
-        {id: 1, mortgage_type: 'constant_not_linked', data: {}}
-    ]);
-
-    const [mortgageType, setMortgageType] = useState('constant_not_linked');
+export default function MortgageTable({tableName, tracks, addTrack, setTracks}) {
+    // const [mortgageType, setMortgageType] = useState('constant_not_linked');
     const mortgageTypes = {
         constant_not_linked: [
             {label: 'Interest Rate', key: 'interest_rate', range: [0, 20], step: 0.1},
@@ -115,54 +112,92 @@ export default function MortgageTable({tableName, data, setData}) {
             {label: 'Interest Only Period', key: 'interest_only_period', range: [0, 24], step: 1}
         ]
     };
-    const [selectedTrackId, setSelectedTrackId] = useState(1);
 
-    useEffect(() => {
-        if (data.mortgage_type) {
-            setMortgageType(data.mortgage_type);
-        }
-    }, [data]);
+    // useEffect(() => {
+    //     if (data.mortgage_type) {
+    //         setMortgageType(data.mortgage_type);
+    //     }
+    // }, [data]);
 
-    const handleInputListChange = (key, value) => {
-        setData(prevData => ({
-            ...prevData,
-            [key]: value
-        }));
+    const handleInputListChange = (id, key, value) => {
+        setTracks(prevTracks =>
+            prevTracks.map(track =>
+                track.id === id
+                    ? {...track, data: {...track.data, [key]: value}}
+                    : track
+            )
+        );
     };
 
-    const handleListInputBlur = (key) => {
-        // Convert the string into an array on blur
-        const rawValue = data[key];
-        if (typeof rawValue === 'string') {
-            setData(prevData => ({
-                ...prevData,
-                // Convert to array of numbers
-                [key]: rawValue.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v))
-            }));
-        }
+    const handleListInputBlur = (id, key) => {
+        setTracks(prevTracks =>
+            prevTracks.map(track => {
+                if (track.id === id) {
+                    const rawValue = track.data[key];
+                    if (typeof rawValue === 'string') {
+                        return {
+                            ...track,
+                            data: {
+                                ...track.data,
+                                [key]: rawValue.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v))
+                            }
+                        };
+                    }
+                }
+                return track;
+            })
+        );
     };
 
-    const handleSliderChange = (key, value) => {
-        setData(prevData => ({
-            ...prevData,
-            [key]: value
-        }));
+    const handleSliderChange = (id, key, value) => {
+        setTracks(prevTracks =>
+            prevTracks.map(track =>
+                track.id === id
+                    ? {...track, data: {...track.data, [key]: value}}
+                    : track
+            )
+        );
     };
 
-    const handleSelectMortgageType = (type) => {
-        setMortgageType(type);
-        const newFields = mortgageTypes[type].reduce((acc, field) => {
-            acc[field.key] = data[field.key] !== undefined ? data[field.key] : (field.isList ? [] : null);
-            return acc;
-        }, {});
-        setData(prevData => ({
-            ...prevData,
-            ...newFields,
-            mortgage_type: type
-        }));
+    // const handleSelectMortgageType = (type) => {
+    //     setMortgageType(type);
+    //     const newFields = mortgageTypes[type].reduce((acc, field) => {
+    //         acc[field.key] = data[field.key] !== undefined ? data[field.key] : (field.isList ? [] : null);
+    //         return acc;
+    //     }, {});
+    //     setData(prevData => ({
+    //         ...prevData,
+    //         ...newFields,
+    //         mortgage_type: type
+    //     }));
+    // };
+
+    const handleSelectMortgageType = (trackId, type) => {
+        setTracks(prevTracks =>
+            prevTracks.map(track =>
+                track.id === trackId ? {...track, data: {...track.data, mortgage_type: type}} : track
+            )
+        );
     };
 
-    const renderFields = () => {
+    const updateTrack = (id, updatedData) => {
+        setTracks((prevTracks) =>
+            prevTracks.map(track =>
+                track.id === id
+                    ? {...track, data: {...track.data, ...updatedData}}
+                    : track
+            )
+        );
+    };
+
+    const removeTrack = (id) => {
+        setTracks((prevTracks) =>
+            prevTracks.filter(track => track.id !== id)
+        );
+    };
+
+    const renderFields = (track) => {
+        const mortgageType = track.data.mortgage_type || 'constant_not_linked';
         return mortgageTypes[mortgageType].map(({label, key, isList, optional, range, step}) => (
             <Grid templateColumns="repeat(3, 1fr)" gap={4} alignItems="center" key={key}>
                 <GridItem>
@@ -177,10 +212,10 @@ export default function MortgageTable({tableName, data, setData}) {
                             width="100%"
                             p={1}
                             my={0.5}
-                            value={Array.isArray(data[key]) ? data[key].join(', ') : data[key] || ''}
+                            value={Array.isArray(track.data[key]) ? track.data[key].join(', ') : track.data[key] || ''}
                             placeholder="Enter values separated with a comma"
-                            onChange={(e) => handleInputListChange(key, e.target.value)}
-                            onBlur={() => handleListInputBlur(key)}
+                            onChange={(e) => handleInputListChange(track.id, key, e.target.value)}
+                            onBlur={() => handleListInputBlur(track.id, key)}
                         />
                     </GridItem>
                 ) : (
@@ -193,15 +228,14 @@ export default function MortgageTable({tableName, data, setData}) {
                                 width="90%"
                                 p={1}
                                 my={0.5}
-                                // value={data[key]}
-                                value={data[key] !== null ? data[key] : 0}
-                                onChange={(e) => handleSliderChange(key, parseFloat(e.target.value))}
+                                value={track.data[key] !== null ? track.data[key] : 0}
+                                onChange={(e) => handleSliderChange(track.id, key, parseFloat(e.target.value))}
                             />
                         </GridItem>
                         <GridItem>
                             <Slider
-                                value={data[key] !== null ? data[key] : 0}
-                                onChange={(value) => handleSliderChange(key, value)}
+                                value={track.data[key] !== null ? track.data[key] : 0}
+                                onChange={(value) => handleSliderChange(track.id, key, value)}
                                 min={range ? range[0] : 0}
                                 max={range ? range[1] : 100}
                                 step={step || 0.1}
@@ -220,34 +254,87 @@ export default function MortgageTable({tableName, data, setData}) {
         ));
     };
 
-
     return (
         <ChakraProvider>
             <Box p={4}>
                 <Card>
                     <CardHeader py={1} px={3} display="flex" justifyContent="space-between" alignItems="center">
                         <Heading size="md">{tableName}</Heading>
-                        <Menu>
-                            <MenuButton as={Button} rightIcon={<ChevronDownIcon/>} colorScheme="teal" size="sm" mt={2}>
-                                Choose Type
-                            </MenuButton>
-                            <MenuList zIndex={2}>
-                                <MenuItem onClick={() => handleSelectMortgageType('constant_not_linked')}>Constant Not
-                                    Linked</MenuItem>
-                                <MenuItem onClick={() => handleSelectMortgageType('constant_linked')}>Constant
-                                    Linked</MenuItem>
-                                <MenuItem onClick={() => handleSelectMortgageType('change_linked')}>Change
-                                    Linked</MenuItem>
-                                <MenuItem onClick={() => handleSelectMortgageType('change_not_linked')}>Change Not
-                                    Linked</MenuItem>
-                                <MenuItem onClick={() => handleSelectMortgageType('eligibility')}>Eligibility</MenuItem>
-                                <MenuItem onClick={() => handleSelectMortgageType('prime')}>Prime</MenuItem>
-                            </MenuList>
-                        </Menu>
                     </CardHeader>
 
                     <CardBody py={1} px={3}>
-                        {renderFields()}
+                        <Tabs variant="enclosed">
+                            <TabList>
+                                {tracks.map((track, index) => (
+                                    <Tab key={track.id}>Track {index + 1}</Tab>
+                                ))}
+                                <IconButton
+                                    icon={<AddIcon/>}
+                                    onClick={addTrack}
+                                    colorScheme="teal"
+                                    aria-label="Add Track"
+                                    size="sm"
+                                    ml={2}
+                                />
+
+                            </TabList>
+                            <TabPanels>
+                                {tracks.map((track) => (
+                                    <TabPanel key={track.id}>
+                                        <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+                                            <Text fontSize="md" fontWeight="bold">
+                                                {track.mortgageType ? `Type: ${track.mortgageType}` : 'No Type Selected'}
+                                            </Text>
+                                            <Box display="flex" alignItems="center">
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => setTracks(tracks.filter(t => t.id !== track.id))}
+                                                    colorScheme="red"
+                                                    mr={2}
+                                                >
+                                                    Remove
+                                                </Button>
+                                                <Menu>
+                                                    <MenuButton as={Button} rightIcon={<ChevronDownIcon/>}
+                                                                colorScheme="teal" size="sm">
+                                                        Choose Type
+                                                    </MenuButton>
+                                                    <MenuList zIndex={2}>
+                                                        <MenuItem
+                                                            onClick={() => handleSelectMortgageType(track.id, 'constant_not_linked')}>
+                                                            Constant Not Linked
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            onClick={() => handleSelectMortgageType(track.id, 'constant_linked')}>
+                                                            Constant Linked
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            onClick={() => handleSelectMortgageType(track.id, 'change_linked')}>
+                                                            Change Linked
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            onClick={() => handleSelectMortgageType(track.id, 'change_not_linked')}>
+                                                            Change Not Linked
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            onClick={() => handleSelectMortgageType(track.id, 'eligibility')}>
+                                                            Eligibility
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            onClick={() => handleSelectMortgageType(track.id, 'prime')}>
+                                                            Prime
+                                                        </MenuItem>
+                                                    </MenuList>
+                                                </Menu>
+                                            </Box>
+                                        </Box>
+                                        <Box mt={4}>
+                                            {renderFields(track)}
+                                        </Box>
+                                    </TabPanel>
+                                ))}
+                            </TabPanels>
+                        </Tabs>
                     </CardBody>
                 </Card>
             </Box>
