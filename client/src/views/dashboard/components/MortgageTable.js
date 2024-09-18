@@ -18,11 +18,15 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem
+    GridItem, Tabs, TabList, Tab, TabPanels, TabPanel
 } from '@chakra-ui/react';
 import {ChevronDownIcon} from '@chakra-ui/icons';
 
 export default function MortgageTable({tableName, data, setData}) {
+    const [mortgageTracks, setMortgageTracks] = useState([
+        {id: 1, mortgage_type: 'constant_not_linked', data: {}}
+    ]);
+
     const [mortgageType, setMortgageType] = useState('constant_not_linked');
     const mortgageTypes = {
         constant_not_linked: [
@@ -111,6 +115,7 @@ export default function MortgageTable({tableName, data, setData}) {
             {label: 'Interest Only Period', key: 'interest_only_period', range: [0, 24], step: 1}
         ]
     };
+    const [selectedTrackId, setSelectedTrackId] = useState(1);
 
     useEffect(() => {
         if (data.mortgage_type) {

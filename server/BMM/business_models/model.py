@@ -361,69 +361,39 @@ class BMM(SingleHouseIsraelModel):
         insights["Cash on cash"] = self.calculate_cash_on_cash()
         insights["Net Yearly Cash Flow"] = self.calculate_net_annual_cash_flow()
         insights["Net Monthly Cash Flow"] = self.calculate_net_monthly_cash_flow()
-        annual_irr = self.calculate_annual_irr()
-        insights["Yearly IRR"] = 0 if math.isnan(annual_irr) else annual_irr
-        return insights
+        # annual_irr = self.calculate_annual_irr()
+        # insights["Yearly IRR"] = 0 if math.isnan(annual_irr) else annual_irr
+        # return insights
         insights["Annual rent income"] = self.calculate_annual_rent_income()
-        return insights
-        insights["ROI"] = self.calculate_roi()
-        return insights
+        # insights["ROI"] = self.calculate_roi()
         insights["Monthly NOI"] = self.calculate_monthly_noi()
-        return insights
         insights["Annual NOI"] = self.calculate_annual_noi()
-        return insights
         insights["Monthly rental property taxes"] = self.calculate_monthly_rental_property_taxes()
-        return insights
         insights["Annual rental property taxes"] = self.calculate_annual_rental_property_taxes()
-        return insights
         insights["Cap rate"] = self.calculate_annual_cap_rate()
-        return insights
         insights["Gross yield"] = self.calculate_annual_gross_yield()
-        return insights
         insights["Monthly insurances expenses"] = self.calculate_monthly_insurances_expenses()
-        return insights
         insights["Annual insurances expenses"] = self.calculate_annual_insurances_expenses()
-        return insights
         insights["Monthly maintenance and repairs"] = self.calculate_monthly_maintenance_and_repairs()
-        return insights
         insights["Annual maintenance and repairs"] = self.calculate_annual_maintenance_and_repairs()
-        return insights
         insights["Monthly vacancy cost"] = self.calculate_monthly_vacancy_cost()
-        return insights
         insights["Annual vacancy cost"] = self.calculate_annual_vacancy_cost()
-        return insights
         insights["Estimated sale price"] = self.estimate_sale_price()
-        return insights
         insights["Selling expenses"] = self.calculate_selling_expenses()
-        return insights
         insights["Sale proceeds"] = self.calculate_sale_proceeds()
-        return insights
         insights["Total revenue"] = self.calculate_total_revenue()
-        return insights
         insights["Annual revenue distribution"] = self.calculate_annual_revenue_distribution()
-        return insights
         insights["Annual operating expenses"] = self.calculate_annual_operating_expenses()
-        return insights
         insights["Annual cash flow"] = self.calculate_net_annual_cash_flow()
-        return insights
         insights["Mortgage remain balance in exit"] = self.calculate_mortgage_remain_balance_in_exit()
-        return insights
         insights["Constructor index linked compensation"] = self.calculate_constructor_index_linked_compensation()
-        return insights
-        insights["Total expenses"] = self.calculate_total_expenses()
-        return insights
+        # insights["Total expenses"] = self.calculate_total_expenses()
         insights["Equity needed for purchase"] = self.calculate_total_equity_needed_for_purchase()
-        return insights
         insights["Contractor payments"] = self.calculate_equity_payments()
-        return insights
-        insights["Annual expenses distribution"] = self.calculate_annual_expenses_distribution()
-        return insights
+        # insights["Annual expenses distribution"] = self.calculate_annual_expenses_distribution()
         insights["Monthly property management fees"] = self.calculate_monthly_property_management_fees()
-        return insights
         insights["Annual property management fees"] = self.calculate_annual_property_management_fees()
-        return insights
-        insights["Net profit"] = self.calculate_net_profit()
-        return insights
+        # insights["Net profit"] = self.calculate_net_profit()
         insights["Capital gain tax"] = self.calculate_capital_gain_tax()
 
         return insights

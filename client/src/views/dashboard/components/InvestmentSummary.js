@@ -1,22 +1,10 @@
 import React from 'react';
-import {
-    ChakraProvider,
-    Box,
-    Heading,
-    Card,
-    CardHeader,
-    CardBody,
-    useColorModeValue,
-    Icon,
-    SimpleGrid, Flex, FormLabel, Avatar, Select,
-} from '@chakra-ui/react';
+import {Box, Heading, useColorModeValue, Icon, SimpleGrid} from '@chakra-ui/react';
 import MiniStatistics from '../../../components/card/MiniStatistics';
 import IconBox from "../../../components/icons/IconBox";
 import {
-    MdAddTask,
     MdAttachMoney,
     MdBarChart,
-    MdFileCopy,
     MdAccountBalance,
     MdSecurity,
     MdBuild,
@@ -36,9 +24,8 @@ import WeeklyRevenue from "../../properties/components/WeeklyRevenue";
 import Usa from "../../../assets/img/dashboards/usa.png";
 import TotalSpent from "./TotalSpent";
 import CheckTable from "./CheckTable";
-import {columnsDataCheck, columnsDataComplex} from "../../../layouts/reports/components/columnsData";
 import tableDataCheck from "../variables/tableDataCheck.json";
-import DailyTraffic from "./DailyTraffic";
+import InsightsChart from "./InsightsChart";
 import PieCard from "./PieCard";
 import ComplexTable from "../../../layouts/reports/components/ReportsTable";
 import tableDataComplex from "../variables/tableDataComplex.json";
@@ -125,7 +112,7 @@ const InvestmentSummary = ({insights, investmentData, investorData, propertyData
                 <WeeklyRevenue investorData={investorData}/>
             </SimpleGrid>
             <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px'>
-                <DailyTraffic/>
+                <InsightsChart insights={insights}/>
                 <PieCard/>
             </SimpleGrid>
         </Box>

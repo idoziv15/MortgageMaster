@@ -38,7 +38,7 @@ import React from "react";
 import {MdAddTask, MdAttachMoney, MdBarChart, MdFileCopy} from "react-icons/md";
 import CheckTable from "./components/CheckTable";
 import ComplexTable from "../../layouts/reports/components/ReportsTable";
-import DailyTraffic from "./components/DailyTraffic";
+import InsightsChart from "./components/InsightsChart";
 import PieCard from "./components/PieCard";
 import Tasks from "../../layouts/reports/components/Tasks";
 import TotalSpent from "./components/TotalSpent";
@@ -142,7 +142,7 @@ export default function InsightsReports() {
                 <SimpleGrid columns={{base: 1, md: 1, xl: 2}} gap='20px' mb='20px'>
                     <CheckTable columnsData={columnsDataCheck} tableData={tableDataCheck}/>
                     <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px'>
-                        <DailyTraffic/>
+                        <InsightsChart/>
                         <PieCard/>
                     </SimpleGrid>
                 </SimpleGrid>
