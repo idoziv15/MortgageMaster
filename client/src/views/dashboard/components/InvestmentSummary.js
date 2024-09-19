@@ -85,7 +85,7 @@ const getComponentIcon = (name, boxBg, brandColor) => {
         <IconBox w='36px' h='36px' bg={boxBg} icon={<Icon w='27px' h='27px' as={IconComponent} color={brandColor}/>}/>
     );
 };
-const InvestmentSummary = ({insights, investmentData, investorData, propertyData, mortgageData, otherData}) => {
+const InvestmentSummary = ({insights, investmentData, investorData, propertyData, mortgageTracks, otherData}) => {
     const brandColor = useColorModeValue("brand.500", "white");
     const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
 

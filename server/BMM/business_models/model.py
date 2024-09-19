@@ -53,8 +53,6 @@ class BMM(SingleHouseIsraelModel):
             gross_rental_income=investor_data['gross_rental_income']
         )
         investors_portfolio = RealEstateInvestorsPortfolio(investor)
-        # investor = RealEstateInvestor(25_000, 0, RealEstateInvestmentType.SingleApartment, 1_000_000, 0)
-        # investors_portfolio = RealEstateInvestorsPortfolio(investor)
 
         property = RealEstateProperty(
             purchase_price=property_data['purchase_price'],
@@ -66,42 +64,8 @@ class BMM(SingleHouseIsraelModel):
             after_repair_value=property_data['after_repair_value'],
             annual_appreciation_percentage=property_data['annual_appreciation_percentage']
         )
-        # property = RealEstateProperty(purchase_price=1_850_000,
-        #                               monthly_rent_income=4100,
-        #                               square_meters=60,
-        #                               parking_spots=1,
-        #                               warehouse=False,
-        #                               balcony_square_meter=13,
-        #                               after_repair_value=1_850_000,
-        #                               annual_appreciation_percentage=3.5)
-
-        mortgage = MortgagePipeline(self.initialize_mortgage(mortgage_data))
-        # mortgage = MortgagePipeline(ConstantNotLinked(interest_rate=3.5 / 100,
-        #                                               num_payments=360,
-        #                                               initial_loan_amount=round(0.6 * property.purchase_price),
-        #                                               interest_only_period=0 * 12))
-
-        # years_to_exit: int = 30,
-        # average_interest_in_exit: Optional[Dict[MortgageTrack.__class__, float]] = None,
-        # mortgage_advisor_cost: int = 0,
-        # appraiser_cost: int = 0,
-        # lawyer_cost: int = 0,
-        # escort_costs: int = 0,
-        # additional_transaction_costs_dic: Union[int, Dict[str, int]] = 0,
-        # renovation_expenses_dic: Union[int, Dict[str, int]] = 0,
-        # furniture_cost: int = 0,
-        # broker_purchase_percentage: float = 0.0,
-        # broker_rent_percentage: float = 0.0,
-        # broker_sell_percentage: float = 0.0,
-        # vacancy_percentage: float = 0.0,
-        # annual_maintenance_cost_percentage: float = 0.0,
-        # annual_life_insurance_cost: int = 0,
-        # annual_house_insurance_cost: int = 0,
-        # equity_required_by_percentage: float = 0.25,
-        # management_fees_percentage: int = 0,
-        # years_until_key_reception: int = 0,
-        # contractor_payment_distribution: List[float] = 0,
-        # construction_input_index_annual_growth: int = 0
+        print(type(mortgage_data))
+        mortgage = MortgagePipeline(self.initialize_mortgages(mortgage_data))
 
         super().__init__(
             investors_portfolio, mortgage, property,
@@ -123,25 +87,6 @@ class BMM(SingleHouseIsraelModel):
             annual_house_insurance_cost=investment_data['annual_house_insurance_cost'],
             equity_required_by_percentage=investment_data['equity_required_by_percentage'],
             management_fees_percentage=investment_data['management_fees_percentage']
-
-            # years_to_exit=years_to_exit,
-            # average_interest_in_exit=average_interest_in_exit,
-            # mortgage_advisor_cost=mortgage_advisor_cost,
-            # appraiser_cost=appraiser_cost,
-            # lawyer_cost=lawyer_cost,
-            # escort_costs=escort_costs,
-            # additional_transaction_costs_dic=additional_transaction_costs_dic,
-            # renovation_expenses_dic=renovation_expenses_dic,
-            # furniture_cost=furniture_cost,
-            # broker_purchase_percentage=broker_purchase_percentage,
-            # broker_rent_percentage=broker_rent_percentage,
-            # broker_sell_percentage=broker_sell_percentage,
-            # vacancy_percentage=vacancy_percentage,
-            # annual_maintenance_cost_percentage=annual_maintenance_cost_percentage,
-            # annual_life_insurance_cost=annual_life_insurance_cost,
-            # annual_house_insurance_cost=annual_house_insurance_cost,
-            # equity_required_by_percentage=equity_required_by_percentage,
-            # management_fees_percentage=management_fees_percentage,
         )
 
         self.investment_data = investment_data
@@ -150,66 +95,83 @@ class BMM(SingleHouseIsraelModel):
         self.mortgage_data = mortgage_data
         self.other_data = other_data
 
-    def initialize_mortgage(self, mortgage_data: Dict):
-        mortgage_type = mortgage_data.get('mortgage_type')
+    def initialize_mortgages(self, mortgage_tracks: List[Dict]) -> List:
+        result_list = []
 
-        if mortgage_type == 'constant_not_linked':
-            return ConstantNotLinked(
-                interest_rate=mortgage_data['interest_rate'],
-                num_payments=mortgage_data['num_payments'],
-                initial_loan_amount=mortgage_data['initial_loan_amount'],
-                average_interest_when_taken=mortgage_data['average_interest_when_taken'],
-                interest_only_period=mortgage_data['interest_only_period']
-            )
-        elif mortgage_type == 'constant_linked':
-            return ConstantLinked(
-                interest_rate=mortgage_data['interest_rate'],
-                num_payments=mortgage_data['num_payments'],
-                initial_loan_amount=mortgage_data['initial_loan_amount'],
-                linked_index=mortgage_data['linked_index'],
-                average_interest_when_taken=mortgage_data['average_interest_when_taken'],
-                interest_only_period=mortgage_data['interest_only_period']
-            )
-        elif mortgage_type == 'change_not_linked':
-            return ChangeNotLinked(
-                interest_rate=mortgage_data['interest_rate'],
-                num_payments=mortgage_data['num_payments'],
-                initial_loan_amount=mortgage_data['initial_loan_amount'],
-                forecasting_interest_rate=mortgage_data['forecasting_interest_rate'],
-                interest_changing_period=mortgage_data['interest_changing_period'],
-                average_interest_when_taken=mortgage_data['average_interest_when_taken'],
-                interest_only_period=mortgage_data['interest_only_period']
-            )
-        elif mortgage_type == 'change_linked':
-            return ChangeLinked(
-                interest_rate=mortgage_data['interest_rate'],
-                num_payments=mortgage_data['num_payments'],
-                initial_loan_amount=mortgage_data['initial_loan_amount'],
-                linked_index=mortgage_data['linked_index'],
-                forecasting_interest_rate=mortgage_data['forecasting_interest_rate'],
-                interest_changing_period=mortgage_data['interest_changing_period'],
-                average_interest_when_taken=mortgage_data['average_interest_when_taken'],
-                interest_only_period=mortgage_data['interest_only_period']
-            )
-        elif mortgage_type == 'eligibility':
-            return Eligibility(
-                interest_rate=mortgage_data['interest_rate'],
-                num_payments=mortgage_data['num_payments'],
-                initial_loan_amount=mortgage_data['initial_loan_amount'],
-                linked_index=mortgage_data['linked_index'],
-                average_interest_when_taken=mortgage_data['average_interest_when_taken']
-            )
-        elif mortgage_type == 'prime':
-            return Prime(
-                interest_rate=mortgage_data['interest_rate'],
-                num_payments=mortgage_data['num_payments'],
-                initial_loan_amount=mortgage_data['initial_loan_amount'],
-                forecasting_interest_rate=mortgage_data['forecasting_interest_rate'],
-                average_interest_when_taken=mortgage_data['average_interest_when_taken'],
-                interest_only_period=mortgage_data['interest_only_period']
-            )
-        else:
-            raise ValueError(f"Unknown mortgage type: {mortgage_type}")
+        for mortgage_data in mortgage_tracks:
+            mortgage_type = mortgage_data.get('mortgage_type')
+
+            if mortgage_type == 'constant_not_linked':
+                result_list.append(
+                    ConstantNotLinked(
+                        interest_rate=mortgage_data['interest_rate'],
+                        num_payments=mortgage_data['mortgage_duration'],
+                        initial_loan_amount=mortgage_data['initial_loan_amount'],
+                        average_interest_when_taken=mortgage_data['interest_rate'],
+                        interest_only_period=mortgage_data['interest_only_period']
+                    )
+                )
+            elif mortgage_type == 'constant_linked':
+                result_list.append(
+                    ConstantLinked(
+                        interest_rate=mortgage_data['interest_rate'],
+                        num_payments=mortgage_data['mortgage_duration'],
+                        initial_loan_amount=mortgage_data['initial_loan_amount'],
+                        linked_index=mortgage_data['linked_index'],
+                        average_interest_when_taken=mortgage_data['interest_rate'],
+                        interest_only_period=mortgage_data['interest_only_period']
+                    )
+                )
+            elif mortgage_type == 'change_not_linked':
+                result_list.append(
+                    ChangeNotLinked(
+                        interest_rate=mortgage_data['interest_rate'],
+                        num_payments=mortgage_data['mortgage_duration'],
+                        initial_loan_amount=mortgage_data['initial_loan_amount'],
+                        forecasting_interest_rate=mortgage_data['forecasting_interest_rate'],
+                        interest_changing_period=mortgage_data['interest_changing_period'],
+                        average_interest_when_taken=mortgage_data['interest_rate'],
+                        interest_only_period=mortgage_data['interest_only_period']
+                    )
+                )
+            elif mortgage_type == 'change_linked':
+                result_list.append(
+                    ChangeLinked(
+                        interest_rate=mortgage_data['interest_rate'],
+                        num_payments=mortgage_data['mortgage_duration'],
+                        initial_loan_amount=mortgage_data['initial_loan_amount'],
+                        linked_index=mortgage_data['linked_index'],
+                        forecasting_interest_rate=mortgage_data['forecasting_interest_rate'],
+                        interest_changing_period=mortgage_data['interest_changing_period'],
+                        average_interest_when_taken=mortgage_data['interest_rate'],
+                        interest_only_period=mortgage_data['interest_only_period']
+                    )
+                )
+            elif mortgage_type == 'eligibility':
+                result_list.append(
+                    Eligibility(
+                        interest_rate=mortgage_data['interest_rate'],
+                        num_payments=mortgage_data['mortgage_duration'],
+                        initial_loan_amount=mortgage_data['initial_loan_amount'],
+                        linked_index=mortgage_data['linked_index'],
+                        average_interest_when_taken=mortgage_data['interest_rate']
+                    )
+                )
+            elif mortgage_type == 'prime':
+                result_list.append(
+                    Prime(
+                        interest_rate=mortgage_data['interest_rate'],
+                        num_payments=mortgage_data['mortgage_duration'],
+                        initial_loan_amount=mortgage_data['initial_loan_amount'],
+                        forecasting_interest_rate=mortgage_data['forecasting_interest_rate'],
+                        average_interest_when_taken=mortgage_data['interest_rate'],
+                        interest_only_period=mortgage_data['interest_only_period']
+                    )
+                )
+            else:
+                raise ValueError(f"Unknown mortgage type: {mortgage_type}")
+
+        return result_list
 
     def calculate_total_equity_needed_for_purchase(self) -> int:
         """

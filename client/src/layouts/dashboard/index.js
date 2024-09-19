@@ -31,7 +31,7 @@ export default function Dashboard(props) {
     const [reportDescription, setReportDescription] = useState('');
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [nextId, setNextId] = useState(2);
+    const [activeTab, setActiveTab] = useState(0);
 
     const [insightsData, setInsightsData] = useState({
         "Price per meter": 0,
@@ -118,20 +118,39 @@ export default function Dashboard(props) {
         'after_repair_value': {value: 0, range: [0, 100000000], step: 100000},
         'annual_appreciation_percentage': {value: 0, range: [0, 100], step: 1}
     });
-    const [mortgageData, setMortgageData] = useState({
-        'mortgage_advisor_cost': 0,
-        'interest_rate': 3.5,
-        'num_payments': 0,
-        'initial_loan_amount': 0,
-        'interest_only_period': 0,
-        'linked_index': [],
-        'forecasting_interest_rate': [],
-        'interest_changing_period': 0,
-        'average_interest_when_taken': null,
-        'mortgage_type': 'constant_not_linked'
-    });
     const [mortgageTracks, setMortgageTracks] = useState([
         {
+            id: Date.now(),
+            data: {
+                'interest_rate': 3.5,
+                'mortgage_duration': 0,
+                'initial_loan_amount': 0,
+                'interest_only_period': 0,
+                'linked_index': [],
+                'forecasting_interest_rate': [],
+                'interest_changing_period': 0,
+                'mortgage_type': 'constant_not_linked'
+            }
+        }
+    ]);
+    const [otherData, setOtherData] = useState({
+        'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
+        'contractor_payment_distribution': {value: []},
+        'construction_input_index_annual_growth': {value: 0, range: [0, 10], step: 0.1}
+    });
+
+    const addMortgageTrack = () => {
+        if (mortgageTracks.length >= 7) {
+            toast({
+                title: "Track Limit Reached.",
+                description: "You can only add up to 7 mortgage tracks.",
+                status: "warning",
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+        const newTrack = {
             id: Date.now(),
             data: {
                 'mortgage_advisor_cost': 0,
@@ -145,33 +164,12 @@ export default function Dashboard(props) {
                 'average_interest_when_taken': null,
                 'mortgage_type': 'constant_not_linked'
             }
-        }
-    ]);
-    const [otherData, setOtherData] = useState({
-        'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
-        'contractor_payment_distribution': {value: []},
-        'construction_input_index_annual_growth': {value: 0, range: [0, 10], step: 0.1}
-    });
-
-    const addMortgageTrack = () => {
-        setMortgageTracks(prevTracks => [
-            ...prevTracks,
-            {
-                id: Date.now(),
-                data: {
-                    'mortgage_advisor_cost': 0,
-                    'interest_rate': 3.5,
-                    'num_payments': 0,
-                    'initial_loan_amount': 0,
-                    'interest_only_period': 0,
-                    'linked_index': [],
-                    'forecasting_interest_rate': [],
-                    'interest_changing_period': 0,
-                    'average_interest_when_taken': null,
-                    'mortgage_type': 'constant_not_linked'
-                }
-            }
-        ]);
+        };
+        setMortgageTracks(prevTracks => {
+            const updatedTracks = [...prevTracks, newTrack];
+            setActiveTab(updatedTracks.length - 1);
+            return updatedTracks;
+        });
     };
 
     const getToken = () => {
@@ -209,7 +207,7 @@ export default function Dashboard(props) {
             investment_data: filterValues(investmentData),
             investor_data: filterValues(investorData),
             property_data: filterValues(propertyData),
-            mortgage_data: mortgageData,
+            mortgage_data: mortgageTracks.map(track => filterValues(track.data)),
             other_data: filterValues(otherData)
         };
 
@@ -247,12 +245,14 @@ export default function Dashboard(props) {
             const property = reportData.propertyData;
             const mortgage = reportData.mortgageData;
             const other = reportData.otherData;
+
             setInsightsData(insights);
             setInvestmentData(investment);
             setInvestorData(investor);
             setPropertyData(property);
-            setMortgageData(mortgage);
+            setMortgageTracks(mortgage);
             setOtherData(other);
+
             setReportName(response.data.report.name);
             setReportDescription(response.data.report.description);
         } catch (error) {
@@ -366,18 +366,21 @@ export default function Dashboard(props) {
             'annual_appreciation_percentage': {value: 0, range: [0, 100], step: 1}
         });
 
-        setMortgageData({
-            'mortgage_advisor_cost': 0,
-            'interest_rate': 3.5,
-            'num_payments': 0,
-            'initial_loan_amount': 0,
-            'interest_only_period': 0,
-            'linked_index': [],
-            'forecasting_interest_rate': [],
-            'interest_changing_period': 0,
-            'average_interest_when_taken': null,
-            'mortgage_type': 'constant_not_linked'
-        });
+        setMortgageTracks([
+            {
+                id: Date.now(),
+                data: {
+                    'interest_rate': 3.5,
+                    'mortgage_duration': 0,
+                    'initial_loan_amount': 0,
+                    'interest_only_period': 0,
+                    'linked_index': [],
+                    'forecasting_interest_rate': [],
+                    'interest_changing_period': 0,
+                    'mortgage_type': 'constant_not_linked'
+                }
+            }
+        ]);
 
         setOtherData({
             'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
@@ -394,7 +397,10 @@ export default function Dashboard(props) {
             investmentData: filterValues(investmentData),
             investorData: filterValues(investorData),
             propertyData: filterValues(propertyData),
-            mortgageData: filterValues(mortgageData),
+            mortgageTracks: mortgageTracks.map(track => ({
+                id: track.id,
+                data: filterValues(track.data)
+            })),
             otherData: filterValues(otherData)
         }
     });
@@ -619,25 +625,26 @@ export default function Dashboard(props) {
                             <Flex>
                                 {/* Left Side */}
                                 <Box flex='1'>
-                                    <InvestmentTable data={investmentData} tableName={'Investment Details'}
-                                                     setData={setInvestmentData}/>
-                                    <AdditionalTable data={otherData} tableName={'Additional Details'}
-                                                     setData={setOtherData}/>
-                                </Box>
-                                {/* Right Side */}
-                                <Box flex='1'>
                                     <InvestorTable data={investorData} tableName={'Investor Details'}
                                                    setData={setInvestorData}/>
                                     <PropertyTable data={propertyData} tableName={'Property Details'}
                                                    setData={setPropertyData}/>
-                                    {/*<MortgageTable tableName={'Mortgage Details'} data={mortgageData}*/}
-                                    {/*               setData={setMortgageData}/>*/}
                                     <MortgageTable
                                         tableName="Mortgage Details"
                                         tracks={mortgageTracks}
                                         addTrack={addMortgageTrack}
                                         setTracks={setMortgageTracks}
+                                        activeTab={activeTab}
+                                        setActiveTab={setActiveTab}
+                                        propertyData={propertyData}
                                     />
+                                </Box>
+                                {/* Right Side */}
+                                <Box flex='1'>
+                                    <InvestmentTable data={investmentData} tableName={'Investment Details'}
+                                                     setData={setInvestmentData}/>
+                                    <AdditionalTable data={otherData} tableName={'Additional Details'}
+                                                     setData={setOtherData}/>
                                 </Box>
                             </Flex>
                             <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'
@@ -666,7 +673,7 @@ export default function Dashboard(props) {
                             </Flex>
                             <InvestmentSummary insights={insightsData} investmentData={investmentData}
                                                investorData={investorData} propertyData={propertyData}
-                                               mortgageData={mortgageData} otherData={otherData}/>
+                                               mortgageTracks={mortgageTracks} otherData={otherData}/>
                             <Box mt="auto">
                                 <Footer/>
                             </Box>

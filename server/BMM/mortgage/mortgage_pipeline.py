@@ -41,14 +41,14 @@ class MortgagePipeline:
         - calculate_num_payments(): Calculate the maximum number of payments among all mortgage tracks.
     """
 
-    def __init__(self, *mortgage_tracks: MortgageTrack):
+    def __init__(self, *mortgage_tracks: list):
         """
         Initialize an instance of YourClassName with a variable number of MortgageTrack objects.
 
         :param mortgage_tracks: Variable number of MortgageTrack objects representing different mortgage tracks.
         :type mortgage_tracks: MortgageTrack
         """
-        self.tracks = list(mortgage_tracks)
+        self.tracks = mortgage_tracks
         self.total_initial_loan_amount = sum([track.initial_loan_amount for track in self.tracks])
 
     def calculate_total_interest_payment(self) -> int:
