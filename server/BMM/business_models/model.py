@@ -48,7 +48,7 @@ class BMM(SingleHouseIsraelModel):
         investor = RealEstateInvestor(
             net_monthly_income=investor_data['net_monthly_income'],
             total_debt_payment=investor_data['total_debt_payment'],
-            real_estate_investment_type=get_real_estate_investment_type(investor_data['real_estate_investment_type']),
+            real_estate_investment_type=get_real_estate_investment_type(property_data['real_estate_investment_type']),
             total_available_equity=investor_data['total_available_equity'],
             gross_rental_income=investor_data['gross_rental_income']
         )

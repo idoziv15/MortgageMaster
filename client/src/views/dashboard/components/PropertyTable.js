@@ -13,11 +13,44 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem, Switch, Select
+    GridItem, Switch, Select, useToast
 } from '@chakra-ui/react';
 
 export default function PropertyTable({tableName, data, setData}) {
+    const toast = useToast();
     const handleInputChange = (key, value) => {
+        // Validate after_repair_value
+        if (key === 'after_repair_value' && value < data.purchase_price.value) {
+            toast({
+                title: "Invalid Value",
+                description: "After Repair Value must be at least equal to the Purchase Price.",
+                status: "error",
+                duration: 4000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        // Handle change for purchase_price and adjust after_repair_value accordingly
+        if (key === 'purchase_price') {
+            setData(prevData => {
+                const updatedAfterRepairValue = prevData.after_repair_value.value < value ? value : prevData.after_repair_value.value;
+
+                return {
+                    ...prevData,
+                    [key]: {
+                        ...prevData[key],
+                        value: value
+                    },
+                    after_repair_value: {
+                        ...prevData.after_repair_value,
+                        value: updatedAfterRepairValue
+                    }
+                };
+            });
+            return;
+        }
+
         setData(prevData => ({
             ...prevData,
             [key]: {
@@ -36,7 +69,6 @@ export default function PropertyTable({tableName, data, setData}) {
             }
         }));
     };
-
 
     return (
         <ChakraProvider>

@@ -116,7 +116,7 @@ export default function Dashboard(props) {
         'warehouse': {value: false},
         'balcony_square_meter': {value: 0, range: [0, 100], step: 10},
         'after_repair_value': {value: 0, range: [0, 100000000], step: 100000},
-        'annual_appreciation_percentage': {value: 0, range: [0, 100], step: 1}
+        'annual_appreciation_percentage': {value: 3.5, range: [0, 15], step: 1}
     });
     const [mortgageTracks, setMortgageTracks] = useState([
         {
