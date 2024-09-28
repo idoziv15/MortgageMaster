@@ -246,7 +246,7 @@ def calculate_BMM(current_user):
         #     print(t)
         #     print('')
         other_data = data['other_data']
-        print(other_data)
+        # print(other_data)
         result = BMM(investment_data, investor_data, property_data, mortgage_data, other_data).calculate_insights()
         # print(result)
         return jsonify({'insights': result}), 200

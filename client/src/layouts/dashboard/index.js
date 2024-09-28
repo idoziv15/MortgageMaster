@@ -254,11 +254,46 @@ export default function Dashboard(props) {
         return false;
     }
 
+    function formatNumber(value) {
+        // Check if the value is a number
+        if (typeof value === 'number') {
+            // If it's a float, format it to 2 decimal places
+            let formattedValue = value.toFixed(2);
+
+            // If the number is greater than 1000 or less than -1000, add commas
+            if (Math.abs(value) >= 1000) {
+                return parseFloat(formattedValue).toLocaleString();
+            }
+
+            // Return the value with 2 decimal places
+            return formattedValue;
+        }
+
+        // If it's not a number, return the value as is (could be strings, arrays, etc.)
+        return value;
+    }
+
+    function formatInsights(insights) {
+        const formattedInsights = {};
+
+        Object.entries(insights).forEach(([key, value]) => {
+            if (Array.isArray(value)) {
+                // If the value is an array (e.g., Annual revenue distribution), format each number in the array
+                formattedInsights[key] = value.map(item => formatNumber(item));
+            } else {
+                // Otherwise, format the number directly
+                formattedInsights[key] = formatNumber(value);
+            }
+        });
+
+        return formattedInsights;
+    }
+
     const updateBMM = async () => {
         setLoading(true);
         let isTracksValid = validateTracksTotalAmount();
-        let isCostractorPaymentsValid = isFirstInvestment ? validateConstractorPayments() : true;
-        if (!isTracksValid || !isCostractorPaymentsValid) {
+        let isConstractorPaymentsValid = isFirstInvestment ? validateConstractorPayments() : true;
+        if (!isTracksValid || !isConstractorPaymentsValid) {
             setLoading(false);
             return;
         }
@@ -287,7 +322,7 @@ export default function Dashboard(props) {
                 headers: {Authorization: `Bearer ${token}`},
             });
             const updatedInsights = res.data.insights;
-            setInsightsData(updatedInsights);
+            setInsightsData(formatInsights(updatedInsights));
             setLoading(false);
         } catch (e) {
             console.error('Error updating BMM', e);

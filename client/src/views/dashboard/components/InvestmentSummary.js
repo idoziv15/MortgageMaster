@@ -31,6 +31,7 @@ import ComplexTable from "../../../layouts/reports/components/ReportsTable";
 import tableDataComplex from "../variables/tableDataComplex.json";
 import Tasks from "../../../layouts/reports/components/Tasks";
 import MiniCalendar from "../../../components/calendar/MiniCalendar";
+import ListStatistics from "../../../components/card/ListStatistics";
 
 const iconMapping = {
     "Price per meter": MdAttachMoney,
@@ -79,12 +80,64 @@ const iconMapping = {
     "Capital gain tax": MdMoneyOff,
 };
 
+const symbolMapping = {
+    "Price per meter": "$",
+    "Loan to cost": "%",
+    "Loan to value": "%",
+    "Renovation expenses": "$",
+    "Purchase additional transactions cost": "$",
+    "Purchase tax": "$",
+    "Closing costs": "$",
+    "Broker purchase cost": "$",
+    "Monthly operating expenses": "$",
+    "Cash on cash": "%",
+    "Net Yearly Cash Flow": "$",
+    "Net Monthly Cash Flow": "$",
+    "Yearly IRR": "%",
+    "Annual rent income": "$",
+    "ROI": "%",
+    "Monthly NOI": "$",
+    "Annual NOI": "$",
+    "Monthly rental property taxes": "$",
+    "Annual rental property taxes": "$",
+    "Cap rate": "%",
+    "Gross yield": "%",
+    "Monthly insurances expenses": "$",
+    "Annual insurances expenses": "$",
+    "Monthly maintenance and repairs": "$",
+    "Annual maintenance and repairs": "$",
+    "Monthly vacancy cost": "$",
+    "Annual vacancy cost": "$",
+    "Estimated sale price": "$",
+    "Selling expenses": "$",
+    "Sale proceeds": "$",
+    "Total revenue": "$",
+    "Annual revenue distribution": "$",
+    "Annual operating expenses": "$",
+    "Annual cash flow": "$",
+    "Mortgage remain balance in exit": "$",
+    "Constructor index linked compensation": "$",
+    "Total expenses": "$",
+    "Equity needed for purchase": "$",
+    "Contractor payments": "$",
+    "Annual expenses distribution": "$",
+    "Monthly property management fees": "$",
+    "Annual property management fees": "$",
+    "Net profit": "$",
+    "Capital gain tax": "$",
+};
+
+const getSymbol = (name) => {
+    return symbolMapping[name] || '';
+};
+
 const getComponentIcon = (name, boxBg, brandColor) => {
     const IconComponent = iconMapping[name];
     return (
         <IconBox w='36px' h='36px' bg={boxBg} icon={<Icon w='27px' h='27px' as={IconComponent} color={brandColor}/>}/>
     );
 };
+
 const InvestmentSummary = ({insights, investmentData, investorData, propertyData, mortgageTracks, otherData}) => {
     const brandColor = useColorModeValue("brand.500", "white");
     const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
@@ -97,14 +150,26 @@ const InvestmentSummary = ({insights, investmentData, investorData, propertyData
                 gap='20px'
                 mt='10px'
                 mb='20px'>
-                {Object.entries(insights).map(([key, value], index) => (
-                    <MiniStatistics
-                        key={index}
-                        name={key}
-                        value={'$' + value}
-                        startContent={getComponentIcon(key, boxBg, brandColor)}
-                    />
-                ))}
+                {Object.entries(insights).map(([key, value], index) => {
+                    const symbol = getSymbol(key);
+                    return (
+                        Array.isArray(value) ? (
+                            <ListStatistics
+                                key={index}
+                                name={key}
+                                values={value.map((val) => val + symbol)}
+                                startContent={getComponentIcon(key, boxBg, brandColor)}
+                            />
+                        ) : (
+                            <MiniStatistics
+                                key={index}
+                                name={key}
+                                value={value + symbol}
+                                startContent={getComponentIcon(key, boxBg, brandColor)}
+                            />
+                        )
+                    );
+                })}
             </SimpleGrid>
 
             <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px' mb='20px'>
