@@ -100,21 +100,21 @@ export default function Dashboard(props) {
         'average_interest_in_exit': {value: 0, range: [0, 20], step: 0.1}
     });
     const [investorData, setInvestorData] = useState({
-        'net_monthly_income': {value: 0, range: [0, 1000000], step: 1000},
+        'net_monthly_income': {value: 0, range: [0, 100000], step: 1000},
         'total_debt_payment': {value: 0, range: [0, 10000000], step: 10000},
-        'real_estate_investment_type': {value: 'single apartment'},
         'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
-        'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000},
+        'gross_rental_income': {value: 0, range: [0, 100000], step: 1000},
         'yearly_revenue': {value: []},
         'yearly_expenses': {value: []}
     });
     const [propertyData, setPropertyData] = useState({
-        'purchase_price': {value: 0, range: [0, 100000000], step: 100000},
-        'monthly_rent_income': {value: 0, range: [0, 50000], step: 1000},
-        'square_meters': {value: 0, range: [0, 10000], step: 10},
-        'parking_spots': {value: 0, range: [0, 1000], step: 1},
+        'purchase_price': {value: 0, range: [0, 20000000], step: 100000},
+        'monthly_rent_income': {value: 0, range: [0, 20000], step: 1000},
+        'real_estate_investment_type': {value: 'single apartment'},
+        'square_meters': {value: 0, range: [0, 200], step: 10},
+        'parking_spots': {value: 0, range: [0, 4], step: 1},
         'warehouse': {value: false},
-        'balcony_square_meter': {value: 0, range: [0, 1000], step: 10},
+        'balcony_square_meter': {value: 0, range: [0, 100], step: 10},
         'after_repair_value': {value: 0, range: [0, 100000000], step: 100000},
         'annual_appreciation_percentage': {value: 0, range: [0, 100], step: 1}
     });
@@ -375,7 +375,6 @@ export default function Dashboard(props) {
         setInvestorData({
             'net_monthly_income': {value: 0, range: [0, 1000000], step: 1000},
             'total_debt_payment': {value: 0, range: [0, 10000000], step: 10000},
-            'real_estate_investment_type': {value: 'single apartment'},
             'total_available_equity': {value: 0, range: [0, 100000000], step: 10000},
             'gross_rental_income': {value: 0, range: [0, 1000000], step: 1000},
             'yearly_revenue': {value: []},
@@ -385,6 +384,7 @@ export default function Dashboard(props) {
         setPropertyData({
             'purchase_price': {value: 0, range: [0, 100000000], step: 100000},
             'monthly_rent_income': {value: 0, range: [0, 50000], step: 1000},
+            'real_estate_investment_type': {value: 'single apartment'},
             'square_meters': {value: 0, range: [0, 10000], step: 10},
             'parking_spots': {value: 0, range: [0, 1000], step: 1},
             'warehouse': {value: false},
