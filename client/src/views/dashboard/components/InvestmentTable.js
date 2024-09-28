@@ -13,10 +13,10 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem, Switch, Select
+    GridItem, Switch, Select, Tooltip
 } from '@chakra-ui/react';
 
-export default function InvestmentTable({tableName, data, setData, propertyData, isFirstInvestment, setIsFirstInvestment}) {
+export default function InvestmentTable({ tableName, data, setData, propertyData, isFirstInvestment, setIsFirstInvestment }) {
     const [purchasePrice, setPurchasePrice] = useState(propertyData.purchase_price.value);
     const resetCosts = ['appraiser_cost', 'lawyer_cost', 'escort_costs', 'mortgage_advisor_cost',
         'broker_purchase_percentage', 'broker_sell_percentage', 'broker_rent_percentage',
@@ -121,18 +121,24 @@ export default function InvestmentTable({tableName, data, setData, propertyData,
                                         <FormLabel m={0} fontSize="sm">{label} {isOptional && '(Optional)'}</FormLabel>
                                     </GridItem>
                                     <GridItem>
-                                        <Input
-                                            size="sm"
-                                            type="number"
-                                            bg="gray.100"
-                                            width="90%"
-                                            p={1}
-                                            my={0.5}
-                                            value={value !== null ? value : 0}
-                                            onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
-                                            isDisabled={isDisabled}
-                                            max={isDisabled ? maxRange : range ? range[1] : 100}
-                                        />
+                                        <Tooltip
+                                            label="Change purchase price to be greater than 0"
+                                            isDisabled={!isDisabled}
+                                            placement="top"
+                                        >
+                                            <Input
+                                                size="sm"
+                                                type="number"
+                                                bg="gray.100"
+                                                width="90%"
+                                                p={1}
+                                                my={0.5}
+                                                value={value !== null ? value : 0}
+                                                onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
+                                                isDisabled={isDisabled}
+                                                max={isDisabled ? maxRange : range ? range[1] : 100}
+                                            />
+                                        </Tooltip>
                                     </GridItem>
                                     <GridItem>
                                         <Slider

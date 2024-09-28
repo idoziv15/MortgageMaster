@@ -33,6 +33,7 @@ export default function Dashboard(props) {
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
     const [isFirstInvestment, setIsFirstInvestment] = useState(false);
+    const [isConstractorPaymentsValid, setIsConstractorPaymentsValid] = useState(false);
 
     const [insightsData, setInsightsData] = useState({
         "Price per meter": 0,
@@ -134,7 +135,7 @@ export default function Dashboard(props) {
         }
     ]);
     const [otherData, setOtherData] = useState({
-        'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
+        'years_until_key_reception': {value: 0, range: [0, 30], step: 1},
         'contractor_payment_distribution': {value: []},
         'construction_input_index_annual_growth': {value: 4, range: [0, 10], step: 0.1}
     });
@@ -226,9 +227,42 @@ export default function Dashboard(props) {
         return true;
     };
 
+    function validateConstractorPayments() {
+        const paymentList = otherData.contractor_payment_distribution.value;
+        const yearsUntilKeyReception = otherData.years_until_key_reception.value;
+
+        // Check if list size matches years_until_key_reception + 1
+        if (isFirstInvestment && (yearsUntilKeyReception + 1) === paymentList.length) {
+            // Calculate the sum of the payment distribution list
+            const paymentSum = paymentList.reduce((acc, curr) => acc + parseFloat(curr), 0);
+
+            // Check if the sum of the payment list is 1
+            if (paymentSum === 1) {
+                return true;
+            }
+        }
+
+        // Show toast error if either condition fails
+        toast({
+            title: "Invalid contractor payments distribution.",
+            description: `The contractor payments distribution list size should be equal to years until key reception 
+            plus one. Also, the sum of the payments should be 1.`,
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+        });
+        return false;
+    }
+
     const updateBMM = async () => {
         setLoading(true);
-        validateTracksTotalAmount();
+        let isTracksValid = validateTracksTotalAmount();
+        let isCostractorPaymentsValid = isFirstInvestment ? validateConstractorPayments() : true;
+        if (!isTracksValid || !isCostractorPaymentsValid) {
+            setLoading(false);
+            return;
+        }
+
         let dataToUpdate = isFirstInvestment ? {
             investment_data: filterValues(investmentData),
             investor_data: filterValues(investorData),

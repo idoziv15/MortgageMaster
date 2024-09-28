@@ -199,7 +199,7 @@ class BMM(SingleHouseIsraelModel):
         if years_until_key_reception is None:
             years_until_key_reception = self.other_data.get('years_until_key_reception')
         if len(self.other_data['contractor_payment_distribution']) > 0:
-            remain_balance_for_purchase = (1 - (self.investment_data['equity_required_by_percentage'] * int(
+            remain_balance_for_purchase = (1 - (self.equity_required_by_percentage * float(
                 self.other_data['contractor_payment_distribution'][0])) / 100) * self.property_data['purchase_price']
         else:
             remain_balance_for_purchase = 0
@@ -232,7 +232,7 @@ class BMM(SingleHouseIsraelModel):
             default_distribution = self.other_data['contractor_payment_distribution']
 
         # Calculate equity payments
-        equity_payments = [round(equity_for_house_purchase * default_distribution[i]) for i in
+        equity_payments = [round(equity_for_house_purchase * float(default_distribution[i])) for i in
                            range(years_until_key_reception + 1)]
 
         # Add closing costs to the first payment
