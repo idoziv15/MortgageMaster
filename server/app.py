@@ -241,7 +241,7 @@ def calculate_BMM(current_user):
         investor_data = data['investor_data']
         property_data = data['property_data']
         mortgage_data = data['mortgage_data']
-        # print(mortgage_data)
+        # print(investment_data)
         # for t in data['mortgage_data']:
         #     print("This is track:")
         #     print(t)

@@ -23,8 +23,8 @@ class SingleFromConstructorIL(SingleHouseIsraelModel):
                  appraiser_cost: int = 0,
                  lawyer_cost: int = 0,
                  escort_costs: int = 0,
-                 additional_transaction_costs_dic: Union[int, Dict[str, int]] = 0,
-                 renovation_expenses_dic: Union[int, Dict[str, int]] = 0,
+                 additional_transaction_costs: Union[int, Dict[str, int]] = 0,
+                 renovation_expenses: Union[int, Dict[str, int]] = 0,
                  furniture_cost: int = 0,
                  broker_purchase_percentage: float = 0.0,
                  broker_rent_percentage: float = 0.0,
@@ -38,7 +38,7 @@ class SingleFromConstructorIL(SingleHouseIsraelModel):
                  years_until_key_reception: int = 0,
                  contractor_payment_distribution: List[float] = 0,
                  construction_input_index_annual_growth: int = 0
-                ):
+                 ):
 
         super().__init__(
             investors_portfolio, mortgage, real_estate_property,
@@ -48,8 +48,8 @@ class SingleFromConstructorIL(SingleHouseIsraelModel):
             appraiser_cost=appraiser_cost,
             lawyer_cost=lawyer_cost,
             escort_costs=escort_costs,
-            additional_transaction_costs_dic=additional_transaction_costs_dic,
-            renovation_expenses_dic=renovation_expenses_dic,
+            additional_transaction_costs=additional_transaction_costs,
+            renovation_expenses=renovation_expenses,
             furniture_cost=furniture_cost,
             broker_purchase_percentage=broker_purchase_percentage,
             broker_rent_percentage=broker_rent_percentage,
@@ -230,30 +230,30 @@ if __name__ == "__main__":
                                                   interest_only_period=0 * 12))
 
     model = SingleFromConstructorIL(investors_portfolio=investors_portfolio,
-                            mortgage=mortgage,
-                            real_estate_property=property,
-                            years_to_exit=7,
-                            average_interest_in_exit={mortgage.tracks[0].__class__: mortgage.tracks[0].interest_rate},
-                            mortgage_advisor_cost=6000,
-                            appraiser_cost=2000,
-                            lawyer_cost=5600,
-                            escort_costs=0,
-                            additional_transaction_costs_dic=1340,
-                            renovation_expenses_dic=0,
-                            furniture_cost=40_000,
-                            broker_purchase_percentage=0.0,
-                            broker_rent_percentage=0.0,
-                            broker_sell_percentage=0.0,
-                            vacancy_percentage=4 / 100,
-                            annual_maintenance_cost_percentage=4 / 100,
-                            annual_life_insurance_cost=400,
-                            annual_house_insurance_cost=300,
-                            construction_input_index_annual_growth=2,
-                            equity_required_by_percentage=40,
-                            years_until_key_reception=2,
-                            contractor_payment_distribution=[0.5, 0, 0.5],
-                            management_fees_percentage=0
-                            )
+                                    mortgage=mortgage,
+                                    real_estate_property=property,
+                                    years_to_exit=7,
+                                    average_interest_in_exit={mortgage.tracks[0].__class__: mortgage.tracks[0].interest_rate},
+                                    mortgage_advisor_cost=6000,
+                                    appraiser_cost=2000,
+                                    lawyer_cost=5600,
+                                    escort_costs=0,
+                                    additional_transaction_costs=1340,
+                                    renovation_expenses=0,
+                                    furniture_cost=40_000,
+                                    broker_purchase_percentage=0.0,
+                                    broker_rent_percentage=0.0,
+                                    broker_sell_percentage=0.0,
+                                    vacancy_percentage=4 / 100,
+                                    annual_maintenance_cost_percentage=4 / 100,
+                                    annual_life_insurance_cost=400,
+                                    annual_house_insurance_cost=300,
+                                    construction_input_index_annual_growth=2,
+                                    equity_required_by_percentage=40,
+                                    years_until_key_reception=2,
+                                    contractor_payment_distribution=[0.5, 0, 0.5],
+                                    management_fees_percentage=0
+                                    )
     # investors_portfolio.plot_maximum_property_price_vs_total_available_equity()
     print(f"Price per meter: {model.calculate_price_per_meter()}")
     print(f"Loan to cost: {model.calculate_loan_to_cost()}")

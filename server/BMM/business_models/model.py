@@ -70,13 +70,13 @@ class BMM(SingleHouseIsraelModel):
         super().__init__(
             investors_portfolio, mortgage, property,
             years_to_exit=investment_data['years_to_exit'],
-            average_interest_in_exit=investment_data['average_interest_in_exit'],
+            average_interest_in_exit=None,
             mortgage_advisor_cost=investment_data['mortgage_advisor_cost'],
             appraiser_cost=investment_data['appraiser_cost'],
             lawyer_cost=investment_data['lawyer_cost'],
             escort_costs=investment_data['escort_costs'],
-            additional_transaction_costs_dic=investment_data['additional_transaction_costs_dic'],
-            renovation_expenses_dic=investment_data['renovation_expenses_dic'],
+            additional_transaction_costs=investment_data['additional_transaction_costs'],
+            renovation_expenses=investment_data['renovation_expenses'],
             furniture_cost=investment_data['furniture_cost'],
             broker_purchase_percentage=investment_data['broker_purchase_percentage'],
             broker_rent_percentage=investment_data['broker_rent_percentage'],
@@ -85,7 +85,8 @@ class BMM(SingleHouseIsraelModel):
             annual_maintenance_cost_percentage=investment_data['annual_maintenance_cost_percentage'],
             annual_life_insurance_cost=investment_data['annual_life_insurance_cost'],
             annual_house_insurance_cost=investment_data['annual_house_insurance_cost'],
-            equity_required_by_percentage=investment_data['equity_required_by_percentage'],
+            equity_required_by_percentage=self.calculate_equity_percentage(property_data['purchase_price'],
+                                                                           mortgage.total_initial_loan_amount),
             management_fees_percentage=investment_data['management_fees_percentage']
         )
 
@@ -173,6 +174,11 @@ class BMM(SingleHouseIsraelModel):
 
         return result_list
 
+    def calculate_equity_percentage(self, purchase_price, mortgage_amount):
+        if purchase_price == 0:
+            return 0
+        return (purchase_price - mortgage_amount) / purchase_price
+
     def calculate_total_equity_needed_for_purchase(self) -> int:
         """
         Calculate the total equity needed for the property purchase.
@@ -212,7 +218,7 @@ class BMM(SingleHouseIsraelModel):
         """
         # Calculate equity required for house purchase
         equity_for_house_purchase = round(
-            (self.investment_data['equity_required_by_percentage'] / 100) * self.property_data['purchase_price']
+            (self.equity_required_by_percentage / 100) * self.property_data['purchase_price']
         )
 
         # Check if contractor_payment_distribution has enough elements
@@ -271,7 +277,7 @@ class BMM(SingleHouseIsraelModel):
                 self.calculate_selling_expenses() +
                 self.mortgage.calculate_total_cost_of_borrowing(
                     self.investment_data['years_to_exit'] - self.other_data['years_until_key_reception'],
-                    self.investment_data['average_interest_in_exit']) +
+                    self.average_interest_in_exit) +
                 self.calculate_capital_gain_tax() +
                 self.calculate_mortgage_remain_balance_in_exit())
 
@@ -330,13 +336,12 @@ class BMM(SingleHouseIsraelModel):
             )
         ]
 
-        if self.investment_data['average_interest_in_exit'] == 0:
+        if self.average_interest_in_exit and self.average_interest_in_exit != 0:
             mortgage_early_repayment_fee = self.mortgage.calculate_early_payment_fee(
-                12 * self.investment_data['years_to_exit'])
+                12 * self.investment_data['years_to_exit'], self.average_interest_in_exit)
         else:
             mortgage_early_repayment_fee = self.mortgage.calculate_early_payment_fee(
-                12 * self.investment_data['years_to_exit'],
-                self.investment_data['average_interest_in_exit'])
+                12 * self.investment_data['years_to_exit'])
 
         # capital_gain_tax = self.calculate_capital_gain_tax()
         # selling_expenses = self.calculate_selling_expenses()

@@ -32,6 +32,7 @@ export default function Dashboard(props) {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
+    const [isFirstInvestment, setIsFirstInvestment] = useState(false);
 
     const [insightsData, setInsightsData] = useState({
         "Price per meter": 0,
@@ -84,20 +85,18 @@ export default function Dashboard(props) {
         'lawyer_cost': {value: 0, range: [0, 1000000], step: 10000},
         'escort_costs': {value: 0, range: [0, 1000000], step: 100000},
         'mortgage_advisor_cost': {value: 0, range: [0, 100000], step: 10000},
-        'additional_transaction_costs_dic': {tax: null, fee: null},
-        'renovation_expenses_dic': {painting: null, flooring: null},
+        'additional_transaction_costs': {value: 0, range: [0, 1000000], step: 1000},
+        'renovation_expenses': {value: 0, range: [0, 1000000], step: 1000},
         'furniture_cost': {value: 0, range: [0, 500000], step: 1000},
-        'broker_purchase_percentage': {value: 0, range: [0, 50], step: 1},
-        'broker_rent_percentage': {value: 0, range: [0, 50], step: 1},
-        'broker_sell_percentage': {value: 0, range: [0, 50], step: 1},
-        'vacancy_percentage': {value: 0.1, range: [0, 1], step: 0.01},
-        'annual_maintenance_cost_percentage': {value: 0, range: [0, 25], step: 0.1},
-        'annual_life_insurance_cost': {value: 0, range: [0, 1000000], step: 1000},
-        'annual_house_insurance_cost': {value: 0, range: [0, 1000000], step: 1000},
-        'equity_required_by_percentage': {value: 0, range: [0, 100], step: 1},
-        'management_fees_percentage': {value: 0, range: [0, 20], step: 0.1},
-        'years_to_exit': {value: 0, range: [0, 80], step: 5},
-        'average_interest_in_exit': {value: 0, range: [0, 20], step: 0.1}
+        'broker_purchase_percentage': {value: 0, range: [0, 10], step: 1},
+        'broker_rent_percentage': {value: 0, range: [0, 20], step: 1},
+        'broker_sell_percentage': {value: 0, range: [0, 10], step: 1},
+        'vacancy_percentage': {value: 5, range: [0, 100], step: 1},
+        'annual_maintenance_cost_percentage': {value: 5, range: [0, 100], step: 1},
+        'annual_life_insurance_cost': {value: 0, range: [0, 50000], step: 1000},
+        'annual_house_insurance_cost': {value: 0, range: [0, 50000], step: 1000},
+        'management_fees_percentage': {value: 0, range: [0, 20], step: 0.5},
+        'years_to_exit': {value: 0, range: [0, 30], step: 5}
     });
     const [investorData, setInvestorData] = useState({
         'net_monthly_income': {value: 0, range: [0, 100000], step: 1000},
@@ -137,7 +136,7 @@ export default function Dashboard(props) {
     const [otherData, setOtherData] = useState({
         'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
         'contractor_payment_distribution': {value: []},
-        'construction_input_index_annual_growth': {value: 0, range: [0, 10], step: 0.1}
+        'construction_input_index_annual_growth': {value: 4, range: [0, 10], step: 0.1}
     });
 
     const addMortgageTrack = () => {
@@ -230,12 +229,22 @@ export default function Dashboard(props) {
     const updateBMM = async () => {
         setLoading(true);
         validateTracksTotalAmount();
-        let dataToUpdate = {
+        let dataToUpdate = isFirstInvestment ? {
             investment_data: filterValues(investmentData),
             investor_data: filterValues(investorData),
             property_data: filterValues(propertyData),
             mortgage_data: mortgageTracks.map(track => filterValues(track.data)),
             other_data: filterValues(otherData)
+        } : {
+            investment_data: filterValues(investmentData),
+            investor_data: filterValues(investorData),
+            property_data: filterValues(propertyData),
+            mortgage_data: mortgageTracks.map(track => filterValues(track.data)),
+            other_data: filterValues({
+                'years_until_key_reception': {value: 0, range: [0, 50], step: 1},
+                'contractor_payment_distribution': {value: []},
+                'construction_input_index_annual_growth': {value: 0, range: [0, 10], step: 0.1}
+            })
         };
 
         try {
@@ -356,20 +365,18 @@ export default function Dashboard(props) {
             'lawyer_cost': {value: 0, range: [0, 1000000], step: 10000},
             'escort_costs': {value: 0, range: [0, 1000000], step: 100000},
             'mortgage_advisor_cost': {value: 0, range: [0, 100000], step: 10000},
-            'additional_transaction_costs_dic': {tax: {value: null}, fee: {value: null}},
-            'renovation_expenses_dic': {painting: {value: null}, flooring: {value: null}},
+            'additional_transaction_costs': {value: 0, range: [0, 1000000], step: 1000},
+            'renovation_expenses': {value: 0, range: [0, 1000000], step: 1000},
             'furniture_cost': {value: 0, range: [0, 500000], step: 1000},
-            'broker_purchase_percentage': {value: 0, range: [0, 50], step: 1},
-            'broker_rent_percentage': {value: 0, range: [0, 50], step: 1},
-            'broker_sell_percentage': {value: 0, range: [0, 50], step: 1},
-            'vacancy_percentage': {value: 0.1, range: [0, 1], step: 0.01},
-            'annual_maintenance_cost_percentage': {value: 0, range: [0, 25], step: 0.1},
-            'annual_life_insurance_cost': {value: 0, range: [0, 1000000], step: 1000},
-            'annual_house_insurance_cost': {value: 0, range: [0, 1000000], step: 1000},
-            'equity_required_by_percentage': {value: 0, range: [0, 100], step: 1},
-            'management_fees_percentage': {value: 0, range: [0, 20], step: 0.1},
-            'years_to_exit': {value: 0, range: [0, 80], step: 5},
-            'average_interest_in_exit': {value: 0, range: [0, 20], step: 0.1}
+            'broker_purchase_percentage': {value: 0, range: [0, 10], step: 1},
+            'broker_rent_percentage': {value: 0, range: [0, 20], step: 1},
+            'broker_sell_percentage': {value: 0, range: [0, 10], step: 1},
+            'vacancy_percentage': {value: 5, range: [0, 100], step: 1},
+            'annual_maintenance_cost_percentage': {value: 5, range: [0, 100], step: 1},
+            'annual_life_insurance_cost': {value: 0, range: [0, 50000], step: 1000},
+            'annual_house_insurance_cost': {value: 0, range: [0, 50000], step: 1000},
+            'management_fees_percentage': {value: 0, range: [0, 20], step: 0.5},
+            'years_to_exit': {value: 0, range: [0, 30], step: 5}
         });
 
         setInvestorData({
@@ -670,9 +677,17 @@ export default function Dashboard(props) {
                                 {/* Right Side */}
                                 <Box flex='1'>
                                     <InvestmentTable data={investmentData} tableName={'Investment Details'}
-                                                     setData={setInvestmentData}/>
-                                    <AdditionalTable data={otherData} tableName={'Additional Details'}
-                                                     setData={setOtherData}/>
+                                                     setData={setInvestmentData} propertyData={propertyData}
+                                                     isFirstInvestment={isFirstInvestment}
+                                                     setIsFirstInvestment={setIsFirstInvestment}/>
+                                    {isFirstInvestment && (
+                                        <AdditionalTable
+                                            data={otherData}
+                                            tableName={'Additional Details'}
+                                            setData={setOtherData}
+                                            investmentData={investmentData}
+                                        />
+                                    )}
                                 </Box>
                             </Flex>
                             <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'

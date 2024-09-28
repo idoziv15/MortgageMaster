@@ -27,8 +27,8 @@ class SingleHouseModel(ABC):
                  appraiser_cost: int = 0,
                  lawyer_cost: int = 0,
                  escort_costs: int = 0,
-                 additional_transaction_costs_dic: Union[int, Dict[str, int]] = 0,
-                 renovation_expenses_dic: Union[int, Dict[str, int]] = 0,
+                 additional_transaction_costs: Union[int, Dict[str, int]] = 0,
+                 renovation_expenses: Union[int, Dict[str, int]] = 0,
                  furniture_cost: int = 0,
                  broker_purchase_percentage: float = 0.0,
                  broker_rent_percentage: float = 0.0,
@@ -61,8 +61,8 @@ class SingleHouseModel(ABC):
         self.annual_house_insurance_cost = annual_house_insurance_cost
         self.equity_required_by_percentage = equity_required_by_percentage
         self.furniture_cost = furniture_cost
-        self.additional_transaction_costs_dic = additional_transaction_costs_dic
-        self.renovation_expenses = renovation_expenses_dic
+        self.additional_transaction_costs_dic = additional_transaction_costs
+        self.renovation_expenses = renovation_expenses
         self.management_fees_percentage = management_fees_percentage
 
     def validate_parameters(self):
