@@ -129,6 +129,7 @@ export default function Dashboard(props) {
                 'linked_index': [],
                 'forecasting_interest_rate': [],
                 'interest_changing_period': 0,
+                'average_interest_when_taken': null,
                 'mortgage_type': 'constant_not_linked'
             }
         }
@@ -153,9 +154,10 @@ export default function Dashboard(props) {
         const newTrack = {
             id: Date.now(),
             data: {
-                'mortgage_advisor_cost': 0,
+                // 'mortgage_advisor_cost': 0,
                 'interest_rate': 3.5,
-                'num_payments': 0,
+                // 'num_payments': 0,
+                'mortgage_duration': 0,
                 'initial_loan_amount': 0,
                 'interest_only_period': 0,
                 'linked_index': [],
@@ -201,8 +203,33 @@ export default function Dashboard(props) {
         }, {});
     };
 
-    const updateBMM = async (newData) => {
+    const validateTracksTotalAmount = () => {
+        const maxLoanAmount = 0.75 * propertyData.purchase_price.value;
+        // Calculate the total initial loan amount from all tracks
+        const totalLoanAmount = mortgageTracks.reduce((sum, track) => {
+            return sum + (track.data.initial_loan_amount || 0);
+        }, 0);
+
+        // Check if the total loan amount exceeds 75% of the purchase price
+        if (totalLoanAmount > maxLoanAmount) {
+            // Show toast error
+            toast({
+                title: "Loan Amount Exceeded",
+                description: `The total loan amount exceeds 75% of the property purchase price.`,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+
+            return false;
+        }
+
+        return true;
+    };
+
+    const updateBMM = async () => {
         setLoading(true);
+        validateTracksTotalAmount();
         let dataToUpdate = {
             investment_data: filterValues(investmentData),
             investor_data: filterValues(investorData),
@@ -377,6 +404,7 @@ export default function Dashboard(props) {
                     'linked_index': [],
                     'forecasting_interest_rate': [],
                     'interest_changing_period': 0,
+                    'average_interest_when_taken': null,
                     'mortgage_type': 'constant_not_linked'
                 }
             }

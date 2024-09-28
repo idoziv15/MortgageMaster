@@ -38,45 +38,45 @@ export default function MortgageTable({tableName, tracks, addTrack, setTracks, a
         constant_not_linked: [
             {label: 'Interest Rate', key: 'interest_rate', range: [0, 10], step: 0.1},
             {label: 'Mortgage Duration (years)', key: 'mortgage_duration', range: [0, 30], step: 1},
-            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 100000},
-            {label: 'Interest Only Period', key: 'interest_only_period', range: [0, 24], step: 1}
+            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 10000},
+            {label: 'Interest Only Period (Months)', key: 'interest_only_period', range: [0, 240], step: 1}
         ],
         constant_linked: [
             {label: 'Interest Rate', key: 'interest_rate', range: [0, 10], step: 0.1},
             {label: 'Mortgage Duration (years)', key: 'mortgage_duration', range: [0, 30], step: 1},
-            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 100000},
+            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 10000},
             {label: 'Linked Index', key: 'linked_index', isList: true, optional: true},
-            {label: 'Interest Only Period', key: 'interest_only_period', range: [0, 24], step: 1}
+            {label: 'Interest Only Period (Months)', key: 'interest_only_period', range: [0, 240], step: 1}
         ],
         change_linked: [
             {label: 'Interest Rate', key: 'interest_rate', range: [0, 10], step: 0.1},
             {label: 'Mortgage Duration (years)', key: 'mortgage_duration', range: [0, 30], step: 1},
-            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 100000},
+            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 10000},
             {label: 'Linked Index', key: 'linked_index', isList: true, optional: true},
             {label: 'Forecasting Interest Rate', key: 'forecasting_interest_rate', isList: true, optional: true},
             {label: 'Interest Changing Period', key: 'interest_changing_period', range: [0, 30], step: 1},
-            {label: 'Interest Only Period', key: 'interest_only_period', range: [0, 24], step: 1}
+            {label: 'Interest Only Period (Months)', key: 'interest_only_period', range: [0, 240], step: 1}
         ],
         change_not_linked: [
             {label: 'Interest Rate', key: 'interest_rate', range: [0, 10], step: 0.1},
             {label: 'Mortgage Duration (years)', key: 'mortgage_duration', range: [0, 30], step: 1},
-            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 100000},
+            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 10000},
             {label: 'Forecasting Interest Rate', key: 'forecasting_interest_rate', isList: true, optional: true},
             {label: 'Interest Changing Period', key: 'interest_changing_period', range: [0, 30], step: 1},
-            {label: 'Interest Only Period', key: 'interest_only_period', range: [0, 24], step: 1}
+            {label: 'Interest Only Period (Months)', key: 'interest_only_period', range: [0, 240], step: 1}
         ],
         eligibility: [
             {label: 'Interest Rate', key: 'interest_rate', range: [0, 10], step: 0.1},
             {label: 'Mortgage Duration (years)', key: 'mortgage_duration', range: [0, 30], step: 1},
-            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 100000},
+            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 10000},
             {label: 'Linked Index', key: 'linked_index', isList: true, optional: true},
         ],
         prime: [
             {label: 'Interest Rate', key: 'interest_rate', range: [0, 10], step: 0.1},
             {label: 'Mortgage Duration (years)', key: 'mortgage_duration', range: [0, 30], step: 1},
-            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 100000},
+            {label: 'Initial Loan Amount', key: 'initial_loan_amount', range: [0, maxInitialLoanAmount], step: 10000},
             {label: 'Forecasting Interest Rate', key: 'forecasting_interest_rate', isList: true, optional: true},
-            {label: 'Interest Only Period', key: 'interest_only_period', range: [0, 24], step: 1}
+            {label: 'Interest Only Period (Months)', key: 'interest_only_period', range: [0, 240], step: 1}
         ]
     };
 
@@ -115,6 +115,13 @@ export default function MortgageTable({tableName, tracks, addTrack, setTracks, a
         if (key === 'forecasting_interest_rate' && Array.isArray(value)) {
             if (value.length !== maxPeriod) {
                 errors.push(`Forecasting interest rate should have ${maxPeriod} entries.`);
+            }
+        }
+
+        // 5. Validate interest changing period
+        if (key === 'interest_changing_period' && track.data.interest_changing_period) {
+            if (value > maxPeriod) {
+                errors.push(`Interest-only changing cannot exceed ${maxPeriod} months.`);
             }
         }
 
@@ -205,7 +212,7 @@ export default function MortgageTable({tableName, tracks, addTrack, setTracks, a
                             ...track,
                             data: {
                                 ...track.data,
-                                [key]: key === 'mortgage_duration' ? value * 12 : value
+                                [key]: value
                             }
                         };
                     } else {

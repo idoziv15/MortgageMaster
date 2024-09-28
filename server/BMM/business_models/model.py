@@ -22,8 +22,8 @@ def get_real_estate_investment_type(real_estate_investment_type: str) -> RealEst
         final_type = None
         if real_estate_investment_type == 'single apartment':
             final_type = 'SingleApartment'
-        elif real_estate_investment_type == 'single apartment':
-            final_type = 'alternative apartment'
+        elif real_estate_investment_type == 'alternative apartment':
+            final_type = 'AlternativeApartment'
         elif real_estate_investment_type == 'additional apartment':
             final_type = 'AdditionalApartment'
         return RealEstateInvestmentType[final_type]
@@ -64,7 +64,7 @@ class BMM(SingleHouseIsraelModel):
             after_repair_value=property_data['after_repair_value'],
             annual_appreciation_percentage=property_data['annual_appreciation_percentage']
         )
-        print(type(mortgage_data))
+
         mortgage = MortgagePipeline(self.initialize_mortgages(mortgage_data))
 
         super().__init__(
@@ -105,7 +105,7 @@ class BMM(SingleHouseIsraelModel):
                 result_list.append(
                     ConstantNotLinked(
                         interest_rate=mortgage_data['interest_rate'],
-                        num_payments=mortgage_data['mortgage_duration'],
+                        num_payments=mortgage_data['mortgage_duration'] * 12,
                         initial_loan_amount=mortgage_data['initial_loan_amount'],
                         average_interest_when_taken=mortgage_data['interest_rate'],
                         interest_only_period=mortgage_data['interest_only_period']
@@ -115,7 +115,7 @@ class BMM(SingleHouseIsraelModel):
                 result_list.append(
                     ConstantLinked(
                         interest_rate=mortgage_data['interest_rate'],
-                        num_payments=mortgage_data['mortgage_duration'],
+                        num_payments=mortgage_data['mortgage_duration'] * 12,
                         initial_loan_amount=mortgage_data['initial_loan_amount'],
                         linked_index=mortgage_data['linked_index'],
                         average_interest_when_taken=mortgage_data['interest_rate'],
@@ -126,7 +126,7 @@ class BMM(SingleHouseIsraelModel):
                 result_list.append(
                     ChangeNotLinked(
                         interest_rate=mortgage_data['interest_rate'],
-                        num_payments=mortgage_data['mortgage_duration'],
+                        num_payments=mortgage_data['mortgage_duration'] * 12,
                         initial_loan_amount=mortgage_data['initial_loan_amount'],
                         forecasting_interest_rate=mortgage_data['forecasting_interest_rate'],
                         interest_changing_period=mortgage_data['interest_changing_period'],
@@ -138,7 +138,7 @@ class BMM(SingleHouseIsraelModel):
                 result_list.append(
                     ChangeLinked(
                         interest_rate=mortgage_data['interest_rate'],
-                        num_payments=mortgage_data['mortgage_duration'],
+                        num_payments=mortgage_data['mortgage_duration'] * 12,
                         initial_loan_amount=mortgage_data['initial_loan_amount'],
                         linked_index=mortgage_data['linked_index'],
                         forecasting_interest_rate=mortgage_data['forecasting_interest_rate'],
@@ -151,7 +151,7 @@ class BMM(SingleHouseIsraelModel):
                 result_list.append(
                     Eligibility(
                         interest_rate=mortgage_data['interest_rate'],
-                        num_payments=mortgage_data['mortgage_duration'],
+                        num_payments=mortgage_data['mortgage_duration'] * 12,
                         initial_loan_amount=mortgage_data['initial_loan_amount'],
                         linked_index=mortgage_data['linked_index'],
                         average_interest_when_taken=mortgage_data['interest_rate']
@@ -161,7 +161,7 @@ class BMM(SingleHouseIsraelModel):
                 result_list.append(
                     Prime(
                         interest_rate=mortgage_data['interest_rate'],
-                        num_payments=mortgage_data['mortgage_duration'],
+                        num_payments=mortgage_data['mortgage_duration'] * 12,
                         initial_loan_amount=mortgage_data['initial_loan_amount'],
                         forecasting_interest_rate=mortgage_data['forecasting_interest_rate'],
                         average_interest_when_taken=mortgage_data['interest_rate'],

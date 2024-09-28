@@ -41,7 +41,7 @@ class MortgagePipeline:
         - calculate_num_payments(): Calculate the maximum number of payments among all mortgage tracks.
     """
 
-    def __init__(self, *mortgage_tracks: list):
+    def __init__(self, mortgage_tracks: list):
         """
         Initialize an instance of YourClassName with a variable number of MortgageTrack objects.
 
@@ -292,9 +292,19 @@ class MortgagePipeline:
             average_interest_in_early_payment = {track.__class__: track.interest_rate for track in self.tracks}
 
         # TODO : test this
-        full_early_payment_fee = sum(
-            track.calculate_early_payment_fee(num_of_months, average_interest_in_early_payment) for
-            track in self.tracks)
+
+        full_early_payment_fee = 0
+        for track in self.tracks:
+            if isinstance(average_interest_in_early_payment, dict):
+                interest_rate = average_interest_in_early_payment.get(track.__class__, track.interest_rate)
+            else:
+                interest_rate = average_interest_in_early_payment
+            # Calculate the early payment fee for the track
+            full_early_payment_fee += track.calculate_early_payment_fee(num_of_months, interest_rate)
+
+        # full_early_payment_fee = sum(
+        #     track.calculate_early_payment_fee(num_of_months, average_interest_in_early_payment) for
+        #     track in self.tracks)
         # TODO: change back to this code when more mortgages will be given and not only one
         # full_early_payment_fee = sum(
         #     track.calculate_early_payment_fee(num_of_months, average_interest_in_early_payment[track.__class__]) for
