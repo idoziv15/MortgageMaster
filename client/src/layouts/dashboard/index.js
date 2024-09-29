@@ -33,7 +33,6 @@ export default function Dashboard(props) {
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
     const [isFirstInvestment, setIsFirstInvestment] = useState(false);
-    const [isConstractorPaymentsValid, setIsConstractorPaymentsValid] = useState(false);
 
     const [insightsData, setInsightsData] = useState({
         "Price per meter": 0,

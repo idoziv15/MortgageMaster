@@ -13,8 +13,20 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem, Tooltip
+    GridItem, Tooltip, InputRightElement, Icon, InputGroup
 } from '@chakra-ui/react';
+import {MdCalendarToday, MdPayments, MdTrendingUp} from 'react-icons/md';
+
+const otherIconMapping = {
+    'years_until_key_reception': MdCalendarToday,
+    'contractor_payment_distribution': MdPayments,
+    'construction_input_index_annual_growth': MdTrendingUp
+};
+const tooltipMap = {
+    'years_until_key_reception': "The estimated number of years until the property keys are received.",
+    'contractor_payment_distribution': "The distribution of payments made to contractors throughout the project.",
+    'construction_input_index_annual_growth': "The projected annual growth rate of construction input indices affecting project costs."
+};
 
 export default function AdditionalTable({tableName, data, setData, investmentData}) {
     const [yearsToExit, setYearsToExit] = useState(investmentData.years_to_exit.value);
@@ -77,11 +89,16 @@ export default function AdditionalTable({tableName, data, setData, investmentDat
                             const isOptional = false;
                             const label = key.replace(/_/g, ' ');
                             const maxLimit = key === 'years_until_key_reception' ? yearsToExit : (range ? range[1] : 30);
+                            const IconComponent = otherIconMapping[key];
+                            const tooltipText = tooltipMap[key];
 
                             return (
                                 <Grid templateColumns="repeat(3, 1fr)" gap={4} alignItems="center" key={key}>
                                     <GridItem>
-                                        <FormLabel m={0} fontSize="sm">{label} {isOptional && '(Optional)'}</FormLabel>
+                                        <Tooltip label={tooltipText} fontSize="md" placement='right-start' hasArrow>
+                                            <FormLabel m={0}
+                                                       fontSize="sm">{label} {isOptional && '(Optional)'}</FormLabel>
+                                        </Tooltip>
                                     </GridItem>
                                     {isList ? (
                                         <GridItem colSpan={2}>
@@ -105,17 +122,24 @@ export default function AdditionalTable({tableName, data, setData, investmentDat
                                                     label="Has to be lower or equal to years to exit"
                                                     placement="top"
                                                 >
-                                                    <Input
-                                                        size="sm"
-                                                        type="number"
-                                                        bg="gray.100"
-                                                        width="90%"
-                                                        p={1}
-                                                        my={0.5}
-                                                        value={value !== null ? value : 0}
-                                                        onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
-                                                        max={maxLimit}
-                                                    />
+                                                    <InputGroup>
+                                                        <Input
+                                                            size="sm"
+                                                            type="number"
+                                                            bg="gray.100"
+                                                            width="90%"
+                                                            p={1}
+                                                            my={0.5}
+                                                            value={value !== null ? value : 0}
+                                                            onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
+                                                            max={maxLimit}
+                                                        />
+                                                        {IconComponent && (
+                                                            <InputRightElement pointerEvents="none" pl="1rem">
+                                                                <Icon as={IconComponent} color="gray.500"/>
+                                                            </InputRightElement>
+                                                        )}
+                                                    </InputGroup>
                                                 </Tooltip>
                                             </GridItem>
                                             <GridItem>
@@ -135,14 +159,14 @@ export default function AdditionalTable({tableName, data, setData, investmentDat
                                                 </Slider>
                                             </GridItem>
                                         </>
-                                        )}
+                                    )}
                                 </Grid>
                             );
                         })}
-                        </CardBody>
-                        </Card>
-                        </Box>
-                        </ChakraProvider>
-                        )
-                            ;
-                        }
+                    </CardBody>
+                </Card>
+            </Box>
+        </ChakraProvider>
+    )
+        ;
+}

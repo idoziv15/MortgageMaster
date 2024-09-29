@@ -9,9 +9,9 @@ import {
     FormLabel,
     Grid,
     GridItem,
-    Heading,
+    Heading, Icon,
     IconButton,
-    Input,
+    Input, InputGroup, InputRightElement,
     Menu,
     MenuButton,
     MenuItem,
@@ -25,10 +25,43 @@ import {
     TabPanel,
     TabPanels,
     Tabs,
-    Text,
+    Text, Tooltip,
     useToast
 } from '@chakra-ui/react';
 import {AddIcon, ChevronDownIcon} from '@chakra-ui/icons';
+import {
+    MdPercent,
+    MdAccessTime,
+    MdAttachMoney,
+    MdTimelapse,
+    MdShowChart,
+    MdChangeCircle,
+    MdOutlineInsertChart,
+    MdTrendingFlat
+} from 'react-icons/md';
+
+const iconMapping = {
+    'interest_rate': MdPercent,
+    'mortgage_duration': MdAccessTime,
+    'initial_loan_amount': MdAttachMoney,
+    'interest_only_period': MdTimelapse,
+    'linked_index': MdShowChart,
+    'forecasting_interest_rate': MdChangeCircle,
+    'interest_changing_period': MdAccessTime,
+    'average_interest_when_taken': MdOutlineInsertChart,
+    'mortgage_type': MdTrendingFlat
+};
+
+const tooltipMap = {
+    'interest_rate': "The interest rate applied to this mortgage track loan.",
+    'mortgage_duration': "The duration of the mortgage in years.",
+    'initial_loan_amount': "The total amount you are borrowing for this mortgage track.",
+    'interest_only_period': "The period during which you only pay the interest on the loan, not the principal. Aka Grace mortgage",
+    'linked_index': "The financial index to which the interest rate is linked, affecting rate adjustments.",
+    'forecasting_interest_rate': "The anticipated interest rate for future periods based on market trends.",
+    'interest_changing_period': "The intervals at which the interest rate may change (e.g., annually, semi-annually).",
+    'mortgage_type': "The type of mortgage selected (Constant Not Linked, Constant Linked, Change Not Linked, Change Linked, Eligibility or Prime."
+};
 
 export default function MortgageTable({tableName, tracks, addTrack, setTracks, activeTab, setActiveTab, propertyData}) {
     const toast = useToast();
@@ -79,6 +112,7 @@ export default function MortgageTable({tableName, tracks, addTrack, setTracks, a
             {label: 'Interest Only Period (Months)', key: 'interest_only_period', range: [0, 240], step: 1}
         ]
     };
+    const prerequisites = ['interest_only_period', 'interest_changing_period', 'forecasting_interest_rate', 'linked_index'];
 
     useEffect(() => {
         setPurchasePrice(propertyData.purchase_price.value);
@@ -262,64 +296,80 @@ export default function MortgageTable({tableName, tracks, addTrack, setTracks, a
 
     const renderFields = (track) => {
         const mortgageType = track.data.mortgage_type || 'constant_not_linked';
-        return mortgageTypes[mortgageType].map(({label, key, isList, optional, range, step}) => (
-            <Grid templateColumns="repeat(3, 1fr)" gap={4} alignItems="center" key={key}>
-                <GridItem>
-                    <FormLabel m={0} fontSize="sm">{label} {optional && '(Optional)'}</FormLabel>
-                </GridItem>
-                {isList ? (
-                    <GridItem colSpan={2}>
-                        <Input
-                            size="sm"
-                            type="text"
-                            bg="gray.100"
-                            width="100%"
-                            p={1}
-                            my={0.5}
-                            value={Array.isArray(track.data[key]) ? track.data[key].join(', ') : track.data[key] || ''}
-                            placeholder="Enter values separated with a comma"
-                            onChange={(e) => handleInputListChange(track.id, key, e.target.value)}
-                            onBlur={() => handleListInputBlur(track.id, key)}
-                        />
+        return mortgageTypes[mortgageType].map(({label, key, isList, optional, range, step}) => {
+            const IconComponent = iconMapping[key];
+            const tooltipText = tooltipMap[key];
+
+            return (
+                <Grid templateColumns="repeat(3, 1fr)" gap={4} alignItems="center" key={key}>
+                    <GridItem>
+                        <Tooltip label={tooltipText} fontSize="md" placement='left-start' hasArrow>
+                            <FormLabel m={0} fontSize="sm">
+                                {label} {optional && '(Optional)'}
+                            </FormLabel>
+                        </Tooltip>
                     </GridItem>
-                ) : (
-                    <>
-                        <GridItem>
+                    {isList ? (
+                        <GridItem colSpan={2}>
                             <Input
                                 size="sm"
-                                type="number"
+                                type="text"
                                 bg="gray.100"
-                                width="90%"
+                                width="100%"
                                 p={1}
                                 my={0.5}
-                                value={track.data[key] !== null ? track.data[key] : 0}
-                                isDisabled={
-                                    (key === 'initial_loan_amount' && purchasePrice === 0) ||
-                                    (key in ['interest_only_period', 'interest_changing_period', 'forecasting_interest_rate', 'linked_index'] && track.data['mortgage_duration'] === 0)
-                                }
-                                onChange={(e) => handleSliderChange(track.id, key, parseFloat(e.target.value))}
+                                value={Array.isArray(track.data[key]) ? track.data[key].join(', ') : track.data[key] || ''}
+                                placeholder="Enter values separated with a comma"
+                                onChange={(e) => handleInputListChange(track.id, key, e.target.value)}
+                                onBlur={() => handleListInputBlur(track.id, key)}
                             />
                         </GridItem>
-                        <GridItem>
-                            <Slider
-                                value={track.data[key] !== null ? track.data[key] : 0}
-                                onChange={(value) => handleSliderChange(track.id, key, value)}
-                                min={range ? range[0] : 0}
-                                max={range ? range[1] : 100}
-                                step={step || 0.1}
-                                size="sm"
-                                width="90%"
-                            >
-                                <SliderTrack>
-                                    <SliderFilledTrack bg="teal.500"/>
-                                </SliderTrack>
-                                <SliderThumb bg="teal.500"/>
-                            </Slider>
-                        </GridItem>
-                    </>
-                )}
-            </Grid>
-        ));
+                    ) : (
+                        <>
+                            <GridItem>
+                                <InputGroup>
+                                    <Input
+                                        size="sm"
+                                        type="number"
+                                        bg="gray.100"
+                                        width="90%"
+                                        p={1}
+                                        my={0.5}
+                                        value={track.data[key] !== null ? track.data[key] : 0}
+                                        isDisabled={
+                                            (key === 'initial_loan_amount' && purchasePrice === 0) ||
+                                            (prerequisites.includes(key) && track.data['mortgage_duration'] === 0)
+                                        }
+                                        onChange={(e) => handleSliderChange(track.id, key, parseFloat(e.target.value))}
+                                    />
+                                    {IconComponent &&
+                                        <InputRightElement pointerEvents="none" pl="1rem">
+                                            <Icon as={IconComponent} color="gray.500"/>
+                                        </InputRightElement>
+                                    }
+                                </InputGroup>
+                            </GridItem>
+                            <GridItem>
+                                <Slider
+                                    value={track.data[key] !== null ? track.data[key] : 0}
+                                    onChange={(value) => handleSliderChange(track.id, key, value)}
+                                    min={range ? range[0] : 0}
+                                    max={range ? range[1] : 100}
+                                    step={step || 0.1}
+                                    size="sm"
+                                    width="90%"
+                                >
+                                    <SliderTrack>
+                                        <SliderFilledTrack bg="teal.500"/>
+                                    </SliderTrack>
+                                    <SliderThumb bg="teal.500"/>
+                                </Slider>
+                            </GridItem>
+                        </>
+                    )}
+                </Grid>
+            )
+        })
     };
 
     return (

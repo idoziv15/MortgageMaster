@@ -13,8 +13,40 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem, Switch, Select, useToast
+    GridItem, Switch, Select, useToast, Icon, InputGroup, InputRightElement, Tooltip
 } from '@chakra-ui/react';
+import {
+    MdAttachMoney,
+    MdBalcony,
+    MdLocalParking,
+    MdPercent,
+    MdRealEstateAgent,
+    MdWarehouse
+} from "react-icons/md";
+import {TbRulerMeasure} from "react-icons/tb";
+
+const iconMapping = {
+    'purchase_price': MdAttachMoney,
+    'monthly_rent_income': MdAttachMoney,
+    'real_estate_investment_type': MdRealEstateAgent,
+    'square_meters': TbRulerMeasure,
+    'warehouse': MdWarehouse,
+    'parking_spots': MdLocalParking,
+    'balcony_square_meter': MdBalcony,
+    'after_repair_value': MdAttachMoney,
+    'annual_appreciation_percentage': MdPercent
+};
+const tooltipMap = {
+    'purchase_price': "The total price for purchasing the property.",
+    'monthly_rent_income': "The expected monthly rental income from the property.",
+    'real_estate_investment_type': "The type of real estate investment (e.g., single apartment, multi-family, etc.).",
+    'square_meters': "The total area of the property measured in square meters.",
+    'parking_spots': "The number of parking spots available with the property.",
+    'warehouse': "Indicates whether the property includes a warehouse (true/false).",
+    'balcony_square_meter': "The area of the balcony measured in square meters.",
+    'after_repair_value': "The estimated market value of the property after repairs and renovations.",
+    'annual_appreciation_percentage': "The projected percentage increase in property value each year."
+};
 
 export default function PropertyTable({tableName, data, setData}) {
     const toast = useToast();
@@ -84,11 +116,16 @@ export default function PropertyTable({tableName, data, setData}) {
                             const isBoolean = typeof value === 'boolean';
                             const isOptional = false;
                             const label = key.replace(/_/g, ' ');
+                            const IconComponent = iconMapping[key];
+                            const tooltipText = tooltipMap[key];
 
                             return (
                                 <Grid templateColumns="repeat(3, 1fr)" gap={4} alignItems="center" key={key}>
                                     <GridItem>
-                                        <FormLabel m={0} fontSize="sm">{label} {isOptional && '(Optional)'}</FormLabel>
+                                        <Tooltip label={tooltipText} fontSize="md" placement='right-start' hasArrow>
+                                            <FormLabel m={0}
+                                                       fontSize="sm">{label} {isOptional && '(Optional)'}</FormLabel>
+                                        </Tooltip>
                                     </GridItem>
                                     {isString ? (
                                         <GridItem colSpan={2}>
@@ -112,16 +149,23 @@ export default function PropertyTable({tableName, data, setData}) {
                                     ) : (
                                         <>
                                             <GridItem>
-                                                <Input
-                                                    size="sm"
-                                                    type="number"
-                                                    bg="gray.100"
-                                                    width="90%"
-                                                    p={1}
-                                                    my={0.5}
-                                                    value={value !== null ? value : 0}
-                                                    onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
-                                                />
+                                                <InputGroup>
+                                                    <Input
+                                                        size="sm"
+                                                        type="number"
+                                                        bg="gray.100"
+                                                        width="90%"
+                                                        p={1}
+                                                        my={0.5}
+                                                        value={value !== null ? value : 0}
+                                                        onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
+                                                    />
+                                                    {IconComponent &&
+                                                        <InputRightElement pointerEvents="none" pl="1rem">
+                                                            <Icon as={IconComponent} color="gray.500"/>
+                                                        </InputRightElement>
+                                                    }
+                                                </InputGroup>
                                             </GridItem>
                                             <GridItem>
                                                 <Slider
