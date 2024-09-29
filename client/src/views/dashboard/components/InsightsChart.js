@@ -72,8 +72,6 @@ export default function InsightsChart(props) {
         return sum !== 0 ? ((totalRevenue / sum) * 100).toFixed(2) : 0;
     };
 
-    console.log("BarChart Data:", barChartData[0].data);
-
     return (
         <Card align='center' direction='column' w='100%' {...rest}>
             <Flex justify='space-between' align='start' px='10px' pt='5px'>

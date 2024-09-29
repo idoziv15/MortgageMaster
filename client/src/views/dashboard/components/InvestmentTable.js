@@ -160,6 +160,7 @@ export default function InvestmentTable({
                                 <Switch
                                     my={0.5}
                                     isChecked={isFirstInvestment}
+                                    colorScheme="teal"
                                     onChange={() => setIsFirstInvestment(!isFirstInvestment)}
                                 />
                             </GridItem>

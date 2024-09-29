@@ -119,6 +119,27 @@ export default function MortgageTable({tableName, tracks, addTrack, setTracks, a
         setMaxInitialLoanAmount(propertyData.purchase_price.value * 0.7);
     }, [propertyData.purchase_price.value]);
 
+    useEffect(() => {
+        const cleanedTracks = tracks.map(track => {
+            const updatedTrack = {...track};
+
+            // Convert empty objects to empty strings
+            if (typeof updatedTrack.data.linked_index === 'object' && !Array.isArray(updatedTrack.data.linked_index)) {
+                updatedTrack.data.linked_index = '';
+            }
+            if (typeof updatedTrack.data.forecasting_interest_rate === 'object' && !Array.isArray(updatedTrack.data.forecasting_interest_rate)) {
+                updatedTrack.data.forecasting_interest_rate = '';
+            }
+
+            return updatedTrack;
+        });
+
+        // Only update state if there were any changes
+        if (JSON.stringify(tracks) !== JSON.stringify(cleanedTracks)) {
+            setTracks(cleanedTracks);
+        }
+    }, [tracks]);
+
     const handleInputValidation = (track, key, value) => {
         const errors = [];
         const maxPeriod = track.data.mortgage_duration * 12;

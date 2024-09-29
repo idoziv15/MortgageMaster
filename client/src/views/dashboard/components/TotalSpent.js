@@ -48,17 +48,16 @@ export default function TotalSpent(props) {
     const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
     const bgHover = useColorModeValue({bg: "secondaryGray.400"}, {bg: "whiteAlpha.50"});
     const bgFocus = useColorModeValue({bg: "secondaryGray.300"}, {bg: "whiteAlpha.100"});
-
     const [lineChartDataTotalSpent, setLineChartDataTotalSpent] = useState([
         { name: "Revenue", data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
         { name: "Profit", data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
-        // {name: "Revenue", data: [50, 64, 48, 66, 49, 68]},
-        // {name: "Profit", data: [30, 40, 24, 46, 20, 46]}
     ]);
 
     useEffect(() => {
-        const revenueData = investorData.yearly_revenue.value;
-        const expensesData = investorData.yearly_expenses.value;
+        const revenueData = investorData.yearly_revenue.value || [];
+        const expensesData = investorData.yearly_expenses.value || [];
+        console.log(investorData)
+        console.log(revenueData)
         const profitData = revenueData.map((revenue, index) => revenue - (expensesData[index] || 0));
 
         setLineChartDataTotalSpent([

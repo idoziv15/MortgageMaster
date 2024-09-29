@@ -187,7 +187,11 @@ export default function Dashboard(props) {
 
     const filterValues = (data) => {
         return Object.entries(data).reduce((acc, [key, field]) => {
-            if (typeof field === 'object' && field !== null) {
+            if ((key === 'linked_index' || key === 'forecasting_interest_rate') && Object.keys(field).length === 0 && field.constructor === Object) {
+                acc[key] = [];
+            }
+            // Check if it's an object and has a 'value' property
+            else if (typeof field === 'object' && field !== null) {
                 if ('value' in field) {
                     acc[key] = field.value;
                 } else {
@@ -335,6 +339,150 @@ export default function Dashboard(props) {
         }
     };
 
+    function formatInvestor(data) {
+        return {
+            'net_monthly_income': {value: data.net_monthly_income ?? 0, range: [0, 100000], step: 1000},
+            'total_debt_payment': {value: data.total_debt_payment ?? 0, range: [0, 10000000], step: 10000},
+            'total_available_equity': {value: data.total_available_equity ?? 0, range: [0, 100000000], step: 10000},
+            'gross_rental_income': {value: data.gross_rental_income ?? 0, range: [0, 100000], step: 1000},
+            'yearly_revenue': {value: data.yearly_revenue ?? []},
+            'yearly_expenses': {value: data.yearly_expenses ?? []}
+        };
+    }
+
+    function formatInsightsData(data) {
+        return {
+            "Price per meter": data["Price per meter"] ?? 0,
+            "Loan to cost": data["Loan to cost"] ?? 0,
+            "Loan to value": data["Loan to value"] ?? 0,
+            "Renovation expenses": data["Renovation expenses"] ?? 0,
+            "Purchase additional transactions cost": data["Purchase additional transactions cost"] ?? 0,
+            "Purchase tax": data["Purchase tax"] ?? 0,
+            "Closing costs": data["Closing costs"] ?? 0,
+            "Broker purchase cost": data["Broker purchase cost"] ?? 0,
+            "Monthly operating expenses": data["Monthly operating expenses"] ?? 0,
+            "Cash on cash": data["Cash on cash"] ?? 0,
+            "Net Yearly Cash Flow": data["Net Yearly Cash Flow"] ?? 0,
+            "Net Monthly Cash Flow": data["Net Monthly Cash Flow"] ?? 0,
+            "Yearly IRR": data["Yearly IRR"] ?? 0,
+            "Annual rent income": data["Annual rent income"] ?? 0,
+            "ROI": data["ROI"] ?? 0,
+            "Monthly NOI": data["Monthly NOI"] ?? 0,
+            "Annual NOI": data["Annual NOI"] ?? 0,
+            "Monthly rental property taxes": data["Monthly rental property taxes"] ?? 0,
+            "Annual rental property taxes": data["Annual rental property taxes"] ?? 0,
+            "Cap rate": data["Cap rate"] ?? 0,
+            "Gross yield": data["Gross yield"] ?? 0,
+            "Monthly insurances expenses": data["Monthly insurances expenses"] ?? 0,
+            "Annual insurances expenses": data["Annual insurances expenses"] ?? 0,
+            "Monthly maintenance and repairs": data["Monthly maintenance and repairs"] ?? 0,
+            "Annual maintenance and repairs": data["Annual maintenance and repairs"] ?? 0,
+            "Monthly vacancy cost": data["Monthly vacancy cost"] ?? 0,
+            "Annual vacancy cost": data["Annual vacancy cost"] ?? 0,
+            "Estimated sale price": data["Estimated sale price"] ?? 0,
+            "Selling expenses": data["Selling expenses"] ?? 0,
+            "Sale proceeds": data["Sale proceeds"] ?? 0,
+            "Total revenue": data["Total revenue"] ?? 0,
+            "Annual revenue distribution": data["Annual revenue distribution"] ?? 0,
+            "Annual operating expenses": data["Annual operating expenses"] ?? 0,
+            "Annual cash flow": data["Annual cash flow"] ?? 0,
+            "Mortgage remain balance in exit": data["Mortgage remain balance in exit"] ?? 0,
+            "Constructor index linked compensation": data["Constructor index linked compensation"] ?? 0,
+            "Total expenses": data["Total expenses"] ?? 0,
+            "Equity needed for purchase": data["Equity needed for purchase"] ?? 0,
+            "Contractor payments": data["Contractor payments"] ?? 0,
+            "Annual expenses distribution": data["Annual expenses distribution"] ?? 0,
+            "Monthly property management fees": data["Monthly property management fees"] ?? 0,
+            "Annual property management fees": data["Annual property management fees"] ?? 0,
+            "Net profit": data["Net profit"] ?? 0,
+            "Capital gain tax": data["Capital gain tax"] ?? 0
+        };
+    }
+
+    function formatInvestment(data) {
+        return {
+            'appraiser_cost': {value: data.appraiser_cost ?? 0, range: [0, 1000000], step: 10000},
+            'lawyer_cost': {value: data.lawyer_cost ?? 0, range: [0, 1000000], step: 10000},
+            'escort_costs': {value: data.escort_costs ?? 0, range: [0, 1000000], step: 100000},
+            'mortgage_advisor_cost': {value: data.mortgage_advisor_cost ?? 0, range: [0, 100000], step: 10000},
+            'additional_transaction_costs': {
+                value: data.additional_transaction_costs ?? 0,
+                range: [0, 1000000],
+                step: 1000
+            },
+            'renovation_expenses': {value: data.renovation_expenses ?? 0, range: [0, 1000000], step: 1000},
+            'furniture_cost': {value: data.furniture_cost ?? 0, range: [0, 500000], step: 1000},
+            'broker_purchase_percentage': {value: data.broker_purchase_percentage ?? 0, range: [0, 10], step: 1},
+            'broker_rent_percentage': {value: data.broker_rent_percentage ?? 0, range: [0, 20], step: 1},
+            'broker_sell_percentage': {value: data.broker_sell_percentage ?? 0, range: [0, 10], step: 1},
+            'vacancy_percentage': {value: data.vacancy_percentage ?? 5, range: [0, 100], step: 1},
+            'annual_maintenance_cost_percentage': {
+                value: data.annual_maintenance_cost_percentage ?? 5,
+                range: [0, 100],
+                step: 1
+            },
+            'annual_life_insurance_cost': {value: data.annual_life_insurance_cost ?? 0, range: [0, 50000], step: 1000},
+            'annual_house_insurance_cost': {
+                value: data.annual_house_insurance_cost ?? 0,
+                range: [0, 50000],
+                step: 1000
+            },
+            'management_fees_percentage': {value: data.management_fees_percentage ?? 0, range: [0, 20], step: 0.5},
+            'years_to_exit': {value: data.years_to_exit ?? 0, range: [0, 30], step: 5}
+        };
+    }
+
+    function formatProperty(data) {
+        return {
+            'purchase_price': {value: data.purchase_price ?? 0, range: [0, 20000000], step: 100000},
+            'monthly_rent_income': {value: data.monthly_rent_income ?? 0, range: [0, 20000], step: 1000},
+            'real_estate_investment_type': {value: data.real_estate_investment_type ?? 'single apartment'},
+            'square_meters': {value: data.square_meters ?? 0, range: [0, 200], step: 10},
+            'parking_spots': {value: data.parking_spots ?? 0, range: [0, 4], step: 1},
+            'warehouse': {value: data.warehouse ?? false},
+            'balcony_square_meter': {value: data.balcony_square_meter ?? 0, range: [0, 100], step: 10},
+            'after_repair_value': {value: data.after_repair_value ?? 0, range: [0, 100000000], step: 100000},
+            'annual_appreciation_percentage': {
+                value: data.annual_appreciation_percentage ?? 3.5,
+                range: [0, 15],
+                step: 1
+            }
+        };
+    }
+
+    function formatMortgageTracks(data) {
+        return data.map((track) => ({
+            id: track.id ?? Date.now(),
+            data: {
+                'interest_rate': track.interest_rate ?? 3.5,
+                'mortgage_duration': track.mortgage_duration ?? 0,
+                'initial_loan_amount': track.initial_loan_amount ?? 0,
+                'interest_only_period': track.interest_only_period ?? 0,
+                'linked_index': track.linked_index ?? [],
+                'forecasting_interest_rate': track.forecasting_interest_rate ?? [],
+                'interest_changing_period': track.interest_changing_period ?? 0,
+                'average_interest_when_taken': track.average_interest_when_taken ?? null,
+                'mortgage_type': track.mortgage_type ?? 'constant_not_linked'
+            }
+        }));
+    }
+
+    function formatOther(data) {
+        return {
+            'years_until_key_reception': {value: data.years_until_key_reception ?? 0, range: [0, 30], step: 1},
+            'contractor_payment_distribution': {
+                value: data.contractor_payment_distribution ?? [],
+                range: [0, 100],
+                step: 5
+            },
+            'construction_input_index_annual_growth': {
+                value: data.construction_input_index_annual_growth ?? 0,
+                range: [0, 15],
+                step: 0.5
+            }
+        };
+    }
+
     const fetchReportData = async (reportId) => {
         try {
             setLoading(true);
@@ -347,15 +495,15 @@ export default function Dashboard(props) {
             const investment = reportData.investmentData;
             const investor = reportData.investorData;
             const property = reportData.propertyData;
-            const mortgage = reportData.mortgageData;
+            const mortgage = reportData.mortgageTracks;
             const other = reportData.otherData;
 
-            setInsightsData(insights);
-            setInvestmentData(investment);
-            setInvestorData(investor);
-            setPropertyData(property);
+            setInsightsData(formatInsightsData(insights));
+            setInvestmentData(formatInvestment(investment));
+            setInvestorData(formatInvestor(investor));
+            setPropertyData(formatProperty(property));
             setMortgageTracks(mortgage);
-            setOtherData(other);
+            setOtherData(formatOther(other));
 
             setReportName(response.data.report.name);
             setReportDescription(response.data.report.description);
