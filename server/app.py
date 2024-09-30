@@ -218,19 +218,6 @@ def user_routes(current_user):
             print(f"Error creating user: {e}")
             return jsonify({'error': 'Failed to create user'}), 500
 
-
-# @app.route('/dashboard/bmm', methods=['POST'])
-# def analyse_investment():
-#     data = request.json
-#     investment_data = data['investment_data']
-#     investor_data = data['investor_data']
-#     property_data = data['property_data']
-#     mortgage_data = data['mortgage_data']
-#     other_data = data['other_data']
-#     result = BMM(investment_data, investor_data, property_data, mortgage_data, other_data).calculate_insights()
-#     return jsonify({'insights': result}), 200
-
-
 @app.route('/bmm', methods=['PUT'])
 @token_required
 def calculate_BMM(current_user):

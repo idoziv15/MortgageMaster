@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
     Box,
     Input,
@@ -28,13 +28,16 @@ const tooltipMap = {
 
 export default function InvestorTable({tableName, data, setData}) {
     const handleInputChange = (key, value) => {
-        setData(prevData => ({
-            ...prevData,
-            [key]: {
-                ...prevData[key],
-                value: value
-            }
-        }));
+        setData(prevData => {
+            if (prevData[key].value === value) return prevData;
+            return {
+                ...prevData,
+                [key]: {
+                    ...prevData[key],
+                    value: value
+                }
+            };
+        });
     };
 
     const handleListInputBlur = (key) => {
@@ -76,6 +79,7 @@ export default function InvestorTable({tableName, data, setData}) {
                                     {isList ? (
                                         <GridItem colSpan={2}>
                                             <Input
+                                                key={`${key}-list`}
                                                 size="sm"
                                                 type="text"
                                                 bg="gray.100"
@@ -93,6 +97,7 @@ export default function InvestorTable({tableName, data, setData}) {
                                             <GridItem>
                                                 <InputGroup>
                                                     <Input
+                                                        key={`${key}-input`}
                                                         size="sm"
                                                         type="number"
                                                         bg="gray.100"

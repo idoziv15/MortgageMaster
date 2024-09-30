@@ -65,14 +65,8 @@ const tooltipMap = {
     'years_to_exit': "Estimated number of years until the investment is sold or exited."
 };
 
-export default function InvestmentTable({
-                                            tableName,
-                                            data,
-                                            setData,
-                                            propertyData,
-                                            isFirstInvestment,
-                                            setIsFirstInvestment
-                                        }) {
+export default function InvestmentTable({tableName, data, setData, propertyData,
+                                            isFirstInvestment, setIsFirstInvestment }) {
     const [purchasePrice, setPurchasePrice] = useState(propertyData.purchase_price.value);
     const resetCosts = ['appraiser_cost', 'lawyer_cost', 'escort_costs', 'mortgage_advisor_cost',
         'broker_purchase_percentage', 'broker_sell_percentage', 'broker_rent_percentage',
@@ -99,46 +93,6 @@ export default function InvestmentTable({
             }
         }));
     };
-
-    useEffect(() => {
-        const maxAllowedValue = purchasePrice * 0.1;
-
-        resetCosts.forEach(cost => {
-            const currentValue = data[cost]?.value || 0;
-
-            // Only update if the current value exceeds the max allowed
-            if (currentValue > maxAllowedValue) {
-                setData(prevData => ({
-                    ...prevData,
-                    [cost]: {
-                        ...prevData[cost],
-                        value: maxAllowedValue
-                    }
-                }));
-            }
-        });
-
-        if (data.furniture_cost?.value > purchasePrice * 0.3) {
-            setData(prevData => ({
-                ...prevData,
-                furniture_cost: {
-                    ...prevData.furniture_cost,
-                    value: purchasePrice * 0.3
-                }
-            }));
-        }
-
-        if (data.broker_rent_percentage?.value > purchasePrice * 0.2) {
-            setData(prevData => ({
-                ...prevData,
-                broker_rent_percentage: {
-                    ...prevData.broker_rent_percentage,
-                    value: purchasePrice * 0.2
-                }
-            }));
-        }
-
-    }, [purchasePrice, data, setData]);
 
     useEffect(() => {
         setPurchasePrice(propertyData.purchase_price.value);

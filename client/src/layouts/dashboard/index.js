@@ -450,23 +450,6 @@ export default function Dashboard(props) {
         };
     }
 
-    function formatMortgageTracks(data) {
-        return data.map((track) => ({
-            id: track.id ?? Date.now(),
-            data: {
-                'interest_rate': track.interest_rate ?? 3.5,
-                'mortgage_duration': track.mortgage_duration ?? 0,
-                'initial_loan_amount': track.initial_loan_amount ?? 0,
-                'interest_only_period': track.interest_only_period ?? 0,
-                'linked_index': track.linked_index ?? [],
-                'forecasting_interest_rate': track.forecasting_interest_rate ?? [],
-                'interest_changing_period': track.interest_changing_period ?? 0,
-                'average_interest_when_taken': track.average_interest_when_taken ?? null,
-                'mortgage_type': track.mortgage_type ?? 'constant_not_linked'
-            }
-        }));
-    }
-
     function formatOther(data) {
         return {
             'years_until_key_reception': {value: data.years_until_key_reception ?? 0, range: [0, 30], step: 1},

@@ -56,8 +56,8 @@ export default function TotalSpent(props) {
     useEffect(() => {
         const revenueData = investorData.yearly_revenue.value || [];
         const expensesData = investorData.yearly_expenses.value || [];
-        console.log(investorData)
-        console.log(revenueData)
+        // console.log(investorData)
+        // console.log(revenueData)
         const profitData = revenueData.map((revenue, index) => revenue - (expensesData[index] || 0));
 
         setLineChartDataTotalSpent([

@@ -141,27 +141,6 @@ const getComponentIcon = (name, boxBg, brandColor) => {
 const InvestmentSummary = ({insights, investmentData, investorData, propertyData, mortgageTracks, otherData}) => {
     const brandColor = useColorModeValue("brand.500", "white");
     const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
-    const [cleanedInsights, setCleanedInsights] = useState(insights);
-
-    // useEffect(() => {
-    //     // Clean insights: replace empty object values with empty strings
-    //     const updatedInsights = Object.fromEntries(
-    //         Object.entries(insights).map(([key, value]) => {
-    //             if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
-    //                 return [key, '']; // Set empty object to empty string
-    //             } else if (Array.isArray(value) && value.length === 0) {
-    //                 return [key, '']; // Set empty array to empty string
-    //             }
-    //             return [key, value]; // Keep other values as is
-    //         })
-    //     );
-    //
-    //     // Only update if cleaned insights are different from current state
-    //     setCleanedInsights((prevInsights) => {
-    //         const isSame = JSON.stringify(prevInsights) === JSON.stringify(updatedInsights);
-    //         return isSame ? prevInsights : updatedInsights;
-    //     });
-    // }, [insights]);
 
     return (
         <Box p={7}>
@@ -171,28 +150,39 @@ const InvestmentSummary = ({insights, investmentData, investorData, propertyData
                 gap='20px'
                 mt='10px'
                 mb='20px'>
-                {Object.entries(cleanedInsights).map(([key, value], index) => {
+                {Object.entries(insights).map(([key, value], index) => {
                     const symbol = getSymbol(key);
-                    return (
-                        Array.isArray(value) ? (
+
+                    if (Array.isArray(value)) {
+                        return (
                             <ListStatistics
                                 key={index}
                                 name={key}
                                 values={value.map((val) => val + symbol)}
                                 startContent={getComponentIcon(key, boxBg, brandColor)}
                             />
-                        ) : (
+                        );
+                    } else if (typeof value === 'object' && value !== null) {
+                        return (
+                            <ListStatistics
+                                key={index}
+                                name={key}
+                                values={Object.values(value).map((subValue) => subValue + symbol)}
+                                startContent={getComponentIcon(key, boxBg, brandColor)}
+                            />
+                        );
+                    } else {
+                        return (
                             <MiniStatistics
                                 key={index}
                                 name={key}
                                 value={value + symbol}
                                 startContent={getComponentIcon(key, boxBg, brandColor)}
                             />
-                        )
-                    );
+                        );
+                    }
                 })}
             </SimpleGrid>
-
             <SimpleGrid columns={{base: 1, md: 2, xl: 2}} gap='20px' mb='20px'>
                 <TotalSpent investorData={investorData}/>
                 <WeeklyRevenue investorData={investorData}/>
