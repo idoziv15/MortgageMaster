@@ -1,4 +1,14 @@
-import {Portal, Box, useDisclosure, useToast, Spinner, Button, Flex, useColorModeValue} from '@chakra-ui/react';
+import {
+    Portal,
+    Box,
+    useDisclosure,
+    useToast,
+    Spinner,
+    Button,
+    Flex,
+    useColorModeValue,
+    FormLabel, Avatar, Select
+} from '@chakra-ui/react';
 import Footer from '../../components/footer/Footer.js';
 import Navbar from '../../components/navbar/NavbarAdmin.js';
 import Sidebar from '../../components/sidebar/Sidebar.js';
@@ -15,6 +25,7 @@ import AdditionalTable from "../../views/dashboard/components/AdditionalTable";
 import PropertyTable from "../../views/dashboard/components/PropertyTable";
 import InvestorTable from "../../views/dashboard/components/InvestorTable";
 import InvestmentTable from "../../views/dashboard/components/InvestmentTable";
+import CurrencyCard from "../../components/card/CurrencyCard";
 
 export default function Dashboard(props) {
     const {...rest} = props;
@@ -33,6 +44,11 @@ export default function Dashboard(props) {
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
     const [isFirstInvestment, setIsFirstInvestment] = useState(false);
+    const [conversionRates, setConversionRates] = useState({
+        USD: 1,
+        EUR: 0.85,
+        GBP: 0.75
+    });
 
     const [insightsData, setInsightsData] = useState({
         "Price per meter": 0,
@@ -138,6 +154,54 @@ export default function Dashboard(props) {
         'contractor_payment_distribution': {value: []},
         'construction_input_index_annual_growth': {value: 4, range: [0, 10], step: 0.1}
     });
+
+    const isMonetaryField = (field) => {
+        const monetaryFields = [
+            "Price per meter", "Renovation expenses", "Purchase additional transactions cost",
+            "Purchase tax", "Closing costs", "Broker purchase cost", "Monthly operating expenses",
+            "Net Yearly Cash Flow", "Net Monthly Cash Flow", "Annual rent income",
+            "Monthly NOI", "Annual NOI", "Monthly rental property taxes",
+            "Annual rental property taxes", "Estimated sale price", "Selling expenses",
+            "Sale proceeds", "Total revenue", "Annual operating expenses",
+            "Annual cash flow", "Mortgage remain balance in exit",
+            "Total expenses", "Equity needed for purchase", "Constructor index linked compensation",
+            "Contractor payments", "Monthly property management fees", "Annual property management fees",
+            "Net profit", "Capital gain tax"
+        ];
+        return monetaryFields.includes(field);
+    };
+
+    const convertCurrency = (data, conversionRate) => {
+        const convertedData = {};
+        // Iterate over the insightsData
+        Object.keys(data).forEach((key) => {
+            const value = data[key];
+
+            if (isMonetaryField(key)) {
+                // If the value is a number, convert it
+                if (typeof value === 'number') {
+                    convertedData[key] = value * conversionRate;
+                }
+                // If the value is an array, convert each number in the array
+                else if (Array.isArray(value)) {
+                    convertedData[key] = value.map((val) => typeof val === 'number' ? val * conversionRate : val);
+                }
+            } else {
+                // Keep non-monetary fields as is
+                convertedData[key] = value;
+            }
+        });
+
+        return convertedData;
+    };
+
+    const handleCurrencyChange = (currency) => {
+        const conversionRate = conversionRates[currency];
+        if (conversionRate) {
+            const convertedData = convertCurrency(insightsData, conversionRate);
+            setInsightsData(convertedData);
+        }
+    };
 
     const addMortgageTrack = () => {
         if (mortgageTracks.length >= 7) {
@@ -856,38 +920,41 @@ export default function Dashboard(props) {
                                     />
                                 </Box>
                             </Portal>
-                            <Flex>
-                                {/* Left Side */}
-                                <Box flex='1'>
-                                    <InvestorTable data={investorData} tableName={'Investor Details'}
-                                                   setData={setInvestorData}/>
-                                    <PropertyTable data={propertyData} tableName={'Property Details'}
-                                                   setData={setPropertyData}/>
-                                    <MortgageTable
-                                        tableName="Mortgage Details"
-                                        tracks={mortgageTracks}
-                                        addTrack={addMortgageTrack}
-                                        setTracks={setMortgageTracks}
-                                        activeTab={activeTab}
-                                        setActiveTab={setActiveTab}
-                                        propertyData={propertyData}
-                                    />
-                                </Box>
-                                {/* Right Side */}
-                                <Box flex='1'>
-                                    <InvestmentTable data={investmentData} tableName={'Investment Details'}
-                                                     setData={setInvestmentData} propertyData={propertyData}
-                                                     isFirstInvestment={isFirstInvestment}
-                                                     setIsFirstInvestment={setIsFirstInvestment}/>
-                                    {isFirstInvestment && (
-                                        <AdditionalTable
-                                            data={otherData}
-                                            tableName={'Additional Details'}
-                                            setData={setOtherData}
-                                            investmentData={investmentData}
+                            <Flex direction='column' w='100%'>
+                                <CurrencyCard handleCurrencyChange={handleCurrencyChange}/>
+                                <Flex direction='row' w='100%' mt='20px'>
+                                    {/* Left Side */}
+                                    <Box flex='1'>
+                                        <InvestorTable data={investorData} tableName={'Investor Details'}
+                                                       setData={setInvestorData}/>
+                                        <PropertyTable data={propertyData} tableName={'Property Details'}
+                                                       setData={setPropertyData}/>
+                                        <MortgageTable
+                                            tableName="Mortgage Details"
+                                            tracks={mortgageTracks}
+                                            addTrack={addMortgageTrack}
+                                            setTracks={setMortgageTracks}
+                                            activeTab={activeTab}
+                                            setActiveTab={setActiveTab}
+                                            propertyData={propertyData}
                                         />
-                                    )}
-                                </Box>
+                                    </Box>
+                                    {/* Right Side */}
+                                    <Box flex='1'>
+                                        <InvestmentTable data={investmentData} tableName={'Investment Details'}
+                                                         setData={setInvestmentData} propertyData={propertyData}
+                                                         isFirstInvestment={isFirstInvestment}
+                                                         setIsFirstInvestment={setIsFirstInvestment}/>
+                                        {isFirstInvestment && (
+                                            <AdditionalTable
+                                                data={otherData}
+                                                tableName={'Additional Details'}
+                                                setData={setOtherData}
+                                                investmentData={investmentData}
+                                            />
+                                        )}
+                                    </Box>
+                                </Flex>
                             </Flex>
                             <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'
                                   background={boxBackground}

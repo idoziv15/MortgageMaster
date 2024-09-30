@@ -1,6 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {Box, Heading, useColorModeValue, Icon, SimpleGrid} from '@chakra-ui/react';
-import MiniStatistics from '../../../components/card/MiniStatistics';
 import IconBox from "../../../components/icons/IconBox";
 import {
     MdAttachMoney,
@@ -21,17 +20,11 @@ import {
     MdAssessment
 } from "react-icons/md";
 import WeeklyRevenue from "../../properties/components/WeeklyRevenue";
-import Usa from "../../../assets/img/dashboards/usa.png";
 import TotalSpent from "./TotalSpent";
-import CheckTable from "./CheckTable";
-import tableDataCheck from "../variables/tableDataCheck.json";
 import InsightsChart from "./InsightsChart";
 import PieCard from "./PieCard";
-import ComplexTable from "../../../layouts/reports/components/ReportsTable";
-import tableDataComplex from "../variables/tableDataComplex.json";
-import Tasks from "../../../layouts/reports/components/Tasks";
-import MiniCalendar from "../../../components/calendar/MiniCalendar";
 import ListStatistics from "../../../components/card/ListStatistics";
+import MiniStatistics from '../../../components/card/MiniStatistics';
 
 const iconMapping = {
     "Price per meter": MdAttachMoney,
