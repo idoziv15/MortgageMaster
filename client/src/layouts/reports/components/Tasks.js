@@ -20,7 +20,7 @@ import {
     ModalFooter,
     ModalBody,
     ModalCloseButton,
-    useDisclosure
+    useDisclosure, useToast
 } from "@chakra-ui/react";
 import {MdCheckBox, MdMoreVert, MdDelete, MdEdit, MdCheck, MdClose} from "react-icons/md";
 import Card from "../../../components/card/Card.js";
@@ -156,22 +156,23 @@ export default function Tasks(props) {
     const textColor = useColorModeValue("secondaryGray.900", "white");
     const boxBg = useColorModeValue("secondaryGray.300", "navy.700");
     const brandColor = useColorModeValue("brand.500", "brand.400");
-
+    const toast = useToast();
     const [tasks, setTasks] = useState([]);
     const [newTaskContent, setNewTaskContent] = useState("");
     const [editingTaskId, setEditingTaskId] = useState(null);
     const [editingTaskContent, setEditingTaskContent] = useState("");
     const {isOpen, onOpen, onClose} = useDisclosure();
 
+    const loadTasks = async () => {
+        try {
+            const tasksData = await fetchUserTasks();
+            setTasks(tasksData);
+        } catch (error) {
+            console.error('Failed to load tasks:', error);
+        }
+    };
+
     useEffect(() => {
-        const loadTasks = async () => {
-            try {
-                const tasksData = await fetchUserTasks();
-                setTasks(tasksData);
-            } catch (error) {
-                console.error('Failed to load tasks:', error);
-            }
-        };
         loadTasks();
     }, []);
 
@@ -179,7 +180,8 @@ export default function Tasks(props) {
         if (newTaskContent.trim() === "") return;
         try {
             const newTask = await saveTask(newTaskContent);
-            setTasks([...tasks, newTask]);
+            // setTasks([...tasks, newTask]);
+            loadTasks();
             setNewTaskContent("");
             onClose();
         } catch (error) {
@@ -207,6 +209,13 @@ export default function Tasks(props) {
             setEditingTaskContent("");
         } catch (error) {
             console.error('Failed to edit task:', error);
+            toast({
+                title: "Error",
+                description: "Failed to delete task.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
         }
     };
 
@@ -234,6 +243,13 @@ export default function Tasks(props) {
             setTasks(updatedTasks);
         } catch (error) {
             console.error('Failed to update task completion status:', error);
+            toast({
+                title: 'Error',
+                description: 'Failed to update task completion.',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            });
         }
     };
 

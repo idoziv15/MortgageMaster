@@ -574,7 +574,7 @@ def serialize_task(task):
 @token_required
 def get_user_tasks(current_user):
     try:
-        tasks = mongo.db.tasks.find({"user_id": current_user["_id"]})
+        tasks = mongo.db.tasks.find({"user_id": str(current_user["_id"])})
         tasks_list = [serialize_task(task) for task in tasks]
         return jsonify({'tasks': tasks_list}), 200
     except Exception as e:
@@ -611,7 +611,7 @@ def edit_task(current_user, task_id):
             'completed': data.get('completed', False)
         }
         result = mongo.db.tasks.update_one(
-            {"_id": ObjectId(task_id), "user_id": current_user["_id"]},
+            {"_id": ObjectId(task_id), "user_id": str(current_user["_id"])},
             {"$set": updated_task}
         )
         if result.matched_count:
@@ -628,7 +628,7 @@ def edit_task(current_user, task_id):
 def delete_task(current_user, task_id):
     try:
         result = mongo.db.tasks.delete_one(
-            {"_id": ObjectId(task_id), "user_id": current_user["_id"]}
+            {"_id": ObjectId(task_id), "user_id": str(current_user["_id"])}
         )
         if result.deleted_count:
             return jsonify({'message': 'Task deleted successfully'}), 200
@@ -643,7 +643,7 @@ def delete_task(current_user, task_id):
 @token_required
 def delete_all_tasks(current_user):
     try:
-        result = mongo.db.tasks.delete_many({"user_id": current_user["_id"]})
+        result = mongo.db.tasks.delete_many({"user_id": str(current_user["_id"])})
         return jsonify({'message': f'{result.deleted_count} tasks deleted successfully'}), 200
     except Exception as e:
         print(f"Error deleting all tasks: {e}")
@@ -658,7 +658,7 @@ def delete_selected_tasks(current_user):
         task_ids = data.get('taskIds', [])
         result = mongo.db.tasks.delete_many({
             "_id": {"$in": [ObjectId(task_id) for task_id in task_ids]},
-            "user_id": current_user["_id"]
+            "user_id": str(current_user["_id"])
         })
         return jsonify({'message': f'{result.deleted_count} tasks deleted successfully'}), 200
     except Exception as e:
@@ -673,7 +673,7 @@ def update_task_completion(current_user, task_id):
         data = request.json
         completed = data.get('completed', False)
         result = mongo.db.tasks.update_one(
-            {"_id": ObjectId(task_id), "user_id": current_user["_id"]},
+            {"_id": ObjectId(task_id), "user_id": str(current_user["_id"])},
             {"$set": {'completed': completed}}
         )
         if result.matched_count:
