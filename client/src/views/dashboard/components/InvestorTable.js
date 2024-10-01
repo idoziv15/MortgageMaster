@@ -15,7 +15,6 @@ import {
     Grid,
     GridItem, Select, InputGroup, InputRightElement, Icon, Tooltip
 } from '@chakra-ui/react';
-import {MdAttachMoney} from "react-icons/md";
 
 const tooltipMap = {
     'net_monthly_income': "The total income received by the investor on a monthly basis after taxes.",

@@ -24,9 +24,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # Configure Mongo database
-app.config[
-    'MONGO_URI'] = 'mongodb+srv://ido_ziv:Aa123456@mastermortgage.g7nra.mongodb.net/MasterMortgage?retryWrites=true&w=majority'
-print(f"Loaded MONGO_URI: {app.config['MONGO_URI']}")
+app.config['MONGO_URI'] = os.getenv('MONGO_URI')
 
 # Initialize PyMongo for MongoDB
 mongo = PyMongo(app)
