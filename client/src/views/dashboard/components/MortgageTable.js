@@ -40,30 +40,16 @@ import {
     MdTrendingFlat
 } from 'react-icons/md';
 
-const iconMapping = {
-    'interest_rate': MdPercent,
-    'mortgage_duration': MdAccessTime,
-    'initial_loan_amount': MdAttachMoney,
-    'interest_only_period': MdTimelapse,
-    'linked_index': MdShowChart,
-    'forecasting_interest_rate': MdChangeCircle,
-    'interest_changing_period': MdAccessTime,
-    'average_interest_when_taken': MdOutlineInsertChart,
-    'mortgage_type': MdTrendingFlat
-};
-
-const tooltipMap = {
-    'interest_rate': "The interest rate applied to this mortgage track loan.",
-    'mortgage_duration': "The duration of the mortgage in years.",
-    'initial_loan_amount': "The total amount you are borrowing for this mortgage track.",
-    'interest_only_period': "The period during which you only pay the interest on the loan, not the principal. Aka Grace mortgage",
-    'linked_index': "The financial index to which the interest rate is linked, affecting rate adjustments.",
-    'forecasting_interest_rate': "The anticipated interest rate for future periods based on market trends.",
-    'interest_changing_period': "The intervals at which the interest rate may change (e.g., annually, semi-annually).",
-    'mortgage_type': "The type of mortgage selected (Constant Not Linked, Constant Linked, Change Not Linked, Change Linked, Eligibility or Prime."
-};
-
-export default function MortgageTable({tableName, tracks, addTrack, setTracks, activeTab, setActiveTab, propertyData}) {
+export default function MortgageTable({
+                                          tableName,
+                                          tracks,
+                                          addTrack,
+                                          setTracks,
+                                          activeTab,
+                                          setActiveTab,
+                                          propertyData,
+                                          chosenCurrency
+                                      }) {
     const toast = useToast();
     const [purchasePrice, setPurchasePrice] = useState(propertyData.purchase_price.value);
     const [maxInitialLoanAmount, setMaxInitialLoanAmount] = useState(propertyData.purchase_price.value * 0.7);
@@ -113,6 +99,30 @@ export default function MortgageTable({tableName, tracks, addTrack, setTracks, a
         ]
     };
     const prerequisites = ['interest_only_period', 'interest_changing_period', 'forecasting_interest_rate', 'linked_index'];
+
+    const iconMapping = {
+        'interest_rate': MdPercent,
+        'mortgage_duration': MdAccessTime,
+        'initial_loan_amount': chosenCurrency.icon,
+        'interest_only_period': MdTimelapse,
+        'linked_index': MdShowChart,
+        'forecasting_interest_rate': MdChangeCircle,
+        'interest_changing_period': MdAccessTime,
+        'average_interest_when_taken': MdOutlineInsertChart,
+        'mortgage_type': MdTrendingFlat
+    };
+
+    const tooltipMap = {
+        'interest_rate': "The interest rate applied to this mortgage track loan.",
+        'mortgage_duration': "The duration of the mortgage in years.",
+        'initial_loan_amount': "The total amount you are borrowing for this mortgage track.",
+        'interest_only_period': "The period during which you only pay the interest on the loan, not the principal. Aka Grace mortgage",
+        'linked_index': "The financial index to which the interest rate is linked, affecting rate adjustments.",
+        'forecasting_interest_rate': "The anticipated interest rate for future periods based on market trends.",
+        'interest_changing_period': "The intervals at which the interest rate may change (e.g., annually, semi-annually).",
+        'mortgage_type': "The type of mortgage selected (Constant Not Linked, Constant Linked, Change Not Linked, Change Linked, Eligibility or Prime."
+    };
+
 
     useEffect(() => {
         setPurchasePrice(propertyData.purchase_price.value);

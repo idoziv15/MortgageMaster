@@ -7,7 +7,6 @@ import {
     Button,
     Flex,
     useColorModeValue,
-    FormLabel, Avatar, Select
 } from '@chakra-ui/react';
 import Footer from '../../components/footer/Footer.js';
 import Navbar from '../../components/navbar/NavbarAdmin.js';
@@ -26,6 +25,9 @@ import PropertyTable from "../../views/dashboard/components/PropertyTable";
 import InvestorTable from "../../views/dashboard/components/InvestorTable";
 import InvestmentTable from "../../views/dashboard/components/InvestmentTable";
 import CurrencyCard from "../../components/card/CurrencyCard";
+import {MdAttachMoney, MdEuro} from "react-icons/md";
+import {PiCurrencyJpyLight} from "react-icons/pi";
+import {BiShekel, BiPound} from "react-icons/bi";
 
 export default function Dashboard(props) {
     const {...rest} = props;
@@ -44,11 +46,21 @@ export default function Dashboard(props) {
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
     const [isFirstInvestment, setIsFirstInvestment] = useState(false);
+    const [chosenCurrency, setChosenCurrency] = useState({currency: 'usd', icon: MdAttachMoney});
     const [conversionRates, setConversionRates] = useState({
-        USD: 1,
-        EUR: 0.85,
-        GBP: 0.75
+        usd: 1,
+        eur: 0.85,
+        gbp: 0.75,
+        ils: 0.5,
+        jpy: 0.4
     });
+    const currencyIcons = {
+        usd: MdAttachMoney,
+        eur: MdEuro,
+        gbp: BiPound,
+        ils: BiShekel,
+        jpy: PiCurrencyJpyLight
+    };
 
     const [insightsData, setInsightsData] = useState({
         "Price per meter": 0,
@@ -168,41 +180,85 @@ export default function Dashboard(props) {
             "Contractor payments", "Monthly property management fees", "Annual property management fees",
             "Net profit", "Capital gain tax"
         ];
-        return monetaryFields.includes(field);
+        return monetaryFields.map(field => field.toLowerCase().trim()).includes(field.toLowerCase().trim());
     };
-
-    const convertCurrency = (data, conversionRate) => {
+    const convertCurrency = (currentRate, targetRate) => {
+        const conversionFactor = targetRate / currentRate;
         const convertedData = {};
-        // Iterate over the insightsData
-        Object.keys(data).forEach((key) => {
-            const value = data[key];
 
+        // Iterate over the insightsData
+        Object.keys(insightsData).forEach((key) => {
+            const value = insightsData[key];
             if (isMonetaryField(key)) {
-                // If the value is a number, convert it
                 if (typeof value === 'number') {
-                    convertedData[key] = value * conversionRate;
-                }
-                // If the value is an array, convert each number in the array
-                else if (Array.isArray(value)) {
-                    convertedData[key] = value.map((val) => typeof val === 'number' ? val * conversionRate : val);
+                    convertedData[key] = (value * conversionFactor).toFixed(2);
+                } else if (typeof value === 'string') {
+                    const parsedValue = parseFloat(value.replace(/,/g, ''));
+                    if (!isNaN(parsedValue)) {
+                        convertedData[key] = (parsedValue * conversionFactor).toFixed(2);
+                    }
+                } else if (Array.isArray(value)) {
+                    convertedData[key] = value.map((val) => {
+                        if (typeof val === 'number') {
+                            return (val * conversionFactor).toFixed(2);
+                        } else if (typeof val === 'string') {
+                            const parsedVal = parseFloat(val.replace(/,/g, ''));
+                            if (!isNaN(parsedVal)) {
+                                return (parsedVal * conversionFactor).toFixed(2);
+                            }
+                        }
+                        return val;
+                    });
+                } else {
+                    convertedData[key] = value;
                 }
             } else {
-                // Keep non-monetary fields as is
                 convertedData[key] = value;
             }
         });
 
         return convertedData;
     };
+    const handleCurrencyChange = (newCurrency) => {
+        const currentRate = conversionRates[chosenCurrency.currency];
+        const targetRate = conversionRates[newCurrency];
 
-    const handleCurrencyChange = (currency) => {
-        const conversionRate = conversionRates[currency];
-        if (conversionRate) {
-            const convertedData = convertCurrency(insightsData, conversionRate);
-            setInsightsData(convertedData);
+        if (currentRate && targetRate) {
+            setChosenCurrency({currency: newCurrency, icon: currencyIcons[newCurrency] || MdAttachMoney});
+            const convertedData = convertCurrency(currentRate, targetRate);
+            setInsightsData(formatInsights(convertedData));
+        }
+    };
+    const fetchCurrencyRates = async () => {
+        const API_KEY = process.env.REACT_APP_CONVERSION_KEY;
+        console.log(process.env)
+        const BASE_CURRENCY = 'USD';
+
+        try {
+            const response = await fetch(`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${BASE_CURRENCY}`);
+            const data = await response.json();
+
+            if (data.result === 'success') {
+                const updatedRates = {
+                    usd: data.conversion_rates.USD,
+                    eur: data.conversion_rates.EUR,
+                    gbp: data.conversion_rates.GBP,
+                    ils: data.conversion_rates.ILS,
+                    jpy: data.conversion_rates.JPY,
+                };
+
+                setConversionRates(updatedRates);
+            } else {
+                console.error("Error fetching conversion rates:", data.error);
+            }
+        } catch (error) {
+            console.error("Error fetching conversion rates:", error);
         }
     };
 
+    useEffect(() => {
+        fetchCurrencyRates();
+    }, []);
     const addMortgageTrack = () => {
         if (mortgageTracks.length >= 7) {
             toast({
@@ -321,34 +377,13 @@ export default function Dashboard(props) {
         return false;
     }
 
-    function formatNumber(value) {
-        // Check if the value is a number
-        if (typeof value === 'number') {
-            // If it's a float, format it to 2 decimal places
-            let formattedValue = value.toFixed(2);
-
-            // If the number is greater than 1000 or less than -1000, add commas
-            if (Math.abs(value) >= 1000) {
-                return parseFloat(formattedValue).toLocaleString();
-            }
-
-            // Return the value with 2 decimal places
-            return formattedValue;
-        }
-
-        // If it's not a number, return the value as is (could be strings, arrays, etc.)
-        return value;
-    }
-
     function formatInsights(insights) {
         const formattedInsights = {};
 
         Object.entries(insights).forEach(([key, value]) => {
             if (Array.isArray(value)) {
-                // If the value is an array (e.g., Annual revenue distribution), format each number in the array
                 formattedInsights[key] = value.map(item => formatNumber(item));
             } else {
-                // Otherwise, format the number directly
                 formattedInsights[key] = formatNumber(value);
             }
         });
@@ -356,7 +391,19 @@ export default function Dashboard(props) {
         return formattedInsights;
     }
 
-    const updateBMM = async () => {
+    function formatNumber(value) {
+        if (typeof value === 'number') {
+            let formattedValue = value.toFixed(2);
+            const numberValue = parseFloat(formattedValue);
+            if (Math.abs(numberValue) >= 1000) {
+                return numberValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+            return formattedValue;
+        }
+        return value;
+    }
+
+    const calculateBMM = async () => {
         setLoading(true);
         let isTracksValid = validateTracksTotalAmount();
         let isConstractorPaymentsValid = isFirstInvestment ? validateConstractorPayments() : true;
@@ -922,13 +969,15 @@ export default function Dashboard(props) {
                             </Portal>
                             <Flex direction='column' w='100%'>
                                 <CurrencyCard handleCurrencyChange={handleCurrencyChange}/>
-                                <Flex direction='row' w='100%' mt='20px'>
+                                <Flex direction='row' w='100%'>
                                     {/* Left Side */}
                                     <Box flex='1'>
                                         <InvestorTable data={investorData} tableName={'Investor Details'}
-                                                       setData={setInvestorData}/>
+                                                       setData={setInvestorData} chosenCurrency={chosenCurrency}
+                                        />
                                         <PropertyTable data={propertyData} tableName={'Property Details'}
-                                                       setData={setPropertyData}/>
+                                                       setData={setPropertyData} chosenCurrency={chosenCurrency}
+                                        />
                                         <MortgageTable
                                             tableName="Mortgage Details"
                                             tracks={mortgageTracks}
@@ -937,6 +986,7 @@ export default function Dashboard(props) {
                                             activeTab={activeTab}
                                             setActiveTab={setActiveTab}
                                             propertyData={propertyData}
+                                            chosenCurrency={chosenCurrency}
                                         />
                                     </Box>
                                     {/* Right Side */}
@@ -944,7 +994,9 @@ export default function Dashboard(props) {
                                         <InvestmentTable data={investmentData} tableName={'Investment Details'}
                                                          setData={setInvestmentData} propertyData={propertyData}
                                                          isFirstInvestment={isFirstInvestment}
-                                                         setIsFirstInvestment={setIsFirstInvestment}/>
+                                                         setIsFirstInvestment={setIsFirstInvestment}
+                                                         chosenCurrency={chosenCurrency}
+                                        />
                                         {isFirstInvestment && (
                                             <AdditionalTable
                                                 data={otherData}
@@ -959,7 +1011,7 @@ export default function Dashboard(props) {
                             <Flex justifyContent="center" mt={4} py={10} w='95%' mx='auto'
                                   background={boxBackground}
                             >
-                                <Button colorScheme="teal" onClick={updateBMM} isLoading={loading} mr={10}>
+                                <Button colorScheme="teal" onClick={calculateBMM} isLoading={loading} mr={10}>
                                     {loading ? <Spinner size="sm"/> : 'Calculate'}
                                 </Button>
                                 <Button colorScheme="blue" variant='outline' onClick={handleReset} mr={2}>
@@ -982,7 +1034,8 @@ export default function Dashboard(props) {
                             </Flex>
                             <InvestmentSummary insights={insightsData} investmentData={investmentData}
                                                investorData={investorData} propertyData={propertyData}
-                                               mortgageTracks={mortgageTracks} otherData={otherData}/>
+                                               mortgageTracks={mortgageTracks} otherData={otherData}
+                                               chosenCurrency={chosenCurrency}/>
                             <Box mt="auto">
                                 <Footer/>
                             </Box>

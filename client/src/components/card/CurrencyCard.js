@@ -1,81 +1,71 @@
 import {
     Flex,
-    Stat,
-    StatNumber,
     useColorModeValue,
-    Box, FormLabel, Avatar, Select,
+    Avatar,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    Button,
+    Image
 } from "@chakra-ui/react";
-import Card from "./Card.js";
 import React, {useState} from "react";
-import Usa from "../../assets/img/dashboards/usa.png";
-import Eur from "../../assets/img/dashboards/euro_flag.jpeg";
-import Gba from "../../assets/img/dashboards/gb_flag.jpeg";
-import Shekel from "../../assets/img/dashboards/israel_flag.jpeg";
-import Jpy from "../../assets/img/dashboards/japan_flag.png";
+import USA from "../../assets/img/dashboards/usa.png";
+import EUR from "../../assets/img/dashboards/euro_flag.jpeg";
+import GBP from "../../assets/img/dashboards/gb_flag.jpeg";
+import ILS from "../../assets/img/dashboards/israel_flag.jpeg";
+import JPY from "../../assets/img/dashboards/japan_flag.png";
+import {ChevronDownIcon} from "@chakra-ui/icons";
 
-export default function CurrencyCard({ handleCurrencyChange }) {
+export default function CurrencyCard({handleCurrencyChange}) {
     const textColor = useColorModeValue("secondaryGray.900", "white");
-    const textColorSecondary = "secondaryGray.800";
     const [selectedCurrency, setSelectedCurrency] = useState('usd');
     const currencies = {
-        usd: Usa,
-        eur: Eur,
-        gba: Gba,
-        shekel: Shekel,
-        jpy: Jpy,
+        usd: USA,
+        eur: EUR,
+        gbp: GBP,
+        ils: ILS,
+        jpy: JPY
     };
 
-    const onCurrencyChange = (e) => {
-        const newCurrency = e.target.value;
+    const onCurrencyChange = (newCurrency) => {
         setSelectedCurrency(newCurrency);
         handleCurrencyChange(newCurrency);
     };
 
     return (
-        <Card ml={6} p='5px' pl='10px' maxW='150px'>
-            <Flex
-                my='auto'
-                h='100%'
-                align='center'
-                justify='space-between'
-                flexWrap="wrap"
-            >
-                <Box flex='1' minWidth="0" ms="0px">
-                    <Stat my='auto'>
-                        {/*<StatLabel*/}
-                        {/*    lineHeight='100%'*/}
-                        {/*    color={textColorSecondary}*/}
-                        {/*    fontSize={{*/}
-                        {/*        base: "sm",*/}
-                        {/*    }}*/}
-                        {/*    isTruncated*/}
-                        {/*    maxWidth="100%"*/}
-                        {/*>*/}
-                        {/*    {name}*/}
-                        {/*</StatLabel>*/}
-                        <StatNumber
-                            color={textColor}
-                            fontSize={{base: "md", md: "xl", sm: "lg"}}
-                            maxWidth="100%"
-                            isTruncated
+        <Flex
+            my='auto'
+            h='100%'
+            align='center'
+            justify='space-between'
+            flexWrap="wrap"
+            ml={6} p='5px' pl='10px' maxW='150px'
+        >
+            <Menu>
+                <MenuButton as={Button} rightIcon={<ChevronDownIcon/>} color={textColor} variant='outline' bg="white">
+                    Currency <Avatar src={currencies[selectedCurrency]} size="xs" ml={2}/>
+                </MenuButton>
+                <MenuList>
+                    {Object.entries(currencies).map(([label, value]) => (
+                        <MenuItem
+                            key={label}
+                            onClick={() => onCurrencyChange(label)}
+                            _hover={{bg: "gray.200"}}
+                            _active={{bg: "gray.300"}}
                         >
-                            Currency
-                        </StatNumber>
-                    </Stat>
-                </Box>
-                <Flex me='-16px' mt='10px'>
-                    <FormLabel>
-                        <Avatar src={currencies[selectedCurrency]} size="sm" />
-                    </FormLabel>
-                    <Select variant='mini' me='0px' defaultValue='usd' onChange={onCurrencyChange}>
-                        {Object.entries(currencies).map(([value, label]) => (
-                            <option key={value} value={value}>
-                                {value.toUpperCase()}
-                            </option>
-                        ))}
-                    </Select>
-                </Flex>
-            </Flex>
-        </Card>
+                            <Image
+                                boxSize='2rem'
+                                borderRadius='full'
+                                src={value}
+                                alt={label}
+                                mr='12px'
+                            />
+                            <span>{label.toUpperCase()}</span>
+                        </MenuItem>
+                    ))}
+                </MenuList>
+            </Menu>
+        </Flex>
     );
 }

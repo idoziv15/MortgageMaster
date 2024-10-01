@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import {
     Box,
     Input,
@@ -26,7 +26,7 @@ const tooltipMap = {
     'yearly_expenses': "The projected expenses incurred by the investor's properties on an annual basis."
 };
 
-export default function InvestorTable({tableName, data, setData}) {
+export default function InvestorTable({tableName, data, setData, chosenCurrency}) {
     const handleInputChange = (key, value) => {
         setData(prevData => {
             if (prevData[key].value === value) return prevData;
@@ -108,7 +108,7 @@ export default function InvestorTable({tableName, data, setData}) {
                                                         onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
                                                     />
                                                     <InputRightElement pl={3} pointerEvents="none">
-                                                        <Icon as={MdAttachMoney} color="gray.500"/>
+                                                        <Icon as={chosenCurrency.icon} color="gray.500"/>
                                                     </InputRightElement>
                                                 </InputGroup>
                                             </GridItem>

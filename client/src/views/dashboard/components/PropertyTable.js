@@ -25,18 +25,21 @@ import {
 } from "react-icons/md";
 import {TbRulerMeasure} from "react-icons/tb";
 
-const iconMapping = {
-    'purchase_price': MdAttachMoney,
-    'monthly_rent_income': MdAttachMoney,
-    'real_estate_investment_type': MdRealEstateAgent,
-    'square_meters': TbRulerMeasure,
-    'warehouse': MdWarehouse,
-    'parking_spots': MdLocalParking,
-    'balcony_square_meter': MdBalcony,
-    'after_repair_value': MdAttachMoney,
-    'annual_appreciation_percentage': MdPercent
-};
-const tooltipMap = {
+export default function PropertyTable({tableName, data, setData, chosenCurrency}) {
+    const toast = useToast();
+    const iconMapping = {
+        'purchase_price': chosenCurrency.icon,
+        'monthly_rent_income': chosenCurrency.icon,
+        'real_estate_investment_type': MdRealEstateAgent,
+        'square_meters': TbRulerMeasure,
+        'warehouse': MdWarehouse,
+        'parking_spots': MdLocalParking,
+        'balcony_square_meter': MdBalcony,
+        'after_repair_value': chosenCurrency.icon,
+        'annual_appreciation_percentage': MdPercent
+    };
+
+    const tooltipMap = {
     'purchase_price': "The total price for purchasing the property.",
     'monthly_rent_income': "The expected monthly rental income from the property.",
     'real_estate_investment_type': "The type of real estate investment (e.g., single apartment, multi-family, etc.).",
@@ -47,9 +50,6 @@ const tooltipMap = {
     'after_repair_value': "The estimated market value of the property after repairs and renovations.",
     'annual_appreciation_percentage': "The projected percentage increase in property value each year."
 };
-
-export default function PropertyTable({tableName, data, setData}) {
-    const toast = useToast();
     const handleInputChange = (key, value) => {
         // Validate after_repair_value
         if (key === 'after_repair_value' && value < data.purchase_price.value) {
