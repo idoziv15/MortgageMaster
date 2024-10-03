@@ -231,7 +231,6 @@ export default function Dashboard(props) {
     };
     const fetchCurrencyRates = async () => {
         const API_KEY = process.env.REACT_APP_CONVERSION_KEY;
-        console.log(process.env)
         const BASE_CURRENCY = 'USD';
 
         try {

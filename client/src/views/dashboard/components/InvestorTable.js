@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Box,
     Input,
@@ -26,7 +26,23 @@ const tooltipMap = {
 };
 
 export default function InvestorTable({tableName, data, setData, chosenCurrency}) {
+    const [inputValues, setInputValues] = useState({});
+
+    useEffect(() => {
+        const initialValues = Object.keys(data).reduce((acc, key) => {
+            acc[key] = data[key].value || 0;
+            return acc;
+        }, {});
+        setInputValues(initialValues);
+    }, [data]);
+
     const handleInputChange = (key, value) => {
+        setInputValues((prevValues) => ({
+            ...prevValues,
+            [key]: value
+        }));
+    };
+    const handleInputListChange = (key, value) => {
         setData(prevData => {
             if (prevData[key].value === value) return prevData;
             return {
@@ -39,6 +55,15 @@ export default function InvestorTable({tableName, data, setData, chosenCurrency}
         });
     };
 
+    const handleInputBlur = (key) => {
+        setData(prevData => ({
+            ...prevData,
+            [key]: {
+                ...prevData[key],
+                value: inputValues[key]
+            }
+        }));
+    };
     const handleListInputBlur = (key) => {
         const rawValue = data[key].value;
         if (typeof rawValue === 'string') {
@@ -87,7 +112,7 @@ export default function InvestorTable({tableName, data, setData, chosenCurrency}
                                                 my={0.5}
                                                 value={value.join(', ')}
                                                 placeholder="Enter values separated with a comma"
-                                                onChange={(e) => handleInputChange(key, e.target.value.split(',').map(item => item.trim()))}
+                                                onChange={(e) => handleInputListChange(key, e.target.value.split(',').map(item => item.trim()))}
                                                 onBlur={() => handleListInputBlur(key)}
                                             />
                                         </GridItem>
@@ -103,8 +128,9 @@ export default function InvestorTable({tableName, data, setData, chosenCurrency}
                                                         width="90%"
                                                         p={1}
                                                         my={0.5}
-                                                        value={value !== null ? value : 0}
+                                                        value={inputValues[key]}
                                                         onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
+                                                        onBlur={() => handleInputBlur(key)}
                                                     />
                                                     <InputRightElement pl={3} pointerEvents="none">
                                                         <Icon as={chosenCurrency.icon} color="gray.500"/>
@@ -113,8 +139,8 @@ export default function InvestorTable({tableName, data, setData, chosenCurrency}
                                             </GridItem>
                                             <GridItem>
                                                 <Slider
-                                                    value={value !== null ? value : 0}
-                                                    onChange={(value) => handleInputChange(key, value)}
+                                                    value={value ? value : 0}
+                                                    onChange={(value) => handleInputListChange(key, value)}
                                                     min={range ? range[0] : 0}
                                                     max={range ? range[1] : 100}
                                                     step={step || 0.1}
