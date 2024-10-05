@@ -98,13 +98,6 @@ export default function InvestmentTable({tableName, data, setData, propertyData,
             ...prevValues,
             [key]: value
         }));
-        // setData(prevData => ({
-        //     ...prevData,
-        //     [key]: {
-        //         ...prevData[key],
-        //         value: value
-        //     }
-        // }));
     };
 
     const handleInputBlur = (key) => {

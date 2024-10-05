@@ -27,6 +27,7 @@ const tooltipMap = {
 
 export default function InvestorTable({tableName, data, setData, chosenCurrency}) {
     const [inputValues, setInputValues] = useState({});
+
     useEffect(() => {
         const initialValues = Object.keys(data).reduce((acc, key) => {
             acc[key] = data[key].value || 0;

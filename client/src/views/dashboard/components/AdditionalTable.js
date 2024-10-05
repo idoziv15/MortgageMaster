@@ -17,30 +17,45 @@ import {
 } from '@chakra-ui/react';
 import {MdCalendarToday, MdPayments, MdTrendingUp} from 'react-icons/md';
 
-const otherIconMapping = {
-    'years_until_key_reception': MdCalendarToday,
-    'contractor_payment_distribution': MdPayments,
-    'construction_input_index_annual_growth': MdTrendingUp
-};
-const tooltipMap = {
-    'years_until_key_reception': "The estimated number of years until the property keys are received.",
-    'contractor_payment_distribution': "The distribution of payments made to contractors throughout the project.",
-    'construction_input_index_annual_growth': "The projected annual growth rate of construction input indices affecting project costs."
-};
-
 export default function AdditionalTable({tableName, data, setData, investmentData}) {
+    const otherIconMapping = {
+        'years_until_key_reception': MdCalendarToday,
+        'contractor_payment_distribution': MdPayments,
+        'construction_input_index_annual_growth': MdTrendingUp
+    };
+    const tooltipMap = {
+        'years_until_key_reception': "The estimated number of years until the property keys are received.",
+        'contractor_payment_distribution': "The distribution of payments made to contractors throughout the project.",
+        'construction_input_index_annual_growth': "The projected annual growth rate of construction input indices affecting project costs."
+    };
     const [yearsToExit, setYearsToExit] = useState(investmentData.years_to_exit.value);
+    const [inputValues, setInputValues] = useState({});
+
+    useEffect(() => {
+        const initialValues = Object.keys(data).reduce((acc, key) => {
+            acc[key] = data[key].value || 0;
+            return acc;
+        }, {});
+        setInputValues(initialValues);
+    }, [data]);
     const handleInputChange = (key, value) => {
         if (key === 'years_until_key_reception' && value > yearsToExit) {
             // Set value to years_to_exit if it exceeds the limit
             value = yearsToExit;
         }
 
+        setInputValues((prevValues) => ({
+            ...prevValues,
+            [key]: value
+        }));
+    };
+
+    const handleInputBlur = (key) => {
         setData(prevData => ({
             ...prevData,
             [key]: {
                 ...prevData[key],
-                value: value
+                value: inputValues[key]
             }
         }));
     };
@@ -56,6 +71,19 @@ export default function AdditionalTable({tableName, data, setData, investmentDat
                 }
             }));
         }
+    };
+
+    const handleInputListChange = (key, value) => {
+        setData(prevData => {
+            if (prevData[key].value === value) return prevData;
+            return {
+                ...prevData,
+                [key]: {
+                    ...prevData[key],
+                    value: value
+                }
+            };
+        });
     };
 
     useEffect(() => {
@@ -111,7 +139,7 @@ export default function AdditionalTable({tableName, data, setData, investmentDat
                                                 my={0.5}
                                                 value={value.join(', ')}
                                                 placeholder="Enter values separated with a comma"
-                                                onChange={(e) => handleInputChange(key, e.target.value.split(',').map(item => item.trim()))}
+                                                onChange={(e) => handleInputListChange(key, e.target.value.split(',').map(item => item.trim()))}
                                                 onBlur={() => handleListInputBlur(key)}
                                             />
                                         </GridItem>
@@ -130,8 +158,9 @@ export default function AdditionalTable({tableName, data, setData, investmentDat
                                                             width="90%"
                                                             p={1}
                                                             my={0.5}
-                                                            value={value !== null ? value : 0}
+                                                            value={inputValues[key]}
                                                             onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
+                                                            onBlur={() => handleInputBlur(key)}
                                                             max={maxLimit}
                                                         />
                                                         {IconComponent && (
@@ -145,7 +174,7 @@ export default function AdditionalTable({tableName, data, setData, investmentDat
                                             <GridItem>
                                                 <Slider
                                                     value={value !== null ? value : 0}
-                                                    onChange={(value) => handleInputChange(key, value)}
+                                                    onChange={(value) => handleInputListChange(key, value)}
                                                     min={range ? range[0] : 0}
                                                     max={maxLimit}
                                                     step={step || 0.1}
