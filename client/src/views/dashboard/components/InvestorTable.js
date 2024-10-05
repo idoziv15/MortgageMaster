@@ -27,7 +27,6 @@ const tooltipMap = {
 
 export default function InvestorTable({tableName, data, setData, chosenCurrency}) {
     const [inputValues, setInputValues] = useState({});
-
     useEffect(() => {
         const initialValues = Object.keys(data).reduce((acc, key) => {
             acc[key] = data[key].value || 0;
@@ -42,6 +41,17 @@ export default function InvestorTable({tableName, data, setData, chosenCurrency}
             [key]: value
         }));
     };
+
+    const handleInputBlur = (key) => {
+        setData(prevData => ({
+            ...prevData,
+            [key]: {
+                ...prevData[key],
+                value: inputValues[key]
+            }
+        }));
+    };
+
     const handleInputListChange = (key, value) => {
         setData(prevData => {
             if (prevData[key].value === value) return prevData;
@@ -53,16 +63,6 @@ export default function InvestorTable({tableName, data, setData, chosenCurrency}
                 }
             };
         });
-    };
-
-    const handleInputBlur = (key) => {
-        setData(prevData => ({
-            ...prevData,
-            [key]: {
-                ...prevData[key],
-                value: inputValues[key]
-            }
-        }));
     };
     const handleListInputBlur = (key) => {
         const rawValue = data[key].value;

@@ -166,7 +166,6 @@ export default function Dashboard(props) {
         'contractor_payment_distribution': {value: []},
         'construction_input_index_annual_growth': {value: 4, range: [0, 10], step: 0.1}
     });
-
     const isMonetaryField = (field) => {
         const monetaryFields = [
             "Price per meter", "Renovation expenses", "Purchase additional transactions cost",
