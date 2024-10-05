@@ -41,13 +41,7 @@ import {
 } from 'react-icons/md';
 
 export default function MortgageTable({
-                                          tableName,
-                                          tracks,
-                                          addTrack,
-                                          setTracks,
-                                          activeTab,
-                                          setActiveTab,
-                                          propertyData,
+                                          tableName, tracks, addTrack, setTracks, activeTab, setActiveTab, propertyData,
                                           chosenCurrency
                                       }) {
     const toast = useToast();
@@ -99,7 +93,6 @@ export default function MortgageTable({
         ]
     };
     const prerequisites = ['interest_only_period', 'interest_changing_period', 'forecasting_interest_rate', 'linked_index'];
-
     const iconMapping = {
         'interest_rate': MdPercent,
         'mortgage_duration': MdAccessTime,
@@ -111,7 +104,6 @@ export default function MortgageTable({
         'average_interest_when_taken': MdOutlineInsertChart,
         'mortgage_type': MdTrendingFlat
     };
-
     const tooltipMap = {
         'interest_rate': "The interest rate applied to this mortgage track loan.",
         'mortgage_duration': "The duration of the mortgage in years.",
@@ -122,7 +114,8 @@ export default function MortgageTable({
         'interest_changing_period': "The intervals at which the interest rate may change (e.g., annually, semi-annually).",
         'mortgage_type': "The type of mortgage selected (Constant Not Linked, Constant Linked, Change Not Linked, Change Linked, Eligibility or Prime."
     };
-
+    const [inputValues, setInputValues] = useState({});
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         setPurchasePrice(propertyData.purchase_price.value);
@@ -150,9 +143,44 @@ export default function MortgageTable({
         }
     }, [tracks]);
 
+    useEffect(() => {
+        const initialValues = tracks.reduce((acc, track) => {
+            acc[track.id] = track.data;
+            return acc;
+        }, {});
+        setInputValues(initialValues);
+    }, [tracks]);
+
+    // const handleInputChange = (key, value) => {
+    //     setInputValues((prevValues) => ({
+    //         ...prevValues,
+    //         [key]: value
+    //     }));
+    // };
+
+    const handleInputChange = (trackId, key, value) => {
+        setInputValues(prevValues => ({
+            ...prevValues,
+            [trackId]: {
+                ...prevValues[trackId],
+                [key]: value
+            }
+        }));
+    };
+
+    // const handleInputBlur = (key) => {
+    //     setTracks(prevData => ({
+    //         ...prevData,
+    //         [key]: {
+    //             ...prevData[key],
+    //             value: inputValues[key]
+    //         }
+    //     }));
+    // };
+
     const handleInputValidation = (track, key, value) => {
         const errors = [];
-        const maxPeriod = track.data.mortgage_duration * 12;
+        const maxPeriod = inputValues[track.id]?.mortgage_duration * 12 || 0;  // Use inputValues for mortgage_duration
 
         // 1. Validate initial loan amount <= 70% of purchase price
         if (key === 'initial_loan_amount' && propertyData.purchase_price) {
@@ -163,7 +191,7 @@ export default function MortgageTable({
         }
 
         // 2. Validate interest-only period <= mortgage_period * 12
-        if (key === 'interest_only_period' && track.data.mortgage_duration) {
+        if (key === 'interest_only_period' && inputValues[track.id]?.mortgage_duration) {
             if (value > maxPeriod) {
                 errors.push(`Interest-only period cannot exceed ${maxPeriod} months.`);
             }
@@ -184,13 +212,19 @@ export default function MortgageTable({
         }
 
         // 5. Validate interest changing period
-        if (key === 'interest_changing_period' && track.data.interest_changing_period) {
+        if (key === 'interest_changing_period' && inputValues[track.id]?.interest_changing_period) {
             if (value > maxPeriod) {
                 errors.push(`Interest-only changing cannot exceed ${maxPeriod} months.`);
             }
         }
 
-        // Return errors
+        // 6. Validate Mortgage Duration not exceeds 30 years
+        if (key === 'mortgage_duration' && inputValues[track.id]?.mortgage_duration) {
+            if (inputValues[track.id].mortgage_duration > 30) {
+                errors.push(`Mortgage track period cannot exceed 30 years.`);
+            }
+        }
+
         return errors;
     };
 
@@ -271,13 +305,27 @@ export default function MortgageTable({
             prevTracks.map(track => {
                 if (track.id === trackId) {
                     const errors = handleInputValidation(track, key, value);
-
-                    if (errors.length === 0) {
+                    if (errors.length === 0 && value) {
                         return {
                             ...track,
                             data: {
                                 ...track.data,
                                 [key]: value
+                            }
+                        };
+                    } else if (errors.length === 0 && !value) {
+                        setInputValues(prevValues => ({
+                            ...prevValues,
+                            [trackId]: {
+                                ...prevValues[trackId],
+                                [key]: 0
+                            }
+                        }));
+                        return {
+                            ...track,
+                            data: {
+                                ...track.data,
+                                [key]: 0
                             }
                         };
                     } else {
@@ -326,6 +374,10 @@ export default function MortgageTable({
     };
 
     const renderFields = (track) => {
+        if (!inputValues[track.id] || Object.keys(inputValues[track.id]).length === 0) {
+            return <div>Loading data for track...</div>;
+        }
+
         const mortgageType = track.data.mortgage_type || 'constant_not_linked';
         return mortgageTypes[mortgageType].map(({label, key, isList, optional, range, step}) => {
             const IconComponent = iconMapping[key];
@@ -366,12 +418,13 @@ export default function MortgageTable({
                                         width="90%"
                                         p={1}
                                         my={0.5}
-                                        value={track.data[key] !== null ? track.data[key] : 0}
+                                        value={inputValues[track.id]?.[key] || ''}
                                         isDisabled={
                                             (key === 'initial_loan_amount' && purchasePrice === 0) ||
                                             (prerequisites.includes(key) && track.data['mortgage_duration'] === 0)
                                         }
-                                        onChange={(e) => handleSliderChange(track.id, key, parseFloat(e.target.value))}
+                                        onChange={(e) => handleInputChange(track.id, key, parseFloat(e.target.value))}
+                                        onBlur={(e) => handleSliderChange(track.id, key, parseFloat(e.target.value))}
                                     />
                                     {IconComponent &&
                                         <InputRightElement pointerEvents="none" pl="1rem">

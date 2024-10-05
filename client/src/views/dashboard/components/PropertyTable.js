@@ -209,7 +209,6 @@ export default function PropertyTable({tableName, data, setData, chosenCurrency}
                                                         width="90%"
                                                         p={1}
                                                         my={0.5}
-                                                        // value={value !== null ? value : 0}
                                                         value={inputValues[key]}
                                                         onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
                                                         onBlur={() => handleInputBlur(key)}
