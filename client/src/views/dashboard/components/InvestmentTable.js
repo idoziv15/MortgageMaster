@@ -27,10 +27,8 @@ import {
 } from 'react-icons/md';
 import {FaHandsHelping, FaUserTie, FaCouch, FaRegHandshake} from 'react-icons/fa';
 
-export default function InvestmentTable({
-                                            tableName, data, setData, propertyData,
-                                            isFirstInvestment, setIsFirstInvestment, chosenCurrency
-                                        }) {
+export default function InvestmentTable({tableName, data, setData, propertyData,
+                                            isFirstInvestment, setIsFirstInvestment, chosenCurrency}) {
     const [purchasePrice, setPurchasePrice] = useState(propertyData.purchase_price.value);
     const resetCosts = ['appraiser_cost', 'lawyer_cost', 'escort_costs', 'mortgage_advisor_cost',
         'broker_purchase_percentage', 'broker_sell_percentage', 'broker_rent_percentage',
@@ -71,6 +69,15 @@ export default function InvestmentTable({
         'management_fees_percentage': "Percentage of revenue allocated for property management fees.",
         'years_to_exit': "Estimated number of years until the investment is sold or exited."
     };
+    const [inputValues, setInputValues] = useState({});
+
+    useEffect(() => {
+        const initialValues = Object.keys(data).reduce((acc, key) => {
+            acc[key] = data[key].value || 0;
+            return acc;
+        }, {});
+        setInputValues(initialValues);
+    }, [data]);
 
     const handleInputChange = (key, value) => {
         const maxValues = {
@@ -86,13 +93,40 @@ export default function InvestmentTable({
             value = Math.min(value, maxValues[key]);
         }
 
+
+        setInputValues((prevValues) => ({
+            ...prevValues,
+            [key]: value
+        }));
+        // setData(prevData => ({
+        //     ...prevData,
+        //     [key]: {
+        //         ...prevData[key],
+        //         value: value
+        //     }
+        // }));
+    };
+
+    const handleInputBlur = (key) => {
         setData(prevData => ({
             ...prevData,
             [key]: {
                 ...prevData[key],
-                value: value
+                value: inputValues[key]
             }
         }));
+    };
+    const handleSliderChange = (key, value) => {
+        setData(prevData => {
+            if (prevData[key].value === value) return prevData;
+            return {
+                ...prevData,
+                [key]: {
+                    ...prevData[key],
+                    value: value
+                }
+            };
+        });
     };
 
     useEffect(() => {
@@ -151,8 +185,9 @@ export default function InvestmentTable({
                                                     width="90%"
                                                     p={1}
                                                     my={0.5}
-                                                    value={value !== null ? value : 0}
+                                                    value={inputValues[key]}
                                                     onChange={(e) => handleInputChange(key, parseFloat(e.target.value))}
+                                                    onBlur={() => handleInputBlur(key)}
                                                     isDisabled={isDisabled}
                                                     max={isDisabled ? maxRange : range ? range[1] : 100}
                                                 />
@@ -166,8 +201,8 @@ export default function InvestmentTable({
                                     </GridItem>
                                     <GridItem>
                                         <Slider
-                                            value={value !== null ? value : 0}
-                                            onChange={(value) => handleInputChange(key, value)}
+                                            value={value !== undefined ? value : 0}
+                                            onChange={(value) => handleSliderChange(key, value)}
                                             min={range ? range[0] : 0}
                                             max={isDisabled ? maxRange : range ? range[1] : 100}
                                             step={step || 0.1}
