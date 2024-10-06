@@ -599,6 +599,7 @@ export default function Dashboard(props) {
 
             setReportName(response.data.report.name);
             setReportDescription(response.data.report.description);
+            setIsFirstInvestment(response.data.report.isFirstInvestment);
         } catch (error) {
             console.error('Error fetching report data', error);
             setLoading(false);
@@ -745,7 +746,8 @@ export default function Dashboard(props) {
                 data: filterValues(track.data)
             })),
             otherData: filterValues(otherData)
-        }
+        },
+        isFirstInvestment: isFirstInvestment
     });
 
     const fetchUserData = async () => {

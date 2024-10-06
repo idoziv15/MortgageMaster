@@ -71,7 +71,161 @@
 
 <h1>{{ report_name }}</h1>
 <p><strong>Description:</strong> {{ report_description }}</p>
-<p><strong>Created At:</strong> {{ created_at }}</p>
+<p><strong>Created At:</strong> {{ created_at[:16] }}</p>
+
+<!-- Investor Table -->
+<div class="section-title">Investor Details</div>
+<table>
+    <thead>
+    <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Net Monthly Income</td>
+        <td>{{ investorData.net_monthly_income }}</td>
+    </tr>
+    <tr>
+        <td>Total Debt Payment</td>
+        <td>{{ investorData.total_debt_payment }}</td>
+    </tr>
+    <tr>
+        <td>Total Available Equity</td>
+        <td>{{ investorData.total_available_equity }}</td>
+    </tr>
+    <tr>
+        <td>Gross Rental Income</td>
+        <td>{{ investorData.gross_rental_income }}</td>
+    </tr>
+    <tr>
+        <td>Yearly Revenue</td>
+        <td>{{ investorData.yearly_revenue | join(', ') }}</td>
+    </tr>
+    <tr>
+        <td>Yearly Expenses</td>
+        <td>{{ investorData.yearly_expenses | join(', ') }}</td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Property Table -->
+<div class="section-title">Property Details</div>
+<table>
+    <thead>
+    <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Purchase Price</td>
+        <td>{{ propertyData.purchase_price }}</td>
+    </tr>
+    <tr>
+        <td>Monthly Rent Income</td>
+        <td>{{ propertyData.monthly_rent_income }}</td>
+    </tr>
+    <tr>
+        <td>Real Estate Investment Type</td>
+        <td>{{ propertyData.real_estate_investment_type }}</td>
+    </tr>
+    <tr>
+        <td>Square Meters</td>
+        <td>{{ propertyData.square_meters }}</td>
+    </tr>
+    <tr>
+        <td>Parking Spots</td>
+        <td>{{ propertyData.parking_spots }}</td>
+    </tr>
+    <tr>
+        <td>Warehouse</td>
+        <td>{% if propertyData.warehouse %}Yes{% else %}No{% endif %}</td>
+    </tr>
+    <tr>
+        <td>Balcony Square Meters</td>
+        <td>{{ propertyData.balcony_square_meter }}</td>
+    </tr>
+    <tr>
+        <td>After Repair Value</td>
+        <td>{{ propertyData.after_repair_value }}</td>
+    </tr>
+    <tr>
+        <td>Annual Appreciation Percentage</td>
+        <td>{{ propertyData.annual_appreciation_percentage }}%</td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Mortgage Table -->
+<div class="section-title">Mortgage Details</div>
+{% if mortgageData %}
+    {% for track in mortgageData %}
+    <div class="mortgage-section">
+        <div class="mortgage-title">Mortgage Track {{ loop.index }}</div>
+        <table>
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Mortgage Type</td>
+                <td>{{ track.data.mortgage_type.replace('_', ' ').capitalize() }}</td>
+            </tr>
+            <tr>
+                <td>Interest Rate</td>
+                <td>{{ track.data.interest_rate }}%</td>
+            </tr>
+            <tr>
+                <td>Mortgage Duration (Years)</td>
+                <td>{{ track.data.mortgage_duration }} years</td>
+            </tr>
+            <tr>
+                <td>Initial Loan Amount</td>
+                <td>{{ track.data.initial_loan_amount }}</td>
+            </tr>
+
+            {% if track.data.mortgage_type in ['constant_not_linked', 'constant_linked', 'change_linked', 'change_not_linked'] %}
+            <tr>
+                <td>Interest Only Period (Months)</td>
+                <td>{{ track.data.interest_only_period }} months</td>
+            </tr>
+            {% endif %}
+            {% if track.data.linked_index %}
+                <tr><td>Linked Index</td><td>{{ track.data.linked_index }}</td></tr>
+            {% else %}
+                <tr><td>Linked Index</td><td>None</td></tr>
+            {% endif %}
+
+            {% if track.data.mortgage_type in ['change_linked', 'change_not_linked', 'prime'] %}
+            <tr>
+                <td>Forecasting Interest Rate</td>
+                <td>{% if track.data.forecasting_interest_rate %}{{ track.data.forecasting_interest_rate }}{% else %}None{% endif %}</td>
+            </tr>
+            <tr>
+                <td>Interest Changing Period (Years)</td>
+                <td>{{ track.data.interest_changing_period }} years</td>
+            </tr>
+            {% endif %}
+
+            {% if track.data.average_interest_when_taken is not none %}
+            <tr>
+                <td>Average Interest When Taken</td>
+                <td>{{ track.data.average_interest_when_taken }}%</td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>No mortgage data available.</p>
+{% endif %}
 
 <!-- Investment Table -->
 <div class="section-title">Investment Details</div>
@@ -96,116 +250,57 @@
         <td>{{ investmentData.escort_costs }}</td>
     </tr>
     <tr>
+        <td>Mortgage Advisor Cost</td>
+        <td>{{ investmentData.mortgage_advisor_cost }}</td>
+    </tr>
+    <tr>
+        <td>Additional Transaction Costs</td>
+        <td>{{ investmentData.additional_transaction_costs }}</td>
+    </tr>
+    <tr>
+        <td>Renovation Expenses</td>
+        <td>{{ investmentData.renovation_expenses }}</td>
+    </tr>
+    <tr>
         <td>Furniture Cost</td>
         <td>{{ investmentData.furniture_cost }}</td>
     </tr>
     <tr>
+        <td>Broker Purchase Percentage</td>
+        <td>{{ investmentData.broker_purchase_percentage }}%</td>
+    </tr>
+    <tr>
+        <td>Broker Rent Percentage</td>
+        <td>{{ investmentData.broker_rent_percentage }}%</td>
+    </tr>
+    <tr>
+        <td>Broker Sell Percentage</td>
+        <td>{{ investmentData.broker_sell_percentage }}%</td>
+    </tr>
+    <tr>
         <td>Vacancy Percentage</td>
-        <td>{{ investmentData.vacancy_percentage }}</td>
-    </tr>
-    <!-- Add more fields as necessary -->
-    </tbody>
-</table>
-
-<!-- Investor Table -->
-<div class="section-title">Investor Details</div>
-<table>
-    <thead>
-    <tr>
-        <th>Attribute</th>
-        <th>Value</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Net Monthly Income</td>
-        <td>{{ investorData.net_monthly_income }}</td>
+        <td>{{ investmentData.vacancy_percentage }}%</td>
     </tr>
     <tr>
-        <td>Total Debt Payment</td>
-        <td>{{ investorData.total_debt_payment }}</td>
+        <td>Annual Maintenance Cost Percentage</td>
+        <td>{{ investmentData.annual_maintenance_cost_percentage }}%</td>
     </tr>
     <tr>
-        <td>Real Estate Investment Type</td>
-        <td>{{ investorData.RealEstateInvestmentType }}</td>
+        <td>Annual Life Insurance Cost</td>
+        <td>{{ investmentData.annual_life_insurance_cost }}</td>
     </tr>
     <tr>
-        <td>Total Available Equity</td>
-        <td>{{ investorData.total_available_equity }}</td>
+        <td>Annual House Insurance Cost</td>
+        <td>{{ investmentData.annual_house_insurance_cost }}</td>
     </tr>
     <tr>
-        <td>Gross Rental Income</td>
-        <td>{{ investorData.gross_rental_income }}</td>
-    </tr>
-    <!-- Add more fields as necessary -->
-    </tbody>
-</table>
-
-<!-- Property Table -->
-<div class="section-title">Property Details</div>
-<table>
-    <thead>
-    <tr>
-        <th>Attribute</th>
-        <th>Value</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Purchase Price</td>
-        <td>{{ propertyData.purchase_price }}</td>
+        <td>Management Fees Percentage</td>
+        <td>{{ investmentData.management_fees_percentage }}%</td>
     </tr>
     <tr>
-        <td>Monthly Rent Income</td>
-        <td>{{ propertyData.monthly_rent_income }}</td>
+        <td>Years to Exit</td>
+        <td>{{ investmentData.years_to_exit }} years</td>
     </tr>
-    <tr>
-        <td>Square Meters</td>
-        <td>{{ propertyData.square_meters }}</td>
-    </tr>
-    <tr>
-        <td>Parking Spots</td>
-        <td>{{ propertyData.parking_spots }}</td>
-    </tr>
-    <tr>
-        <td>Warehouse</td>
-        <td>{{ propertyData.warehouse }}</td>
-    </tr>
-    <!-- Add more fields as necessary -->
-    </tbody>
-</table>
-
-<!-- Mortgage Table -->
-<div class="section-title">Mortgage Details</div>
-<table>
-    <thead>
-    <tr>
-        <th>Attribute</th>
-        <th>Value</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Mortgage Advisor Cost</td>
-        <td>{{ mortgageData.mortgage_advisor_cost }}</td>
-    </tr>
-    <tr>
-        <td>Interest Rate</td>
-        <td>{{ mortgageData.interest_rate }}</td>
-    </tr>
-    <tr>
-        <td>Number of Payments</td>
-        <td>{{ mortgageData.num_payments }}</td>
-    </tr>
-    <tr>
-        <td>Initial Loan Amount</td>
-        <td>{{ mortgageData.initial_loan_amount }}</td>
-    </tr>
-    <tr>
-        <td>Interest Only Period</td>
-        <td>{{ mortgageData.interest_only_period }}</td>
-    </tr>
-    <!-- Add more fields as necessary -->
     </tbody>
 </table>
 
@@ -224,10 +319,13 @@
         <td>{{ otherData.years_until_key_reception }}</td>
     </tr>
     <tr>
+        <td>Contractor Payment Distribution</td>
+        <td>{{ otherData.contractor_payment_distribution | join(', ') }}</td>
+    </tr>
+    <tr>
         <td>Construction Input Index Annual Growth</td>
         <td>{{ otherData.construction_input_index_annual_growth }}</td>
     </tr>
-    <!-- Add more fields as necessary -->
     </tbody>
 </table>
 
@@ -258,10 +356,165 @@
         <td>{{ insightsData["Renovation expenses"] }}</td>
     </tr>
     <tr>
+        <td>Purchase Additional Transactions Cost</td>
+        <td>{{ insightsData["Purchase additional transactions cost"] }}</td>
+    </tr>
+    <tr>
+        <td>Purchase Tax</td>
+        <td>{{ insightsData["Purchase tax"] }}</td>
+    </tr>
+    <tr>
+        <td>Closing Costs</td>
+        <td>{{ insightsData["Closing costs"] }}</td>
+    </tr>
+    <tr>
+        <td>Broker Purchase Cost</td>
+        <td>{{ insightsData["Broker purchase cost"] }}</td>
+    </tr>
+    <tr>
+        <td>Monthly Operating Expenses</td>
+        <td>{{ insightsData["Monthly operating expenses"] }}</td>
+    </tr>
+    <tr>
         <td>Cash on Cash</td>
         <td>{{ insightsData["Cash on cash"] }}</td>
     </tr>
-    <!-- Add more fields as necessary -->
+    <tr>
+        <td>Net Yearly Cash Flow</td>
+        <td>{{ insightsData["Net Yearly Cash Flow"] }}</td>
+    </tr>
+    <tr>
+        <td>Net Monthly Cash Flow</td>
+        <td>{{ insightsData["Net Monthly Cash Flow"] }}</td>
+    </tr>
+    <tr>
+        <td>Yearly IRR</td>
+        <td>{{ insightsData["Yearly IRR"] }}</td>
+    </tr>
+    <tr>
+        <td>Annual Rent Income</td>
+        <td>{{ insightsData["Annual rent income"] }}</td>
+    </tr>
+    <tr>
+        <td>ROI</td>
+        <td>{{ insightsData["ROI"] }}</td>
+    </tr>
+    <tr>
+        <td>Monthly NOI</td>
+        <td>{{ insightsData["Monthly NOI"] }}</td>
+    </tr>
+    <tr>
+        <td>Annual NOI</td>
+        <td>{{ insightsData["Annual NOI"] }}</td>
+    </tr>
+    <tr>
+        <td>Monthly Rental Property Taxes</td>
+        <td>{{ insightsData["Monthly rental property taxes"] }}</td>
+    </tr>
+    <tr>
+        <td>Annual Rental Property Taxes</td>
+        <td>{{ insightsData["Annual rental property taxes"] }}</td>
+    </tr>
+    <tr>
+        <td>Cap Rate</td>
+        <td>{{ insightsData["Cap rate"] }}</td>
+    </tr>
+    <tr>
+        <td>Gross Yield</td>
+        <td>{{ insightsData["Gross yield"] }}</td>
+    </tr>
+    <tr>
+        <td>Monthly Insurances Expenses</td>
+        <td>{{ insightsData["Monthly insurances expenses"] }}</td>
+    </tr>
+    <tr>
+        <td>Annual Insurances Expenses</td>
+        <td>{{ insightsData["Annual insurances expenses"] }}</td>
+    </tr>
+    <tr>
+        <td>Monthly Maintenance and Repairs</td>
+        <td>{{ insightsData["Monthly maintenance and repairs"] }}</td>
+    </tr>
+    <tr>
+        <td>Annual Maintenance and Repairs</td>
+        <td>{{ insightsData["Annual maintenance and repairs"] }}</td>
+    </tr>
+    <tr>
+        <td>Monthly Vacancy Cost</td>
+        <td>{{ insightsData["Monthly vacancy cost"] }}</td>
+    </tr>
+    <tr>
+        <td>Annual Vacancy Cost</td>
+        <td>{{ insightsData["Annual vacancy cost"] }}</td>
+    </tr>
+    <tr>
+        <td>Estimated Sale Price</td>
+        <td>{{ insightsData["Estimated sale price"] }}</td>
+    </tr>
+    <tr>
+        <td>Selling Expenses</td>
+        <td>{{ insightsData["Selling expenses"] }}</td>
+    </tr>
+    <tr>
+        <td>Sale Proceeds</td>
+        <td>{{ insightsData["Sale proceeds"] }}</td>
+    </tr>
+    <tr>
+        <td>Total Revenue</td>
+        <td>{{ insightsData["Total revenue"] }}</td>
+    </tr>
+    <tr>
+        <td>Annual Revenue Distribution</td>
+        <td>{{ insightsData["Annual revenue distribution"] | join(', ') }}</td>
+    </tr>
+    <tr>
+        <td>Contractor Payments</td>
+        <td>{{ insightsData["Contractor payments"] | join(', ') }}</td>
+    </tr>
+    <tr>
+        <td>Annual Expenses Distribution</td>
+        <td>{{ insightsData["Annual expenses distribution"] | join(', ') }}</td>
+    </tr>
+    <tr>
+        <td>Annual Operating Expenses</td>
+        <td>{{ insightsData["Annual operating expenses"] }}</td>
+    </tr>
+    <tr>
+        <td>Annual Cash Flow</td>
+        <td>{{ insightsData["Annual cash flow"] }}</td>
+    </tr>
+    <tr>
+        <td>Mortgage Remain Balance in Exit</td>
+        <td>{{ insightsData["Mortgage remain balance in exit"] }}</td>
+    </tr>
+    <tr>
+        <td>Constructor Index Linked Compensation</td>
+        <td>{{ insightsData["Constructor index linked compensation"] }}</td>
+    </tr>
+    <tr>
+        <td>Total Expenses</td>
+        <td>{{ insightsData["Total expenses"] }}</td>
+    </tr>
+    <tr>
+        <td>Equity Needed for Purchase</td>
+        <td>{{ insightsData["Equity needed for purchase"] }}</td>
+    </tr>
+    <tr>
+        <td>Monthly Property Management Fees</td>
+        <td>{{ insightsData["Monthly property management fees"] }}</td>
+    </tr>
+    <tr>
+        <td>Annual Property Management Fees</td>
+        <td>{{ insightsData["Annual property management fees"] }}</td>
+    </tr>
+    <tr>
+        <td>Net Profit</td>
+        <td>{{ insightsData["Net profit"] }}</td>
+    </tr>
+    <tr>
+        <td>Capital Gain Tax</td>
+        <td>{{ insightsData["Capital gain tax"] }}</td>
+    </tr>
     </tbody>
 </table>
 

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Presentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            width: 90%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .table th, .table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background-color: #17a2b8;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .table td {
+            background-color: #f7f7f7;
+        }
+        .info {
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f1f1f1;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .highlight {
+            background-color: #e9f7df;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #17a2b8;
+            color: white;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Investment Property Report</h1>
+        <p class="info">Generated on: <strong>{{ currentDate }}</strong></p>
+
+        <!-- Property Details Section -->
+        <div class="section">
+            <h2>Property Details</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Purchase Price</td>
+                        <td>{{ purchasePrice }}</td>
+                    </tr>
+                    <tr>
+                        <td>After Repair Value</td>
+                        <td>{{ afterRepairValue }}</td>
+                    </tr>
+                    <tr>
+                        <td>Square Meters</td>
+                        <td>{{ squareMeters }}</td>
+                    </tr>
+                    <tr>
+                        <td>Monthly Rent Income</td>
+                        <td>{{ monthlyRentIncome }}</td>
+                    </tr>
+                    <tr>
+                        <td>Annual Appreciation Percentage</td>
+                        <td>{{ annualAppreciationPercentage }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mortgage Details Section -->
+        <div class="section">
+            <h2>Mortgage Tracks</h2>
+            {% for track in mortgageTracks %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Interest Rate</td>
+                        <td>{{ track.interestRate }}%</td>
+                    </tr>
+                    <tr>
+                        <td>Mortgage Duration</td>
+                        <td>{{ track.mortgageDuration }} years</td>
+                    </tr>
+                    <tr>
+                        <td>Initial Loan Amount</td>
+                        <td>{{ track.initialLoanAmount }}</td>
+                    </tr>
+                    <tr>
+                        <td>Interest Only Period</td>
+                        <td>{{ track.interestOnlyPeriod }} months</td>
+                    </tr>
+                    <tr>
+                        <td>Linked Index</td>
+                        <td>{{ track.linkedIndex }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endfor %}
+        </div>
+
+        <!-- Investment Summary Section -->
+        <div class="section">
+            <h2>Investment Summary</h2>
+            <div class="info highlight">
+                <p>Total Investment Value: <strong>{{ totalInvestmentValue }}</strong></p>
+                <p>Projected Annual Return: <strong>{{ projectedReturn }}</strong></p>
+                <p>Years to Exit: <strong>{{ yearsToExit }}</strong></p>
+            </div>
+        </div>
+
+        <!-- Additional Notes Section -->
+        <div class="section">
+            <h2>Additional Notes</h2>
+            <p>{{ additionalNotes }}</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Investment Property Report &copy; {{ currentYear }}</p>
+    </div>
+
+</body>
+</html>

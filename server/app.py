@@ -531,6 +531,7 @@ def download_report(current_user, report_id):
             return jsonify({'error': 'Report not found'}), 404
 
         # Generate HTML content for the PDF
+        print(report['data']['mortgageTracks'])
         html_content = render_template(
             "report_template.html",
             report_name=report['name'],
@@ -539,7 +540,7 @@ def download_report(current_user, report_id):
             investmentData=report['data']['investmentData'],
             investorData=report['data']['investorData'],
             propertyData=report['data']['propertyData'],
-            mortgageData=report['data']['mortgageData'],
+            mortgageData=report['data']['mortgageTracks'],
             otherData=report['data']['otherData'],
             insightsData=report['data']['insightsData'],
             current_year=datetime.now().year
@@ -557,6 +558,7 @@ def download_report(current_user, report_id):
 
     except Exception as e:
         print(f"Error generating PDF: {e}")
+        traceback.print_exc()
         return jsonify({'error': 'Failed to generate PDF'}), 500
 
 
