@@ -13,7 +13,7 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem, Switch, Select, Tooltip, InputRightElement, Icon, InputGroup
+    GridItem, Switch, Select, Tooltip, InputRightElement, Icon, InputGroup, Spinner
 } from '@chakra-ui/react';
 import {
     MdAttachMoney,
@@ -27,8 +27,10 @@ import {
 } from 'react-icons/md';
 import {FaHandsHelping, FaUserTie, FaCouch, FaRegHandshake} from 'react-icons/fa';
 
-export default function InvestmentTable({tableName, data, setData, propertyData,
-                                            isFirstInvestment, setIsFirstInvestment, chosenCurrency}) {
+export default function InvestmentTable({
+                                            tableName, data, setData, propertyData,
+                                            isFirstInvestment, setIsFirstInvestment, chosenCurrency
+                                        }) {
     const [purchasePrice, setPurchasePrice] = useState(propertyData.purchase_price.value);
     const resetCosts = ['appraiser_cost', 'lawyer_cost', 'escort_costs', 'mortgage_advisor_cost',
         'broker_purchase_percentage', 'broker_sell_percentage', 'broker_rent_percentage',
@@ -125,6 +127,16 @@ export default function InvestmentTable({tableName, data, setData, propertyData,
     useEffect(() => {
         setPurchasePrice(propertyData.purchase_price.value);
     }, [propertyData.purchase_price.value]);
+
+    if (!data || !propertyData) {
+        return (
+            <ChakraProvider>
+                <Box p={4} display="flex" justifyContent="center" alignItems="center">
+                    <Spinner size="xl"/>
+                </Box>
+            </ChakraProvider>
+        );
+    }
 
     return (
         <ChakraProvider>

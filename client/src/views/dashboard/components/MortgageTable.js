@@ -19,7 +19,7 @@ import {
     Slider,
     SliderFilledTrack,
     SliderThumb,
-    SliderTrack,
+    SliderTrack, Spinner,
     Tab,
     TabList,
     TabPanel,
@@ -151,13 +151,6 @@ export default function MortgageTable({
         setInputValues(initialValues);
     }, [tracks]);
 
-    // const handleInputChange = (key, value) => {
-    //     setInputValues((prevValues) => ({
-    //         ...prevValues,
-    //         [key]: value
-    //     }));
-    // };
-
     const handleInputChange = (trackId, key, value) => {
         setInputValues(prevValues => ({
             ...prevValues,
@@ -167,16 +160,6 @@ export default function MortgageTable({
             }
         }));
     };
-
-    // const handleInputBlur = (key) => {
-    //     setTracks(prevData => ({
-    //         ...prevData,
-    //         [key]: {
-    //             ...prevData[key],
-    //             value: inputValues[key]
-    //         }
-    //     }));
-    // };
 
     const handleInputValidation = (track, key, value) => {
         const errors = [];
@@ -372,6 +355,16 @@ export default function MortgageTable({
             });
         }
     };
+
+    if (!tracks || !propertyData) {
+        return (
+            <ChakraProvider>
+                <Box p={4} display="flex" justifyContent="center" alignItems="center">
+                    <Spinner size="xl"/>
+                </Box>
+            </ChakraProvider>
+        );
+    }
 
     const renderFields = (track) => {
         if (!inputValues[track.id] || Object.keys(inputValues[track.id]).length === 0) {

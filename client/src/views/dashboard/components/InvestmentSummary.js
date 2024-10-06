@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Heading, useColorModeValue, Icon, SimpleGrid} from '@chakra-ui/react';
+import {Box, Heading, useColorModeValue, Icon, SimpleGrid, ChakraProvider, Spinner} from '@chakra-ui/react';
 import IconBox from "../../../components/icons/IconBox";
 import {
     MdAttachMoney,
@@ -142,6 +142,16 @@ const InvestmentSummary = ({insights, investorData, chosenCurrency}) => {
         };
         return symbolMapping[name] || '$';
     };
+
+    if (!insights || !investorData) {
+        return (
+            <ChakraProvider>
+                <Box p={4} display="flex" justifyContent="center" alignItems="center">
+                    <Spinner size="xl" />
+                </Box>
+            </ChakraProvider>
+        );
+    }
 
     return (
         <Box p={7}>

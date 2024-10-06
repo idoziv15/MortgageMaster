@@ -168,10 +168,10 @@ export default function SignIn() {
                         mx={{base: "auto", lg: "unset"}}
                         me='auto'
                         mb={{base: "20px", md: "auto"}}>
-                        <GoogleLogin
-                            onSuccess={handleGoogleLoginSuccess}
-                            onError={handleGoogleLoginFailure}
-                        />
+                        {/*<GoogleLogin*/}
+                        {/*    onSuccess={handleGoogleLoginSuccess}*/}
+                        {/*    onError={handleGoogleLoginFailure}*/}
+                        {/*/>*/}
                         <Button
                             fontSize='sm'
                             me='0px'

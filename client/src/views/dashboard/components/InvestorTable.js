@@ -13,7 +13,7 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem, Select, InputGroup, InputRightElement, Icon, Tooltip
+    GridItem, Select, InputGroup, InputRightElement, Icon, Tooltip, Spinner
 } from '@chakra-ui/react';
 
 const tooltipMap = {
@@ -77,6 +77,16 @@ export default function InvestorTable({tableName, data, setData, chosenCurrency}
             }));
         }
     };
+
+    if (!data) {
+        return (
+            <ChakraProvider>
+                <Box p={4} display="flex" justifyContent="center" alignItems="center">
+                    <Spinner size="xl"/>
+                </Box>
+            </ChakraProvider>
+        );
+    }
 
     return (
         <ChakraProvider>

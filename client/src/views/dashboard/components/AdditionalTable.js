@@ -13,7 +13,7 @@ import {
     CardHeader,
     CardBody,
     Grid,
-    GridItem, Tooltip, InputRightElement, Icon, InputGroup
+    GridItem, Tooltip, InputRightElement, Icon, InputGroup, Spinner
 } from '@chakra-ui/react';
 import {MdCalendarToday, MdPayments, MdTrendingUp} from 'react-icons/md';
 
@@ -102,6 +102,16 @@ export default function AdditionalTable({tableName, data, setData, investmentDat
             }));
         }
     }, [investmentData.years_to_exit.value]);
+
+    if (!data || !investmentData) {
+        return (
+            <ChakraProvider>
+                <Box p={4} display="flex" justifyContent="center" alignItems="center">
+                    <Spinner size="xl"/>
+                </Box>
+            </ChakraProvider>
+        );
+    }
 
     return (
         <ChakraProvider>
