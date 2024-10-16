@@ -113,4 +113,3 @@ Your application should now be running at `http://localhost:3000` (React app) an
 ### Visualization:
 
 - View and analyze financial data through charts and tables within the dashboard.
-
