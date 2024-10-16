@@ -2,25 +2,20 @@
 
 Mortgage Master is a tool designed to simplify and streamline mortgage management by providing users with the ability to handle multiple mortgage tracks, calculate mortgage details, and perform advanced financial modeling. The project is built with a React front-end and a Flask back-end.
 
-<table>
-  <tr>
-    <td><img src="./assets/homepage.png" alt="Home page" width="400"/></td>
-    <td><img src="./assets/dashboard.png" alt="Mortgage Dashboard" width="400"/></td>
-  </tr>
-   <tr>
-    <td><img src="./assets/dashboard-graghs.png" alt="Mortgage Dashboard summery" width="400"/></td>
-    <td><img src="./assets/reports.png" alt="My reports" width="400"/></td>
-   </tr>
-   <tr>
-    <td><img src="./assets/profile.png" alt="My profile" width="400"/></td>
-   </tr>
-</table>
-
-
+### Homepage
+Where you can sign up or login to the system.
 ![Dashboard Screenshot](./assets/homepage.png)
+### Main Dashboard
+In this page you can adjust all different aspects of your investment details. Such as details about you as an investor to get a better picture of your financial situation. Details about the property you aim to invest in. Assemble your desire mortgage loan with all different tracks. And also details related to the investment itself.
 ![Dashboard Screenshot](./assets/dashboard.png)
+### Investment Summery
+When you scroll down the dashboard page and after pressing the calculate button, you'll see all investment insights that the system has calculated for you considering all the details you have entered in the tables. You will be able to see both graphical illustrations representing some insights and some raw important values that will help you get a better understanding how this investment performs and whether thats the right investment for you.
 ![Dashboard Screenshot](./assets/dashboard-graghs.png)
+### My Reports Page
+At this page you'll be able to manage and see all the reports you saved about previous investments. You can edit those reports, add tasks, and see their status. In addition, you can download a PDF report file so you can send it to others as well.
 ![Dashboard Screenshot](./assets/reports.png)
+### My Profile Page
+In this page you can manage your account settings, such as your details, notifications, password change or delete the account.
 ![Dashboard Screenshot](./assets/profile.png)
 
 ## Features
