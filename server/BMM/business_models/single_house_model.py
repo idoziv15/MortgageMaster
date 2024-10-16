@@ -12,7 +12,7 @@ from ..mortgage.mortgage_tracks.mortgage_track import MortgageTrack
 from .real_estate_financial_utils import (gross_yield, loan_to_cost, loan_to_value, cash_of_cash, return_on_investment,
                                           noi, cap_rate)
 
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 
 
 class SingleHouseModel(ABC):

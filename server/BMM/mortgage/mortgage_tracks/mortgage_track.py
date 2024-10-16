@@ -6,7 +6,7 @@ from ..mortgage_utils.mortgage_plotter_util import plot_monthly_payments, \
 from ..mortgage_utils.mortgage_printer_util import plot_mortgage_monthly_payments
 from typing import Optional, List, Tuple
 
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 from ..mortgage_constants import MortgageConstants
 
 

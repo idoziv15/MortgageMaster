@@ -12,7 +12,7 @@ from .mortgage_enums.linkage_type import LinkageType
 from .mortgage_utils.mortgage_plotter_util import *
 from .mortgage_utils.mortgage_printer_util import plot_mortgage_monthly_payments
 
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 
 
 class MortgagePipeline:

@@ -11,10 +11,7 @@ from bson.objectid import ObjectId
 from flask_cors import CORS
 from BMM.business_models.model import BMM
 from datetime import datetime, timedelta
-from google.oauth2 import id_token
-from google.auth.transport import requests
 import pdfkit
-from io import BytesIO
 
 # Load environment variables from .env file
 load_dotenv()
@@ -93,7 +90,8 @@ def login():
 def login_google():
     try:
         token = request.json['token']
-        id_info = id_token.verify_oauth2_token(token, requests.Request(), 'YOUR_GOOGLE_CLIENT_ID')
+        # id_info = id_token.verify_oauth2_token(token, requests.Request(), 'YOUR_GOOGLE_CLIENT_ID')
+        return jsonify({'message': 'Google login unavailable right now'}), 400
 
         # Check if user exists in your DB, if not create them
         user = mongo.db.users.find_one({"email": id_info['email']})
